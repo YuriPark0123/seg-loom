@@ -4,7 +4,7 @@ One item = one time step t of one episode, all three cameras:
 
   rgb      (C, 3, H, W) uint8     clean RGB (apply camera_model.degrade-style augmentation on top if wanted)
   am_r     (C, H, W)    uint8     amodal robot labels (0 bg, 1..Nb robot_bodies index + 1)
-  vis      (C, H, W)    uint8     visible labels (robot 1..Nb, objects 100+k, table 200/201, floor 202)
+  vis      (C, H, W)    uint8     visible labels (robot 1..Nb, objects 100+k, table 200/201, floor 202, clutter: desk distractors 210+k, walls/furniture/occluders 250)
   valid    (C, H, W)    bool      False on padding (images are padded to a common size)
   ray      (C, 3, H, W) float16   unit ray per pixel (lens-independent camera representation, M0)
   cam_K    (C, 4)  cam_dist (C, 5)  cam_kind (C,)  cam_size (C, 2)   for shadow.learn.camera.project
@@ -63,14 +63,16 @@ class _LRU(OrderedDict):
 
 class SegLoomFrames(Dataset):
     def __init__(self, roots, robots=None, exclude_robots=None, modes=None, scale=1.0, pad_hw=None, max_joints=16,
-                 cache_episodes=4, with_rgb=True, hypothesis: dict | None = None, seed=0):
+                 cache_episodes=4, with_rgb=True, hypothesis: dict | None = None, seed=0, deterministic=False):
         """hypothesis: if given, every item also carries a render of the APPROX URDF at q_enc through a perturbed
         camera pose, computed on the CPU in the loader worker (keeps the shared GPU free):
             dict(rot_deg=3.0, trans_m=0.03, wrist_trans_scale=0.25, spacing=0.003, r_max=3)
         adds hyp_lab (C, H, W) uint8, hyp_dep (C, H, W) float32, T_noisy (C, 4, 4)."""
         roots = [roots] if isinstance(roots, str) else list(roots)
         self.scale, self.max_joints, self.with_rgb = scale, max_joints, with_rgb
-        self.hyp, self.seed, self._bank, self._rng = hypothesis, seed, None, None
+        # deterministic: the hypothesis noise / correspondence sampling of item idx depends only on (seed, idx), so
+        # every evaluation of every checkpoint sees exactly the same perturbations
+        self.hyp, self.seed, self._bank, self._rng, self.det = hypothesis, seed, None, None, deterministic
         self.pad_hw = pad_hw or (int(round(320 * scale)), int(round(320 * scale)))
         self.episodes = []                         # (root, episode, robot, T)
         for r in roots:
@@ -165,6 +167,8 @@ class SegLoomFrames(Dataset):
                    joint_names=meta["joint_names"], robot=meta["robot"], episode=self.episodes[i][1],
                    root=self.episodes[i][0], t=t)
         if self.hyp is not None:
+            if self.det:
+                self._rng = np.random.default_rng([self.seed, idx])
             out.update(self._hypothesis(out, A, meta, t))
         return out
 
@@ -176,7 +180,8 @@ class SegLoomFrames(Dataset):
             torch.set_num_threads(1)
             self._bank = RobotBank(h.get("spacing", 0.003), "cpu")
             wi = torch.utils.data.get_worker_info()
-            self._rng = np.random.default_rng([self.seed, wi.id if wi else 0, os.getpid()])
+            if not self.det:
+                self._rng = np.random.default_rng([self.seed, wi.id if wi else 0, os.getpid()])
         R = self._bank.get(out["root"], out["robot"], meta["robot_bodies"])
         C = len(CAMS)
         src = "true" if h.get("use_true") else "approx"        # use_true: oracle URDF + q_true (debug / upper bound)
@@ -267,6 +272,41 @@ class EpisodeChunkSampler(Sampler):
 
     def __len__(self):
         return len(self.ds)
+
+
+class MixedChunkSampler(Sampler):
+    """Endless stream over several datasets joined with ConcatDataset (in the same order): each chunk of `chunk`
+    time steps comes from one episode of dataset k with probability weights[k], so a batch mixes the sources at
+    about those ratios regardless of their sizes. Each source reshuffles its episode chunks when exhausted."""
+
+    def __init__(self, datasets, weights, chunk=4, seed=0):
+        self.ds, self.chunk, self.seed = datasets, chunk, seed
+        w = np.asarray(weights, float)
+        self.w = w / w.sum()
+        self.off = np.cumsum([0] + [len(d) for d in datasets])[:-1]
+
+    def _chunks(self, k, rng):
+        by_ep = {}
+        for idx, (i, _) in enumerate(self.ds[k].items):
+            by_ep.setdefault(i, []).append(idx + int(self.off[k]))
+        while True:
+            ch = []
+            for idxs in by_ep.values():
+                idxs = idxs[:]
+                rng.shuffle(idxs)
+                ch += [idxs[j:j + self.chunk] for j in range(0, len(idxs), self.chunk)]
+            rng.shuffle(ch)
+            yield from ch
+
+    def __iter__(self):
+        rng = random.Random(self.seed)
+        gens = [self._chunks(k, random.Random(self.seed * 1000 + k)) for k in range(len(self.ds))]
+        while True:
+            k = rng.choices(range(len(self.ds)), weights=self.w)[0]
+            yield from next(gens[k])
+
+    def __len__(self):
+        return sum(len(d) for d in self.ds)
 
 
 class RobotBank:

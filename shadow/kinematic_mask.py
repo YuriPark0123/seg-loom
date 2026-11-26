@@ -113,6 +113,27 @@ def build_robot_xml(robot_name, gripper="default", mount="default", base_pos=(0,
     return world.get_xml()
 
 
+def segmentation_selftest():
+    """Render two geoms with the id-color path and check both ids come back. mujoco 2.3.7 with numpy >= 2 silently
+    renders lit colors instead of ids, so every label map comes out empty (seen on the B200 server). Raises
+    RuntimeError with the versions if the path is broken."""
+    m = mujoco.MjModel.from_xml_string(
+        '<mujoco><worldbody><light pos="0 0 3"/><camera name="c" pos="0 0 2"/>'
+        '<geom type="box" size=".3 .3 .1" pos="-.4 0 0"/><geom type="sphere" size=".25" pos=".4 0 0"/>'
+        '</worldbody></mujoco>')
+    d = mujoco.MjData(m)
+    mujoco.mj_forward(m, d)
+    r = mujoco.Renderer(m, 60, 80)
+    try:
+        ids = set(np.unique(fast_geom_segmentation(r, d, 0, mujoco.MjvOption())).tolist())
+    finally:
+        if hasattr(r, "close"):
+            r.close()
+    if not {0, 1} <= ids:
+        raise RuntimeError(f"segmentation render is broken (got ids {sorted(ids)}; mujoco {mujoco.__version__}, "
+                           f"numpy {np.__version__}): use numpy<2 with mujoco 2.3.7")
+
+
 def fast_geom_segmentation(renderer, data, camera, opt):
     """Per-pixel geom id (-1 = background / non-geom).
 

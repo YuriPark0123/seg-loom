@@ -1,5 +1,7 @@
 # 데이터셋 형식과 생성 방법
 
+> 데이터셋 버전과 변경 내역은 Hugging Face [`yrpark/seg-loom`](https://huggingface.co/datasets/yrpark/seg-loom) README의 "변경 내역"에 있다. 현재 v1 (렌즈 접힘 수정 반영), 이전 버전은 태그 `v0-pre-lens-fix`.
+
 [ARCHITECTURE.md](ARCHITECTURE.md) A.4(데이터 엔진, M8)를 구현한 결과물이다. MuJoCo EGL이 되는 곳이면 어디서나 생성할 수 있다. RTX 3090과 B200 모두에서 동작을 확인했다.
 
 ## 1. 구성 요소
@@ -15,7 +17,7 @@
 ## 2. 생성 명령
 
 ```bash
-conda activate shadow   # mujoco 2.3.7, opencv-python<5, scipy, trimesh, pycollada, pyyaml
+conda activate shadow   # mujoco 2.3.7, numpy<2, opencv-python<4.11, scipy, trimesh, pycollada, pyyaml
 export MUJOCO_GL=egl
 
 # 평가셋: 실제 로봇 4종 + 처음 보는 절차적 로봇 50종
@@ -150,6 +152,10 @@ SPLIT=train_clutter CLUTTER=1.0 bash scripts/gen_train_chunks.sh 10 14 24  # tra
 |---|---|---|---|---|---|---|
 | `data/eval` | 실제 4 + 절차적 50 (seed 100000~) | 1080 (motion 648, task 432) | 59,843 × 카메라 3대 | 2.4GB | 15분 | 397/432 (절차적 366/400, so101·panda·piper 8/8, ur7e 7/8) |
 | `data/ref` | 실제 4 + 절차적 196 (seed 200000~) | 1000 (ref, 각 10프레임) | 10,000 × 카메라 3대 | 0.5GB | 7분 | — |
+| HF `train/r0000`~`r1800` (2026-11-27, 3090) | 절차적 2,000 (seed 0~1999), 단순 장면 | 40,000 (motion 20,000, task 20,000) | 2,170,860 × 카메라 3대 | 약 90GB | 6시간 (worker 24) | 18,677/20,000 (93.4%) |
+| HF `train_clutter/r2000`~`r2800` (2026-11-27, 3090) | 절차적 1,000 (seed 2000~2999), 복잡한 장면 | 20,000 (motion 10,000, task 10,000) | 1,087,588 × 카메라 3대 | 약 63GB | 3시간 (worker 24) | 9,318/10,000 (93.2%) |
+
+학습셋 HF 형식: `train/r0000`~`r0600`은 에피소드 파일이 개별로 올라가 있고, `r0800`부터와 `train_clutter/`는 폴더마다 `robots.tar` + `episodes_000.tar`~`007.tar`(에피소드 500개씩)로 묶여 있다(HF 파일 단위 다운로드 제한 대응). 풀기: `for f in <폴더>/*.tar; do tar xf $f -C <폴더>; done`.
 
 task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실패로 기록해 두었으므로, 실행 가능성 피드백(M7)을 학습하는 데 그대로 쓸 수 있다.
 

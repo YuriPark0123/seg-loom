@@ -77,6 +77,10 @@ def robot_job(args):
                     erng = np.random.default_rng([seed, MODE_ID[mode], k])
                     gen.rng = erng
                     meta, arrays, frames, world = gen.run(mode, T=T)
+                    if not any(np.any(v) for f in frames.values() for v in f["vis"]):
+                        # the table / floor are always in view: all-zero labels mean the segmentation render broke
+                        raise RuntimeError("all label maps are empty (segmentation render broken, e.g. numpy>=2 "
+                                           "with mujoco 2.3.7); nothing saved")
                     tmp = ed + ".tmp"
                     shutil.rmtree(tmp, ignore_errors=True)
                     save_episode(tmp, meta, arrays, frames)
@@ -93,6 +97,11 @@ def robot_job(args):
 
 
 MODE_ID = {"motion": 1, "task": 2, "ref": 3}
+
+
+def _selftest():
+    from shadow.kinematic_mask import segmentation_selftest
+    segmentation_selftest()
 
 
 def _init_worker(gpus):
@@ -127,23 +136,41 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--gpus", type=int, nargs="*", default=None,
                     help="GPUs (nvidia-smi / CUDA indices) to spread the EGL workers over")
+    ap.add_argument("--render", choices=["gpu", "cpu"], default="gpu",
+                    help="cpu: Mesa llvmpipe through EGL, one thread per worker. Same labels/arrays as gpu, RGB within "
+                         "~1/255. Datacenter GPUs (B200) rasterize slowly: there one GPU saturates at ~8 workers "
+                         "(~830 episodes/h) while a cpu worker makes ~40 episodes/h, so run both on disjoint ranges")
+    ap.add_argument("--robot-range", type=int, nargs=2, default=None, metavar=("START", "END"),
+                    help="only robot jobs [START, END) of this split, so several processes can fill one output dir")
     a = ap.parse_args()
     # one compute thread per worker: on a many-core box (B200 server: 192 cores) every worker otherwise starts
     # BLAS/OpenMP pools as wide as the machine (~450 threads each) and 64 workers crawl. Inherited by spawn.
     for v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
         os.environ.setdefault(v, "1")
     egl_ids = None
+    if a.render == "cpu":
+        os.environ["__EGL_VENDOR_LIBRARY_FILENAMES"] = "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
+        os.environ["LP_NUM_THREADS"] = "1"
+        os.environ.setdefault("EGL_LOG_LEVEL", "fatal")              # no /dev/dri permission warnings per worker
+        a.gpus = None
     if a.gpus:
         # EGL numbers devices in its own order (B200 server: EGL 0 = GPU 4, EGL 4 = GPU 0): translate
         from shadow.egl_devices import egl_index_for_gpu
         egl_ids = [egl_index_for_gpu(g) for g in a.gpus]
         print("GPU -> EGL device:", dict(zip(a.gpus, egl_ids)), flush=True)
+    # fail fast if label rendering is broken in this environment (checked in a worker-like spawned process)
+    with mp.get_context("spawn").Pool(1, initializer=_init_worker, initargs=(egl_ids,)) as p:
+        p.apply(_selftest)
     out = os.path.abspath(a.out)
     os.makedirs(os.path.join(out, "episodes"), exist_ok=True)
     modes = [(m.split(":")[0], int(m.split(":")[1])) for m in a.modes]
     jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level, a.clutter) for i, r in enumerate(a.robots)]
     jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level, a.clutter) for i in range(a.procgen)]
-    json.dump(dict(args=vars(a), started=time.ctime()), open(os.path.join(out, "config.json"), "w"), indent=1)
+    if a.robot_range:
+        jobs = jobs[a.robot_range[0]:a.robot_range[1]]
+    cfg = os.path.join(out, "config.json") if not a.robot_range else \
+        os.path.join(out, f"config_{a.robot_range[0]}_{a.robot_range[1]}.json")
+    json.dump(dict(args=vars(a), started=time.ctime()), open(cfg, "w"), indent=1)
     mpath = os.path.join(out, "manifest.jsonl")
     listed = {json.loads(l)["episode"] for l in open(mpath)} if os.path.exists(mpath) else set()
     t0, n_ep, n_err = time.time(), 0, 0
