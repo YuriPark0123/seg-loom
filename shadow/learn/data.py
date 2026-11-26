@@ -179,22 +179,54 @@ class SegLoomFrames(Dataset):
             self._rng = np.random.default_rng([self.seed, wi.id if wi else 0, os.getpid()])
         R = self._bank.get(out["root"], out["robot"], meta["robot_bodies"])
         C = len(CAMS)
-        q = torch.from_numpy(A["q_enc"][t]).float()[None]
-        Tl = R["kin_approx"].fk(q, meta["joint_names"])[:, R["body_idx_approx"]]
-        pw, nw = world_points(Tl, R["pts_approx"], R["link_approx"], R["nrm_approx"])
-        w = torch.from_numpy(self._rng.normal(0, np.deg2rad(h.get("rot_deg", 3.0)), (C, 3))).float()
+        src = "true" if h.get("use_true") else "approx"        # use_true: oracle URDF + q_true (debug / upper bound)
+        q = torch.from_numpy(A["q_true" if src == "true" else "q_enc"][t]).float()[None]
+        Tl = R[f"kin_{src}"].fk(q, meta["joint_names"])[:, R[f"body_idx_{src}"]]
+        pw, nw = world_points(Tl, R[f"pts_{src}"], R[f"link_{src}"], R[f"nrm_{src}"])
+        # per-view noise magnitude ~ U(lo, hi) x sigma, so the refiner also sees small residuals (later iterations)
+        mag = self._rng.uniform(*h.get("mag_range", (1.0, 1.0)), (C, 1))
+        w = torch.from_numpy(self._rng.normal(0, np.deg2rad(h.get("rot_deg", 3.0)), (C, 3)) * mag).float()
         sig = np.array([h.get("trans_m", 0.03) * (h.get("wrist_trans_scale", 0.25) if c == "wrist" else 1) for c in CAMS])
-        tr = torch.from_numpy(self._rng.normal(0, 1, (C, 3)) * sig[:, None]).float()
+        tr = torch.from_numpy(self._rng.normal(0, 1, (C, 3)) * sig[:, None] * mag).float()
         T_noisy = out["T_base_cam"] @ make_T(so3_exp(w), tr)
         Tcb = inv_T(T_noisy)
         pc = transform(Tcb, pw.expand(C, -1, -1))
         nc = nw.expand(C, -1, -1) @ Tcb[:, :3, :3].transpose(-1, -2)
         cams = dict(K=out["cam_K"], dist=out["cam_dist"], kind=out["cam_kind"], size=out["cam_size"])
         Hp, Wp = self.pad_hw
-        lab, dep = splat_labels(pc, R["link_approx"] + 1, cams, Hp, Wp, self._bank.spacing,
+        lab, dep = splat_labels(pc, R[f"link_{src}"] + 1, cams, Hp, Wp, self._bank.spacing,
                                 r_max=h.get("r_max", 3), n_cam=nc)
         lab = lab * out["valid"]
-        return dict(hyp_lab=lab, hyp_dep=dep * out["valid"], T_noisy=T_noisy)
+        res = dict(hyp_lab=lab, hyp_dep=dep * out["valid"], T_noisy=T_noisy)
+        if h.get("corr", 0):
+            res.update(self._correspondences(pw, pc, nc, dep, out, cams, h["corr"]))
+        return res
+
+    def _correspondences(self, pw, pc, nc, dep, out, cams, M):
+        """M hypothesis-visible robot points per view: base-frame X, pixel in the hypothesis (noisy camera) and in
+        the true camera. Their difference is the 2D displacement the refiner predicts; the pose then follows from
+        the 2D-3D matches (Gauss-Newton), so the network never regresses a 6-DoF pose directly."""
+        from .camera import project
+        from .geometry import inv_T, transform
+        C = pc.shape[0]
+        uvh, okh = project(pc, cams)
+        Hp, Wp = dep.shape[-2:]
+        ui, vi = uvh[..., 0].round().long(), uvh[..., 1].round().long()
+        inside = okh & (ui >= 0) & (vi >= 0) & (ui < cams["size"][:, None, 0]) & (vi < cams["size"][:, None, 1])
+        ui, vi = ui.clamp(0, Wp - 1), vi.clamp(0, Hp - 1)
+        zbuf = dep[torch.arange(C)[:, None], vi, ui]
+        vis = inside & ((nc * pc).sum(-1) < 0) & (zbuf > 0) & ((pc[..., 2] - zbuf).abs() < 0.01 + 0.02 * zbuf)
+        uvt, okt = project(transform(inv_T(out["T_base_cam"]), pw.expand(C, -1, -1)), cams)
+        vis = vis & okt
+        X = torch.zeros(C, M, 3); UH = torch.zeros(C, M, 2); UT = torch.zeros(C, M, 2); W = torch.zeros(C, M)
+        for c in range(C):
+            idx = torch.nonzero(vis[c])[:, 0]
+            if len(idx) == 0:
+                continue
+            sel = idx[torch.from_numpy(self._rng.choice(len(idx), min(M, len(idx)), replace=False))]
+            n = len(sel)
+            X[c, :n] = pw[0, sel]; UH[c, :n] = uvh[c, sel]; UT[c, :n] = uvt[c, sel]; W[c, :n] = 1
+        return dict(corr_X=X, corr_uvh=UH, corr_uvt=UT, corr_w=W)
 
 
 def collate(batch):

@@ -1,15 +1,20 @@
-"""Stage-1 smoke training: render-conditioned robot segmentation (L1 / M1) + one-step camera registration (L3 / M3).
+"""Stage-1 training: render-conditioned robot segmentation (L1 / M1) + correspondence-based camera registration (L3 / M3).
 
 Per camera view the network sees
-  rgb (3) | hypothesis render of the APPROX URDF at q_enc through a PERTURBED camera pose: mask (1), link id (1),
-  inverse depth (1) | ray map (3)                                                         = 9 channels
+  rgb (3) | hypothesis render of the APPROX URDF at q_enc through a PERTURBED camera: mask, link id, inverse depth (3)
+  | ray map (3)                                                                                    = 9 channels
 and predicts
-  amodal + visible robot masks, and a camera pose correction dT (rotation vector, translation / hypothesis depth),
-  applied as T_pred = T_noisy @ exp(dT).
-The ground truth comes from the dataset (am_r / vis labels, T_base_cam). This is a pipeline check on data/eval,
-not a result: robots are split so validation robots are never trained on (real robots always held out).
+  * amodal + visible robot masks
+  * a dense 2D displacement field: where each hypothesis pixel's robot surface really is in the image
+The camera pose is NOT regressed: hypothesis points + predicted displacements are 2D-3D matches, and
+shadow.learn.register.solve_pose (LM on the lens reprojection error) turns them into T_base_cam. Direct 6-DoF
+regression did not learn here even with an oracle URDF; a local displacement is what a CNN learns well, and the
+geometry stays structural (docs/ARCHITECTURE.md A: FK + projection fixed, the discrepancy learned).
 
-    python scripts/train_stage1.py --data data/eval --steps 3000 --out out/stage1_smoke
+Robots are split so validation robots are never trained on; the four real robots are always held out.
+
+    python scripts/train_stage1.py --data data/eval --steps 3000 --out out/stage1_smoke                 # smoke
+    python scripts/train_stage1.py --data data/train_000 --val-data data/eval --steps 60000 --out out/stage1
 """
 from __future__ import annotations
 
@@ -28,14 +33,17 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shadow.learn.data import CAMS, EpisodeChunkSampler, SegLoomFrames, collate  # noqa: E402
-from shadow.learn.geometry import inv_T, make_T, rot_angle, so3_exp, transform  # noqa: E402
+from shadow.learn.camera import project  # noqa: E402
+from shadow.learn.geometry import inv_T, rot_angle, transform  # noqa: E402
+from shadow.learn.register import solve_pose  # noqa: E402
 
 REAL = ("so101", "ur7e", "piper", "panda")
+FLOW_UNIT = 8.0          # network outputs displacement / FLOW_UNIT pixels
 
 
 # ------------------------------------------------------------------------------------------------ model
 class Stage1Net(nn.Module):
-    def __init__(self, in_ch=9, pretrained=True):
+    def __init__(self, in_ch=9, pretrained=True, width=128):
         super().__init__()
         r = torchvision.models.resnet18(weights="IMAGENET1K_V1" if pretrained else None)
         w = r.conv1.weight.data
@@ -45,10 +53,12 @@ class Stage1Net(nn.Module):
         conv1.weight.data[:, 3:] = w.mean(1, keepdim=True) * 0.5
         self.stem = nn.Sequential(conv1, r.bn1, r.relu, r.maxpool)
         self.l1, self.l2, self.l3, self.l4 = r.layer1, r.layer2, r.layer3, r.layer4
-        self.lat = nn.ModuleList([nn.Conv2d(c, 96, 1) for c in (64, 128, 256, 512)])
-        self.seg = nn.Sequential(nn.Conv2d(96, 96, 3, padding=1), nn.ReLU(), nn.Conv2d(96, 2, 1))
-        self.pose = nn.Sequential(nn.Linear(512 + 96, 256), nn.ReLU(), nn.Linear(256, 6))
-        nn.init.zeros_(self.pose[-1].weight); nn.init.zeros_(self.pose[-1].bias)
+        self.lat = nn.ModuleList([nn.Conv2d(c, width, 1) for c in (64, 128, 256, 512)])
+        head = lambda o: nn.Sequential(nn.Conv2d(width, width, 3, padding=1), nn.ReLU(),
+                                       nn.Conv2d(width, width, 3, padding=1), nn.ReLU(), nn.Conv2d(width, o, 1))
+        self.seg = head(2)
+        self.flow = head(2)
+        nn.init.zeros_(self.flow[-1].weight); nn.init.zeros_(self.flow[-1].bias)
 
     def forward(self, x):
         H, W = x.shape[-2:]
@@ -57,55 +67,36 @@ class Stage1Net(nn.Module):
         for lat, c in ((self.lat[2], c3), (self.lat[1], c2), (self.lat[0], c1)):
             p = Fn.interpolate(p, size=c.shape[-2:], mode="bilinear", align_corners=False) + lat(c)
         seg = Fn.interpolate(self.seg(p), size=(H, W), mode="bilinear", align_corners=False)
-        g = torch.cat([c4.mean((2, 3)), p.mean((2, 3))], 1)
-        return seg, self.pose(g)
+        return seg, self.flow(p)                     # flow at 1/4 resolution, in FLOW_UNIT pixels
+
+
+def sample_flow(flow, uv, Hp, Wp):
+    """flow (V, 2, h, w) over the padded image, uv (V, M, 2) pixel coords -> displacement (V, M, 2) in pixels."""
+    g = torch.stack([(uv[..., 0] + 0.5) / Wp * 2 - 1, (uv[..., 1] + 0.5) / Hp * 2 - 1], -1)[:, :, None]
+    s = Fn.grid_sample(flow.float(), g.float(), mode="bilinear", align_corners=False)      # (V, 2, M, 1)
+    return s[..., 0].permute(0, 2, 1) * FLOW_UNIT
 
 
 # ------------------------------------------------------------------------------------------------ batch prep
 @torch.no_grad()
 def prepare(b, dev):
-    """-> network input (V, 9, H, W), targets, noisy/gt camera poses, per-view skeleton points (list).
-    The hypothesis render (approx URDF at q_enc, perturbed camera) comes from the loader workers (CPU)."""
     C = len(CAMS)
-    T_gt = b["T_base_cam"].to(dev).flatten(0, 1)                             # (V, 4, 4), V = B*C
-    T_noisy = b["T_noisy"].to(dev).flatten(0, 1)
-    hyp_lab = b["hyp_lab"].to(dev).flatten(0, 1)
-    hyp_dep = b["hyp_dep"].to(dev).flatten(0, 1)
-    skel = [s.to(dev) for s in b["skel3d"]]
+    f = lambda k: b[k].to(dev).flatten(0, 1)
+    hyp_lab, hyp_dep = f("hyp_lab"), f("hyp_dep")
     nb = b["n_bodies"].to(dev).repeat_interleave(C).float()
     hm = (hyp_lab > 0).float()
     hl = hyp_lab.float() / nb[:, None, None]
     hd = torch.where(hyp_dep > 0, 1.0 / hyp_dep.clamp_min(0.05), torch.zeros_like(hyp_dep)) * 0.2
-    rgb = b["rgb"].to(dev).flatten(0, 1).float() / 255.0
+    rgb = f("rgb").float() / 255.0
     rgb = (rgb - torch.tensor([0.485, 0.456, 0.406], device=dev)[:, None, None]) / torch.tensor([0.229, 0.224, 0.225], device=dev)[:, None, None]
-    ray = b["ray"].to(dev).flatten(0, 1).float()
-    x = torch.cat([rgb, hm[:, None], hl[:, None], hd[:, None], ray], 1)
-    am = b["am_r"].to(dev).flatten(0, 1).long()
-    vs = b["vis"].to(dev).flatten(0, 1).long()
+    x = torch.cat([rgb, hm[:, None], hl[:, None], hd[:, None], f("ray").float()], 1)
     nbv = nb.long()[:, None, None]
-    y_am = ((am >= 1) & (am <= nbv)).float()
-    y_vis = ((vs >= 1) & (vs <= nbv)).float()
-    valid = b["valid"].to(dev).flatten(0, 1).float()
-    # hypothesis depth scale for the translation head: median robot depth, else distance to the base
-    d = hyp_dep.flatten(1)
-    zmed = torch.where(d > 0, d, torch.full_like(d, float("nan"))).nanmedian(1).values
-    zref = torch.where(torch.isnan(zmed), T_noisy[:, :3, 3].norm(dim=-1), zmed)
-    return x, y_am, y_vis, valid, hm, T_gt, T_noisy, zref.clamp_min(0.05), skel
-
-
-def apply_delta(T_noisy, d, zref):
-    return T_noisy @ make_T(so3_exp(d[:, :3]), d[:, 3:] * zref[:, None])
-
-
-def pose_point_loss(T_pred, T_gt, skel, C):
-    """Mean distance (relative to depth) of the robot skeleton points expressed in the predicted vs true camera."""
-    losses = []
-    for i, P in enumerate(skel):
-        sl = slice(i * C, (i + 1) * C)
-        a = transform(inv_T(T_pred[sl]), P[None].expand(C, -1, -1))
-        g = transform(inv_T(T_gt[sl]), P[None].expand(C, -1, -1))
-        losses.append(((a - g).norm(dim=-1) / g[..., 2].abs().clamp_min(0.05)).mean(-1))
-    return torch.cat(losses)
+    am, vs = f("am_r").long(), f("vis").long()
+    tgt = dict(am=((am >= 1) & (am <= nbv)).float(), vis=((vs >= 1) & (vs <= nbv)).float(), valid=f("valid").float(),
+               hm=hm, T_gt=f("T_base_cam"), T_noisy=f("T_noisy"),
+               X=f("corr_X"), uvh=f("corr_uvh"), uvt=f("corr_uvt"), w=f("corr_w"),
+               cams=dict(K=f("cam_K"), dist=f("cam_dist"), kind=f("cam_kind"), size=f("cam_size")))
+    return x, tgt
 
 
 def seg_loss(logit, y, valid):
@@ -116,6 +107,16 @@ def seg_loss(logit, y, valid):
     return bce + dice.mean()
 
 
+MAX_DISP = 48.0          # px: larger targets are lens-edge / near-plane outliers, left out of the loss
+
+
+def flow_loss(disp, tgt):
+    d = tgt["uvt"] - tgt["uvh"]
+    w = tgt["w"] * (d.norm(dim=-1) < MAX_DISP)
+    e = (disp - d).abs().sum(-1)                                              # L1 px
+    return (e * w).sum() / w.sum().clamp_min(1)
+
+
 def iou_sum(pred, y, valid):
     p, y = (pred & valid), (y & valid)
     return (p & y).sum((1, 2)).float(), (p | y).sum((1, 2)).float()
@@ -123,49 +124,70 @@ def iou_sum(pred, y, valid):
 
 # ------------------------------------------------------------------------------------------------ eval
 @torch.no_grad()
-def evaluate(net, dl, dev, max_batches):
+def reproj_px(T, t):
+    """Mean pixel distance of the matched robot points seen through T vs the true camera (what registration is for)."""
+    p, ok = project(transform(inv_T(T), t["X"]), t["cams"])
+    w = t["w"] * ok
+    return ((p - t["uvt"]).norm(dim=-1) * w).sum(1) / w.sum(1).clamp_min(1)
+
+
+def evaluate(net, dl, dev, max_batches, prior=(0.08, 0.05)):
     net.eval()
     acc = {}
     for k, b in enumerate(dl):
         if k >= max_batches:
             break
-        x, y_am, y_vis, valid, hm, T_gt, T_noisy, zref, skel = prepare(b, dev)
+        x, t = prepare(b, dev)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=dev.startswith("cuda")):
-            seg, d = net(x)
-        seg, d = seg.float(), d.float()
-        T_pred = apply_delta(T_noisy, d, zref)
-        vb = valid.bool()
+            seg, flow = net(x)
+        seg = seg.float()
+        Hp, Wp = x.shape[-2:]
+        disp = sample_flow(flow, t["uvh"], Hp, Wp)
+        T_pred, _ = solve_pose(t["T_noisy"], t["X"], t["uvh"] + disp, t["w"], t["cams"], prior_sigma=prior)
+        T_orc, _ = solve_pose(t["T_noisy"], t["X"], t["uvt"], t["w"], t["cams"])        # perfect matches: solver check
+        vb = t["valid"].bool()
         groups = ["real" if r in REAL else "procgen" for r in b["robot"] for _ in CAMS]
         cams = [c for _ in b["robot"] for c in CAMS]
-        stats = {
-            "iou_amodal": iou_sum(seg[:, 0] > 0, y_am.bool(), vb),
-            "iou_visible": iou_sum(seg[:, 1] > 0, y_vis.bool(), vb),
-            "iou_hypothesis": iou_sum(hm.bool(), y_am.bool(), vb),
-        }
-        rot_b = torch.rad2deg(rot_angle(T_noisy[:, :3, :3], T_gt[:, :3, :3]))
-        rot_a = torch.rad2deg(rot_angle(T_pred[:, :3, :3], T_gt[:, :3, :3]))
-        tr_b = (T_noisy[:, :3, 3] - T_gt[:, :3, 3]).norm(dim=-1) * 1000
-        tr_a = (T_pred[:, :3, 3] - T_gt[:, :3, 3]).norm(dim=-1) * 1000
+        ious = {"iou_amodal": iou_sum(seg[:, 0] > 0, t["am"].bool(), vb),
+                "iou_visible": iou_sum(seg[:, 1] > 0, t["vis"].bool(), vb),
+                "iou_hypothesis": iou_sum(t["hm"].bool(), t["am"].bool(), vb)}
+        T_gt = t["T_gt"]
+        err = lambda T: (torch.rad2deg(rot_angle(T[:, :3, :3], T_gt[:, :3, :3])), (T[:, :3, 3] - T_gt[:, :3, 3]).norm(dim=-1) * 1000)
+        (rb, tb), (ra, ta), (ro, to) = err(t["T_noisy"]), err(T_pred), err(T_orc)
+        wsum = t["w"].sum(1).clamp_min(1)
+        rp_b, rp_a = reproj_px(t["T_noisy"], t), reproj_px(T_pred, t)
+        epe_b = ((t["uvt"] - t["uvh"]).norm(dim=-1) * t["w"]).sum(1) / wsum
+        epe_a = ((t["uvt"] - t["uvh"] - disp).norm(dim=-1) * t["w"]).sum(1) / wsum
+        has = t["w"].sum(1) >= 6
         for v in range(len(groups)):
             for key in (groups[v], f"{groups[v]}/{cams[v]}"):
                 a = acc.setdefault(key, {})
-                for s, (inter, union) in stats.items():
+                for s, (inter, union) in ious.items():
                     a.setdefault(s, [0.0, 0.0])
                     a[s][0] += inter[v].item(); a[s][1] += union[v].item()
-                for s, val in (("rot_deg_before", rot_b), ("rot_deg_after", rot_a), ("trans_mm_before", tr_b), ("trans_mm_after", tr_a)):
-                    a.setdefault(s, []).append(val[v].item())
+                if has[v]:
+                    for s, val in (("rot_deg_before", rb), ("rot_deg_after", ra), ("rot_deg_oracle", ro),
+                                   ("trans_mm_before", tb), ("trans_mm_after", ta), ("trans_mm_oracle", to),
+                                   ("epe_px_before", epe_b), ("epe_px_after", epe_a),
+                                   ("reproj_px_before", rp_b), ("reproj_px_after", rp_a)):
+                        a.setdefault("m_" + s, []).append(val[v].item())
     net.train()
     out = {}
     for g, a in sorted(acc.items()):
-        out[g] = {s: (v[0] / max(v[1], 1) if isinstance(v[0], float) and len(v) == 2 and not s.startswith(("rot", "trans")) else float(np.median(v)))
-                  for s, v in a.items()}
+        out[g] = {s: (float(np.median(v)) if s.startswith("m_") else v[0] / max(v[1], 1)) for s, v in a.items()}
+        out[g] = {s.removeprefix("m_"): v for s, v in out[g].items()}
     return out
+
+
+def short(res):
+    return json.dumps({g: {k: round(v, 3) for k, v in s.items()} for g, s in res.items() if "/" not in g})
 
 
 # ------------------------------------------------------------------------------------------------ main
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", default="data/eval")
+    ap.add_argument("--data", default="data/eval", help="training split")
+    ap.add_argument("--val-data", default=None, help="validation split (default: held-out robots of --data)")
     ap.add_argument("--out", default="out/stage1_smoke")
     ap.add_argument("--steps", type=int, default=3000)
     ap.add_argument("--batch", type=int, default=12, help="time steps per batch (x3 camera views)")
@@ -175,11 +197,17 @@ def main():
     ap.add_argument("--trans-m", type=float, default=0.03)
     ap.add_argument("--spacing", type=float, default=0.003, help="approx-URDF point spacing for the hypothesis render")
     ap.add_argument("--r-max", type=int, default=3)
-    ap.add_argument("--val-procgen", type=int, default=10, help="procgen robots held out for validation")
+    ap.add_argument("--corr", type=int, default=192, help="correspondences per view")
+    ap.add_argument("--hyp-true", action="store_true", help="hypothesis from the TRUE urdf + q_true (oracle check)")
+    ap.add_argument("--seg-w", type=float, default=1.0)
+    ap.add_argument("--flow-w", type=float, default=0.1, help="weight of the L1 displacement loss (pixels)")
+    ap.add_argument("--mag-lo", type=float, default=0.1, help="training noise magnitude ~ U(mag_lo, 1.5) x sigma")
+    ap.add_argument("--val-procgen", type=int, default=10, help="procgen robots held out (when no --val-data)")
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--eval-every", type=int, default=500)
+    ap.add_argument("--eval-every", type=int, default=1000)
     ap.add_argument("--eval-batches", type=int, default=40)
     ap.add_argument("--mem-frac", type=float, default=0.0, help="cap this process's share of GPU memory (shared GPU)")
+    ap.add_argument("--resume", action="store_true", help="continue from <out>/last.pt")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
@@ -189,73 +217,82 @@ def main():
     if dev.startswith("cuda") and a.mem_frac > 0:
         torch.cuda.set_per_process_memory_fraction(a.mem_frac)
 
-    procgen = sorted({json.loads(l)["robot"] for l in open(os.path.join(a.data, "manifest.jsonl"))} - set(REAL))
-    rng = np.random.default_rng(a.seed)
-    val_pg = sorted(rng.choice(procgen, a.val_procgen, replace=False).tolist())
-    train_robots = [r for r in procgen if r not in val_pg]
-    split = dict(train=train_robots, val_procgen=val_pg, val_real=list(REAL))
-    json.dump(dict(args=vars(a), split=split), open(os.path.join(a.out, "config.json"), "w"), indent=1)
-    print(f"train robots {len(train_robots)} | val procgen {len(val_pg)} + real {len(REAL)}")
+    robots = sorted({json.loads(l)["robot"] for l in open(os.path.join(a.data, "manifest.jsonl"))} - set(REAL))
+    if a.val_data:
+        train_robots, val_kw = robots, dict(roots=a.val_data)
+        val_robots = sorted({json.loads(l)["robot"] for l in open(os.path.join(a.val_data, "manifest.jsonl"))})
+        assert not set(val_robots) & set(train_robots), "validation robots overlap the training robots"
+    else:
+        rng = np.random.default_rng(a.seed)
+        val_pg = sorted(rng.choice(robots, a.val_procgen, replace=False).tolist())
+        train_robots = [r for r in robots if r not in val_pg]
+        val_robots, val_kw = val_pg + list(REAL), dict(roots=a.data)
+    json.dump(dict(args=vars(a), train_robots=train_robots, val_robots=val_robots),
+              open(os.path.join(a.out, "config.json"), "w"), indent=1)
 
-    hyp = dict(rot_deg=a.rot_deg, trans_m=a.trans_m, spacing=a.spacing, r_max=a.r_max)
-    ds_tr = SegLoomFrames(a.data, robots=train_robots, scale=a.scale, hypothesis=hyp, seed=a.seed)
-    ds_va = SegLoomFrames(a.data, robots=val_pg + list(REAL), scale=a.scale, hypothesis=hyp, seed=1234)
-    print(f"train frames {len(ds_tr)} | val frames {len(ds_va)}")
+    hyp = dict(rot_deg=a.rot_deg, trans_m=a.trans_m, spacing=a.spacing, r_max=a.r_max, use_true=a.hyp_true, corr=a.corr)
+    ds_tr = SegLoomFrames(a.data, robots=train_robots, scale=a.scale, seed=a.seed,
+                          hypothesis=dict(hyp, mag_range=(a.mag_lo, 1.5)))
+    ds_va = SegLoomFrames(robots=val_robots, scale=a.scale, hypothesis=hyp, seed=1234, **val_kw)
+    print(f"train: {len(train_robots)} robots, {len(ds_tr)} frames | val: {len(val_robots)} robots, {len(ds_va)} frames",
+          flush=True)
     dl_tr = DataLoader(ds_tr, a.batch, sampler=EpisodeChunkSampler(ds_tr, 4, a.seed), num_workers=a.workers,
                        collate_fn=collate, drop_last=True, persistent_workers=True, prefetch_factor=4)
-    dl_va = DataLoader(ds_va, a.batch, sampler=EpisodeChunkSampler(ds_va, 4, 999), num_workers=a.workers // 2,
+    dl_va = DataLoader(ds_va, a.batch, sampler=EpisodeChunkSampler(ds_va, 4, 999), num_workers=max(1, a.workers // 2),
                        collate_fn=collate)
     net = Stage1Net().to(dev).to(memory_format=torch.channels_last)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, a.lr, total_steps=a.steps, pct_start=0.05)
+    step = 0
+    ck = os.path.join(a.out, "last.pt")
+    if a.resume and os.path.exists(ck):
+        s = torch.load(ck, map_location=dev)
+        net.load_state_dict(s["net"]); opt.load_state_dict(s["opt"]); sched.load_state_dict(s["sched"])
+        step = s["step"]
+        print(f"resumed from step {step}", flush=True)
     log = open(os.path.join(a.out, "log.jsonl"), "a")
+    if step == 0:
+        res = evaluate(net, dl_va, dev, a.eval_batches)
+        print("step 0 eval", short(res), flush=True)
+        log.write(json.dumps(dict(step=0, eval=res)) + "\n"); log.flush()
 
-    res = evaluate(net, dl_va, dev, a.eval_batches)
-    print("step 0 eval", json.dumps({g: {k: round(v, 3) for k, v in s.items()} for g, s in res.items() if "/" not in g}))
-    log.write(json.dumps(dict(step=0, eval=res)) + "\n"); log.flush()
-
-    step, t0, tl = 0, time.time(), {}
-    t_data = t_prep = t_step = 0.0
+    t0, tl, n_log, step0 = time.time(), {}, 0, step
     while step < a.steps:
-        tq = time.time()
         for b in dl_tr:
-            t1 = time.time(); t_data += t1 - tq
-            x, y_am, y_vis, valid, hm, T_gt, T_noisy, zref, skel = prepare(b, dev)
-            t2 = time.time(); t_prep += t2 - t1
+            x, t = prepare(b, dev)
             with torch.autocast("cuda", dtype=torch.bfloat16, enabled=dev.startswith("cuda")):
-                seg, d = net(x.contiguous(memory_format=torch.channels_last))
-            seg, d = seg.float(), d.float()
-            l_am = seg_loss(seg[:, 0], y_am, valid)
-            l_vis = seg_loss(seg[:, 1], y_vis, valid)
-            l_pose = pose_point_loss(apply_delta(T_noisy, d, zref), T_gt, skel, len(CAMS)).mean()
-            loss = l_am + l_vis + 10 * l_pose
+                seg, flow = net(x.contiguous(memory_format=torch.channels_last))
+            seg = seg.float()
+            l_am = seg_loss(seg[:, 0], t["am"], t["valid"])
+            l_vis = seg_loss(seg[:, 1], t["vis"], t["valid"])
+            l_flow = flow_loss(sample_flow(flow, t["uvh"], *x.shape[-2:]), t)
+            loss = a.seg_w * (l_am + l_vis) + a.flow_w * l_flow
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0)
             opt.step(); sched.step()
-            if dev.startswith("cuda"):
-                torch.cuda.synchronize()
-            tq = time.time(); t_step += tq - t2
             step += 1
-            for k, v in (("loss", loss), ("am", l_am), ("vis", l_vis), ("pose", l_pose)):
+            n_log += 1
+            for k, v in (("loss", loss), ("am", l_am), ("vis", l_vis), ("flow_px", l_flow)):
                 tl[k] = tl.get(k, 0) + v.item()
-            if step % 50 == 0:
+            if step % 100 == 0:
                 el = time.time() - t0
                 mem = torch.cuda.max_memory_allocated() / 2 ** 30 if dev.startswith("cuda") else 0
-                print(f"step {step} " + " ".join(f"{k} {v / 50:.4f}" for k, v in tl.items()) +
-                      f" | {step / el:.2f} it/s, data {t_data / step:.3f}s prep {t_prep / step:.3f}s net {t_step / step:.3f}s"
-                      f" | mem {mem:.1f}G", flush=True)
-                log.write(json.dumps(dict(step=step, **{k: v / 50 for k, v in tl.items()}, it_s=step / el, mem_gb=mem)) + "\n")
-                log.flush()
-                tl = {}
+                print(f"step {step} " + " ".join(f"{k} {v / n_log:.4f}" for k, v in tl.items()) +
+                      f" | {(step - step0) / el:.2f} it/s | mem {mem:.1f}G", flush=True)
+                log.write(json.dumps(dict(step=step, **{k: v / n_log for k, v in tl.items()}, it_s=(step - step0) / el,
+                                          mem_gb=mem)) + "\n"); log.flush()
+                tl, n_log = {}, 0
             if step % a.eval_every == 0 or step == a.steps:
                 res = evaluate(net, dl_va, dev, a.eval_batches)
-                print(f"step {step} eval", json.dumps({g: {k: round(v, 3) for k, v in s.items()} for g, s in res.items() if "/" not in g}), flush=True)
+                print(f"step {step} eval", short(res), flush=True)
                 log.write(json.dumps(dict(step=step, eval=res)) + "\n"); log.flush()
-                torch.save(dict(net=net.state_dict(), step=step, args=vars(a)), os.path.join(a.out, "last.pt"))
+                torch.save(dict(net=net.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(), step=step,
+                                args=vars(a)), ck + ".tmp")
+                os.replace(ck + ".tmp", ck)
             if step >= a.steps:
                 break
-    print(f"done {a.steps} steps in {(time.time() - t0) / 60:.1f} min")
+    print(f"done {a.steps} steps in {(time.time() - t0) / 60:.1f} min", flush=True)
 
 
 if __name__ == "__main__":
