@@ -25,6 +25,7 @@ import mujoco
 import numpy as np
 from scipy.spatial.transform import Rotation
 
+from . import clutter as CL
 from .camera_model import CV_TO_MJ, CameraModel, ModelRenderer, random_camera
 from .ik import IKSolver
 from .kinematic_mask import RobotKinematics
@@ -116,7 +117,8 @@ def sample_scene(spec: RobotSpec, layout: Layout, rng: np.random.Generator, n_ob
                 objects=objs)
 
 
-def build_world_xml(spec: RobotSpec, layout: Layout, scene: dict, extras: dict, offscreen=1600):
+def build_world_xml(spec: RobotSpec, layout: Layout, scene: dict, extras: dict, offscreen=1600, assets_out=None):
+    """assets_out: dict filled with in-memory texture files when the scene has clutter."""
     x = ET.fromstring(build_scene_xml(spec, layout, offscreen=(offscreen, offscreen)))
     wb = x.find("worldbody")
     for b in list(wb):
@@ -154,6 +156,10 @@ def build_world_xml(spec: RobotSpec, layout: Layout, scene: dict, extras: dict, 
             q0 = np.array([float(v) for v in c.get("quat").split()])
             r = Rotation.from_quat(q0[[1, 2, 3, 0]]) * Rotation.from_rotvec(wd["drot"])
             c.set("quat", _s(r.as_quat()[[3, 0, 1, 2]]))
+    if scene.get("clutter"):
+        a = CL.apply_xml(x, layout, scene["clutter"], scene)
+        if assets_out is not None:
+            assets_out.update(a)
     return ET.tostring(x, encoding="unicode")
 
 
@@ -234,7 +240,9 @@ def camera_track(kind, layout, rng, T, mode, dist_k=1.0):
 class DataWorld:
     def __init__(self, spec: RobotSpec, layout: Layout, scene: dict, extras: dict):
         self.spec, self.layout, self.scene, self.extras = spec, layout, scene, extras
-        self.model = m = mujoco.MjModel.from_xml_string(build_world_xml(spec, layout, scene, extras))
+        assets = {}
+        xml = build_world_xml(spec, layout, scene, extras, assets_out=assets)
+        self.model = m = mujoco.MjModel.from_xml_string(xml, assets) if assets else mujoco.MjModel.from_xml_string(xml)
         self.data = mujoco.MjData(m)
         mount = m.body("robot_mount").id
         self.robot_bodies = [b for b in range(m.nbody) if m.body_rootid[b] == mount and b != mount]
@@ -249,6 +257,8 @@ class DataWorld:
                 lut[g] = self.body_label[b]; self.is_robot[g] = True
             elif b in self.obj_bodies:
                 lut[g] = LABEL_OBJ0 + self.obj_bodies.index(b); self.is_obj[g] = True
+            elif CL.label_for(m.geom(g).name) is not None:
+                lut[g] = CL.label_for(m.geom(g).name)
             else:
                 nm = m.geom(g).name
                 lut[g] = LABEL_TABLE if nm == "table" else (LABEL_FLOOR if nm == "floor" else (LABEL_LEG if b == 0 and m.geom_type[g] == mujoco.mjtGeom.mjGEOM_CYLINDER else 0))
@@ -372,8 +382,9 @@ def gripper_width_table(spec: RobotSpec, layout: Layout, n=21):
 
 
 class EpisodeGen:
-    def __init__(self, spec: RobotSpec, extras: dict, rng: np.random.Generator, out_w=320):
+    def __init__(self, spec: RobotSpec, extras: dict, rng: np.random.Generator, out_w=320, clutter=0.0):
         self.spec, self.rng, self.out_w = spec, rng, out_w
+        self.clutter = clutter                      # probability of a cluttered scene (0 = plain scenes, rng untouched)
         self.layout = Layout(spec)
         self.extras = extras
         self.kin = RobotKinematics(xml=twin_xml(spec, self.layout), base_body="robot_mount")
@@ -594,7 +605,10 @@ class EpisodeGen:
     # ---------- run one episode
     def run(self, mode, T=60, ideal_actuator=False, cam_mode=None, scene=None):
         rng, spec, L = self.rng, self.spec, self.layout
-        scene = scene or sample_scene(spec, L, rng)
+        if scene is None:
+            scene = sample_scene(spec, L, rng)
+            if self.clutter > 0 and rng.random() < self.clutter:
+                scene["clutter"] = CL.sample_clutter(L, scene, rng)
         world = DataWorld(spec, L, scene, self.extras)
         if mode == "motion":
             cmds, grip, task = self.motion_commands(T, world)
@@ -608,6 +622,10 @@ class EpisodeGen:
         T = len(cmds)
         world.set_q(cmds[0], self.grip_q(grip[0])); world.refresh()
         models, tracks, cmodes = self.sample_cams(T, world, cam_mode)
+        if scene.get("clutter"):
+            CL.place_after_cams(world, scene["clutter"], tracks, rng)
+            world.refresh()
+            CL.limit_occlusion(world, scene["clutter"], lambda c: world.render(c, models[c]))
         act = Actuator(self.n + len(self.go), rng, ideal=ideal_actuator)
         x0 = np.r_[cmds[0], self.grip_q(grip[0])]
         act.reset(x0)
@@ -671,7 +689,8 @@ class EpisodeGen:
                     robot_bodies=[world.model.body(b).name for b in world.robot_bodies],
                     joint_names=[world.model.joint(j).name for j in world.joint_ids],
                     skeleton_names=self._skel_names, labels=dict(robot="1..N = robot_bodies index+1", object0=LABEL_OBJ0,
-                                                                  table=LABEL_TABLE, table_leg=LABEL_LEG, floor=LABEL_FLOOR, background=0),
+                                                                  table=LABEL_TABLE, table_leg=LABEL_LEG, floor=LABEL_FLOOR, background=0,
+                                                                  distractor0=CL.LABEL_DIS0, clutter=CL.LABEL_CLUTTER),
                     gripper_width_table=dict(frac=self.grip_al.tolist(), width=self.grip_w.tolist()))
         arrays = {k: np.asarray(v, np.float32) for k, v in rec.items()}
         return meta, arrays, frames, world

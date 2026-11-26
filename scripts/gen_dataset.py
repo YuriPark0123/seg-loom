@@ -35,7 +35,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def robot_job(args):
-    name, kind, seed, out, modes, T, level = args
+    name, kind, seed, out, modes, T, level, clutter = args
     from shadow.datagen import EpisodeGen, robot_render_geoms, sample_robot_extras, save_episode
     from shadow.mj_world import Layout
     from shadow.procgen import generate_robot
@@ -64,7 +64,7 @@ def robot_job(args):
             y["urdf"] = "true.urdf"; y.pop("package_dirs", None); y.pop("asset_dir", None)
             yaml.safe_dump(_plain(y), open(os.path.join(rdir, "spec.yaml"), "w"), sort_keys=False)
         extras = json.load(open(os.path.join(rdir, "extras.json")))
-        gen = EpisodeGen(spec, extras, rng)
+        gen = EpisodeGen(spec, extras, rng, clutter=clutter)
         done = []
         for mode, n in modes:
             for k in range(n):
@@ -123,6 +123,7 @@ def main():
     ap.add_argument("--modes", nargs="+", default=["motion:10", "task:10"], help="mode:episodes_per_robot")
     ap.add_argument("--T", type=int, default=60, help="frames per motion/ref episode (task length is scripted)")
     ap.add_argument("--level", type=float, default=1.0, help="URDF error level (0 = exact URDF)")
+    ap.add_argument("--clutter", type=float, default=0.0, help="probability of a cluttered scene per episode")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--gpus", type=int, nargs="*", default=None,
                     help="GPUs (nvidia-smi / CUDA indices) to spread the EGL workers over")
@@ -140,8 +141,8 @@ def main():
     out = os.path.abspath(a.out)
     os.makedirs(os.path.join(out, "episodes"), exist_ok=True)
     modes = [(m.split(":")[0], int(m.split(":")[1])) for m in a.modes]
-    jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level) for i, r in enumerate(a.robots)]
-    jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level) for i in range(a.procgen)]
+    jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level, a.clutter) for i, r in enumerate(a.robots)]
+    jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level, a.clutter) for i in range(a.procgen)]
     json.dump(dict(args=vars(a), started=time.ctime()), open(os.path.join(out, "config.json"), "w"), indent=1)
     mpath = os.path.join(out, "manifest.jsonl")
     listed = {json.loads(l)["episode"] for l in open(mpath)} if os.path.exists(mpath) else set()

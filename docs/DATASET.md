@@ -27,9 +27,13 @@ python scripts/gen_dataset.py --out data/ref --robots so101 ur7e piper panda --p
 # 학습셋 (B200): seed 범위가 평가셋과 겹치지 않게 한다
 python scripts/gen_dataset.py --out data/train_000 --procgen 2000 --seed 0 --modes motion:10 task:10 \
     --workers 32 --gpus 0 1 2 3 4 5 6 7
+# 3090에서 실제로 만든 학습셋: 로봇 200종씩 생성 → HF 업로드 → 확인 → 로컬 삭제 (디스크 부족 대응)
+bash scripts/gen_train_chunks.sh 0 9 24                                    # train/r0000..r1800 (seed 0~1999, 단순 장면)
+SPLIT=train_clutter CLUTTER=1.0 bash scripts/gen_train_chunks.sh 10 14 24  # train_clutter/r2000..r2800 (seed 2000~2999, 복잡한 장면)
 ```
 
 - `--seed`는 절차적 로봇 번호의 시작값이다. 로봇 이름은 `pg{seed+i:07d}`이다. 분할(split)끼리 범위가 겹치면 안 된다. 기본 배정은 학습 0~99,999, 평가 100,000~, 기준셋 200,000~, smoke 900,000~이다.
+- `--clutter p`를 주면 에피소드마다 확률 p로 복잡한 장면(5절)을 만든다. 0이면 기존과 바이트 단위로 같은 결과가 나온다(난수를 쓰지 않음).
 - `--level 0`을 주면 근사 URDF가 정답과 같아진다. 오차의 영향을 측정하는 실험에 쓴다.
 - `--gpus`를 주면 worker들을 해당 GPU(nvidia-smi 번호)에 나눠 배정한다. EGL 장치 번호는 nvidia-smi 번호와 순서가 다를 수 있어서 (B200 서버: EGL 0 = GPU 4, EGL 4 = GPU 0) `shadow/egl_devices.py`가 CUDA 번호로 대응을 찾아 `MUJOCO_EGL_DEVICE_ID`를 정한다. 직접 `MUJOCO_EGL_DEVICE_ID`를 쓸 때는 `python -m shadow.egl_devices`로 표를 먼저 확인한다.
 
@@ -104,7 +108,7 @@ python scripts/gen_dataset.py --out data/train_000 --procgen 2000 --seed 0 --mod
 | `{cam}_am_r` | PNG uint8 | amodal 로봇 라벨 (다른 모든 것을 숨기고 렌더) |
 | `{cam}_am_o` | PNG uint8 | amodal 객체 라벨 (로봇을 숨기고 렌더; 객체끼리의 가림은 남음) |
 
-**라벨 값:** 0 배경 · 1..Nb 로봇 body(`robot_bodies` 인덱스+1; 부착물은 붙은 링크의 값) · 100+k 객체 k · 200 테이블 · 201 테이블 다리 · 202 바닥
+**라벨 값:** 0 배경 · 1..Nb 로봇 body(`robot_bodies` 인덱스+1; 부착물은 붙은 링크의 값) · 100+k 객체 k · 200 테이블 · 201 테이블 다리 · 202 바닥 · 210+k 테이블 위 방해 물체 k (복잡한 장면) · 250 벽·가구·가림 물체 (복잡한 장면)
 
 ### 4.5 `meta.json`
 
@@ -131,6 +135,7 @@ python scripts/gen_dataset.py --out data/train_000 --procgen 2000 --seed 0 --mod
 | 카메라 배치 | top: 높이 1.4~2.4R, 기울기 약 0~15°, 임의 yaw / front: 방위 ±75°, 고각 12~60°, 거리 1.1~2.1R (광각일수록 가깝게), roll σ4° |
 | 카메라 움직임 | static, drift(부드러운 이동), shake(흔들림+이동), jump(중간에 순간 이동) |
 | 장면 | 테이블 색 (30%는 흰색), 바닥 체커 색, 방향광 1~3개, 주변광, 블럭 2~5개 (흰색 50%, 같은 색 쌍 30%) |
+| 복잡한 장면 (`--clutter`) | 절차적 텍스처(나무·노이즈·대리석·타일·줄무늬·카펫·포스터·단색)를 테이블(80%)·바닥·벽에 입힘, 하늘색 무작위, 조명 색조 ±12%, 스포트라이트 50% / 테이블 위 방해 물체 3~10개(공·원기둥·캡슐·타원체·머그·병·캔, 블럭 모양은 없음, 높은 것은 로봇에서 0.8R 밖) / 바닥 가구 0~4개(카메라 시선은 피함) / 벽 1~3개(모든 카메라보다 바깥) / 가림 물체 0~2개(기둥·막대·판, 카메라와 로봇 사이. 로봇이 50% 미만만 보이면 제거) |
 | 액추에이터 | 지연 0~40ms, 1차 지연 20~120ms, 백래시 0~8mrad, encoder 노이즈 0~3mrad |
 
 ## 6. 비용 (RTX 3090, 28코어, worker 12개)
@@ -162,6 +167,6 @@ task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실�
 ## 8. 아직 하지 않은 것
 
 - 접촉 물리로 잡기 검증: 지금은 기구학적으로 붙이는 방식이다. MuJoCo 물리 검증은 CPU 작업이라 B200 서버에서 할 수 있다.
-- 사람 손이나 방해물에 의한 가림, 다양한 배경과 텍스처.
+- 사람 손에 의한 가림, 사진 텍스처(지금은 절차적 텍스처만).
 - 로봇 여러 대가 함께 있는 장면.
-- 형태가 블럭이 아닌 객체(원기둥, 복합 형상).
+- 형태가 블럭이 아닌 조작 대상(방해 물체로는 원기둥·복합 형상이 있지만 잡는 대상은 블럭뿐).
