@@ -31,7 +31,7 @@ python scripts/gen_dataset.py --out data/train_000 --procgen 2000 --seed 0 --mod
 
 - `--seed`는 절차적 로봇 번호의 시작값이다. 로봇 이름은 `pg{seed+i:07d}`이다. 분할(split)끼리 범위가 겹치면 안 된다. 기본 배정은 학습 0~99,999, 평가 100,000~, 기준셋 200,000~, smoke 900,000~이다.
 - `--level 0`을 주면 근사 URDF가 정답과 같아진다. 오차의 영향을 측정하는 실험에 쓴다.
-- `--gpus`를 주면 worker들을 EGL 장치에 나눠 배정한다 (`MUJOCO_EGL_DEVICE_ID`).
+- `--gpus`를 주면 worker들을 해당 GPU(nvidia-smi 번호)에 나눠 배정한다. EGL 장치 번호는 nvidia-smi 번호와 순서가 다를 수 있어서 (B200 서버: EGL 0 = GPU 4, EGL 4 = GPU 0) `shadow/egl_devices.py`가 CUDA 번호로 대응을 찾아 `MUJOCO_EGL_DEVICE_ID`를 정한다. 직접 `MUJOCO_EGL_DEVICE_ID`를 쓸 때는 `python -m shadow.egl_devices`로 표를 먼저 확인한다.
 
 ## 3. 디렉터리 구조
 

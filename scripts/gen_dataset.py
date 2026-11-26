@@ -70,13 +70,20 @@ def robot_job(args):
             for k in range(n):
                 ed = os.path.join(out, "episodes", f"{spec.name}_{mode}_{k:03d}")
                 if os.path.exists(os.path.join(ed, "frames.npz")):
-                    continue
-                erng = np.random.default_rng([seed, MODE_ID[mode], k])
-                gen.rng = erng
-                meta, arrays, frames, world = gen.run(mode, T=T)
-                save_episode(ed, meta, arrays, frames)
-                if not os.path.exists(os.path.join(rdir, "render_geoms.npz")):
-                    np.savez_compressed(os.path.join(rdir, "render_geoms.npz"), **robot_render_geoms(world))
+                    # finished earlier (episodes are renamed into place only when complete): keep it in the
+                    # manifest, which is only written when the whole robot job returns
+                    meta = json.load(open(os.path.join(ed, "meta.json")))
+                else:
+                    erng = np.random.default_rng([seed, MODE_ID[mode], k])
+                    gen.rng = erng
+                    meta, arrays, frames, world = gen.run(mode, T=T)
+                    tmp = ed + ".tmp"
+                    shutil.rmtree(tmp, ignore_errors=True)
+                    save_episode(tmp, meta, arrays, frames)
+                    shutil.rmtree(ed, ignore_errors=True)
+                    os.rename(tmp, ed)                               # atomic: no half-written episode survives a kill
+                    if not os.path.exists(os.path.join(rdir, "render_geoms.npz")):
+                        np.savez_compressed(os.path.join(rdir, "render_geoms.npz"), **robot_render_geoms(world))
                 done.append(dict(episode=os.path.basename(ed), robot=spec.name, kind=kind, mode=mode, T=meta["T"],
                                  instruction=(meta["task"] or {}).get("instruction"),
                                  success=(meta["task"] or {}).get("success")))
@@ -89,10 +96,12 @@ MODE_ID = {"motion": 1, "task": 2, "ref": 3}
 
 
 def _init_worker(gpus):
-    """Spread workers over EGL devices (must happen before mujoco is imported in the worker)."""
+    """Spread workers over EGL devices (EGL indices; must happen before mujoco is imported in the worker)."""
     if gpus:
         k = mp.current_process()._identity[0] - 1
         os.environ["MUJOCO_EGL_DEVICE_ID"] = str(gpus[k % len(gpus)])
+    import cv2
+    cv2.setNumThreads(1)
 
 
 def _plain(x):
@@ -115,16 +124,29 @@ def main():
     ap.add_argument("--T", type=int, default=60, help="frames per motion/ref episode (task length is scripted)")
     ap.add_argument("--level", type=float, default=1.0, help="URDF error level (0 = exact URDF)")
     ap.add_argument("--workers", type=int, default=4)
-    ap.add_argument("--gpus", type=int, nargs="*", default=None, help="EGL device ids to spread workers over")
+    ap.add_argument("--gpus", type=int, nargs="*", default=None,
+                    help="GPUs (nvidia-smi / CUDA indices) to spread the EGL workers over")
     a = ap.parse_args()
+    # one compute thread per worker: on a many-core box (B200 server: 192 cores) every worker otherwise starts
+    # BLAS/OpenMP pools as wide as the machine (~450 threads each) and 64 workers crawl. Inherited by spawn.
+    for v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        os.environ.setdefault(v, "1")
+    egl_ids = None
+    if a.gpus:
+        # EGL numbers devices in its own order (B200 server: EGL 0 = GPU 4, EGL 4 = GPU 0): translate
+        from shadow.egl_devices import egl_index_for_gpu
+        egl_ids = [egl_index_for_gpu(g) for g in a.gpus]
+        print("GPU -> EGL device:", dict(zip(a.gpus, egl_ids)), flush=True)
     out = os.path.abspath(a.out)
     os.makedirs(os.path.join(out, "episodes"), exist_ok=True)
     modes = [(m.split(":")[0], int(m.split(":")[1])) for m in a.modes]
     jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level) for i, r in enumerate(a.robots)]
     jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level) for i in range(a.procgen)]
     json.dump(dict(args=vars(a), started=time.ctime()), open(os.path.join(out, "config.json"), "w"), indent=1)
+    mpath = os.path.join(out, "manifest.jsonl")
+    listed = {json.loads(l)["episode"] for l in open(mpath)} if os.path.exists(mpath) else set()
     t0, n_ep, n_err = time.time(), 0, 0
-    with mp.get_context("spawn").Pool(a.workers, initializer=_init_worker, initargs=(a.gpus,), maxtasksperchild=4) as pool, \
+    with mp.get_context("spawn").Pool(a.workers, initializer=_init_worker, initargs=(egl_ids,), maxtasksperchild=4) as pool, \
             open(os.path.join(out, "manifest.jsonl"), "a") as man, open(os.path.join(out, "errors.log"), "a") as err:
         for i, r in enumerate(pool.imap_unordered(robot_job, jobs)):
             if "error" in r:
@@ -132,7 +154,9 @@ def main():
                 err.write(f"== {r['robot']}\n{r['error']}\n"); err.flush()
             else:
                 for e in r["episodes"]:
-                    man.write(json.dumps(e) + "\n")
+                    if e["episode"] not in listed:                   # resumed runs report finished episodes again
+                        man.write(json.dumps(e) + "\n")
+                        listed.add(e["episode"])
                 n_ep += len(r["episodes"]); man.flush()
             el = time.time() - t0
             stat = "ERROR" if "error" in r else f"{len(r['episodes'])} ep, {r['sec']:.0f}s"
