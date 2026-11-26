@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+data/
+out/
+logs/
+assets/src/
+assets/robots/*/*
+!assets/robots/ur7e/ur7e_raw.urdf
+assets/procgen*/
+.vscode/

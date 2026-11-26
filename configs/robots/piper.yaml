@@ -1,0 +1,12 @@
+name: piper
+urdf: assets/src/piper_ros/src/piper_description/urdf/piper_description.urdf
+package_dirs: {piper_description: assets/src/piper_ros/src/piper_description}
+arm_joints: [joint1, joint2, joint3, joint4, joint5, joint6]
+gripper: {joints: [joint7, joint8], open: [0.035, -0.035], close: [0.0, 0.0]}
+ee_body: gripper_base
+tcp_offset: [0, 0, 0.13]
+rest_q: [0.0, 1.376, -0.821, 0.0, 1.103, 0.0]   # gripper pointing down (found by IK)
+reach: 0.62
+rot_weight: 0.5
+# fingers slide along the gripper_base y axis -> mount the wrist camera offset along x, behind the fingers
+wrist_cam: {side_axis: [1, 0, 0], pos: [0.11, 0, 0.006], look_at: [0, 0, 0.285], fovy: 75}

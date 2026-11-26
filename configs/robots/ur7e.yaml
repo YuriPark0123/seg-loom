@@ -1,0 +1,9 @@
+name: ur7e
+urdf: assets/robots/ur7e/ur7e_raw.urdf
+package_dirs: {ur_description: assets/src/Universal_Robots_ROS2_Description}
+arm_joints: [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint, wrist_3_joint]
+ee_body: tool0
+tcp_offset: [0, 0, 0]
+rest_q: [0.0, -1.9, 1.9, -1.57, -1.57, 0.0]
+reach: 0.85
+rot_weight: 0.5

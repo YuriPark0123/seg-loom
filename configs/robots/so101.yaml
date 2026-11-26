@@ -1,0 +1,10 @@
+name: so101
+urdf: assets/src/SO-ARM100/Simulation/SO101/so101_new_calib.urdf
+arm_joints: [shoulder_pan, shoulder_lift, elbow_flex, wrist_flex, wrist_roll]
+gripper: {joints: [gripper], open: [1.2], close: [0.0]}
+ee_body: gripper_frame_link
+tcp_offset: [0, 0, 0]
+rest_q: [0.0, -0.548, 0.735, 1.383, 0.0]   # gripper pointing down (found by IK)
+reach: 0.32
+rot_weight: 0.05          # 5-DOF arm: mostly position
+wrist_cam: {pos: [0, 0.032, -0.07], look_at: [0, 0, 0.07], fovy: 75}   # small arm: camera just behind the jaws

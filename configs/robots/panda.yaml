@@ -1,0 +1,13 @@
+name: panda
+urdf: assets/src/example-robot-data/robots/panda_description/urdf/panda.urdf
+package_dirs: {example-robot-data: assets/src/example-robot-data}
+arm_joints: [panda_joint1, panda_joint2, panda_joint3, panda_joint4, panda_joint5, panda_joint6, panda_joint7]
+# finger2 mimics finger1 in the URDF -> converted to a MuJoCo equality constraint
+gripper: {joints: [panda_finger_joint1, panda_finger_joint2], open: [0.04, 0.04], close: [0.0, 0.0]}
+ee_body: panda_hand_tcp
+tcp_offset: [0, 0, 0]
+rest_q: [0.0, 0.196, 0.0, -2.618, 0.0, 2.942, 0.785]   # same home pose as the robosuite Panda
+reach: 0.85
+rot_weight: 0.5
+# fingers slide along the hand y axis -> wrist camera offset along x
+wrist_cam: {side_axis: [1, 0, 0], pos: [0.06, 0, -0.09], look_at: [0, 0, 0.12], fovy: 75}   # like robosuite eye_in_hand

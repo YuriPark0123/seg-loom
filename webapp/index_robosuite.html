@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Kinematic twin — EEF teleop</title>
+<style>
+  :root { --bg:#111418; --panel:#1b2027; --line:#2c333d; --fg:#e6e9ee; --mute:#8b95a3; --acc:#4cc3ff; --red:#ff5a5a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.4 system-ui, sans-serif; }
+  header { display:flex; gap:16px; align-items:center; padding:8px 14px; border-bottom:1px solid var(--line); }
+  header b { font-size:14px; }
+  #status { color:var(--mute); }
+  #status.ok { color:#6bdc8b; }
+  main { display:grid; grid-template-columns: minmax(480px, 1.4fr) 1fr; gap:12px; padding:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px; }
+  .card h3 { margin:0 0 6px; font-size:12px; font-weight:600; color:var(--mute); display:flex; justify-content:space-between; }
+  .card h3 span.v { color:var(--fg); font-variant-numeric: tabular-nums; }
+  img { display:block; width:100%; height:auto; border-radius:4px; user-select:none; -webkit-user-drag:none; background:#000; }
+  #main { cursor:grab; }
+  .drag { cursor:crosshair; }
+  .cams { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .ctrl { display:grid; grid-template-columns: 56px 1fr 64px; gap:4px 8px; align-items:center; }
+  .ctrl input[type=range] { width:100%; }
+  .num { text-align:right; font-variant-numeric: tabular-nums; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+  button { background:#26303b; color:var(--fg); border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; font:inherit; }
+  button:hover { border-color:var(--acc); }
+  button.on { background:#1d4a63; border-color:var(--acc); }
+  label.chk { display:flex; gap:4px; align-items:center; color:var(--mute); }
+  table { width:100%; border-collapse:collapse; font-variant-numeric: tabular-nums; }
+  td { padding:2px 4px; } td:first-child { color:var(--mute); }
+  .hint { color:var(--mute); font-size:12px; margin-top:6px; }
+  kbd { background:#26303b; border:1px solid var(--line); border-radius:3px; padding:0 4px; font-size:11px; }
+</style>
+</head>
+<body>
+<header>
+  <b>Kinematic twin · EEF teleop</b>
+  <span id="status">connecting…</span>
+  <span style="margin-left:auto;color:var(--mute)">real world = robosuite physics · overlay = twin (estimated calibration + joint encoders)</span>
+</header>
+<main>
+  <section>
+    <div class="card">
+      <h3>Simulator view <span class="v">빨간 구 = EEF · 파랑 = top 카메라(수평 이동, 휠 높이) · 초록 = front 카메라(좌드래그 이동, 우드래그 pan/tilt, 휠 앞뒤) · 빈 곳 드래그 회전/휠 줌</span></h3>
+      <img id="main" alt="main view">
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="margin-top:0">
+        <button id="grip" class="on">Gripper: open</button>
+        <button id="home">Home</button>
+        <button id="reset">Reset scene</button>
+        <label class="chk"><input type="checkbox" data-ov="mask" checked> mask</label>
+        <label class="chk"><input type="checkbox" data-ov="occlusion" checked> depth occlusion</label>
+        <label class="chk"><input type="checkbox" data-ov="skeleton" checked> skeleton</label>
+        <label class="chk"><input type="checkbox" data-ov="target" checked> target</label>
+        <label class="chk"><input type="checkbox" data-ov="iou" checked> IoU</label>
+      </div>
+      <div class="hint">
+        시뮬레이터 뷰에서 그리퍼를 잡아 끌면 IK가 나머지 관절을 맞춥니다. top view / front-top 화면에서도 드래그 가능 ·
+        <kbd>Space</kbd> gripper
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>카메라 위치 <span class="v" id="recalib_info"></span></h3>
+      <div class="row" style="margin-top:0">
+        <button id="recalib" style="border-color:var(--acc)">⟳ 카메라 재계산 (restart)</button>
+        <button onclick="send({type:'view_preset', name:'overview'})">전체 보기 (카메라 포함)</button>
+        <button onclick="send({type:'view_preset', name:'robot'})">로봇 보기</button>
+        <label class="chk"><input type="checkbox" id="known"> 이동량을 twin에 알려줌 (측정된 이동, 재계산 불필요)</label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div><div style="color:#5aa6ff;font-weight:600;margin-bottom:4px">top view (항상 수직 하향)</div><div class="ctrl" id="cs_birdview"></div></div>
+        <div><div style="color:#5aff8c;font-weight:600;margin-bottom:4px">front-top</div><div class="ctrl" id="cs_agentview"></div></div>
+      </div>
+      <table id="camtab" style="margin-top:6px"></table>
+      <div class="hint">카메라를 옮기면 twin은 예전 캘리브레이션으로 투영하므로 마스크가 어긋납니다. 재계산을 누르면 로봇이 체커보드 루틴을 돌아
+        외부 파라미터만 다시 추정하고(내부 파라미터·왜곡은 같은 카메라이므로 고정), 그 값으로 seg를 다시 계산합니다.</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <details><summary style="color:var(--mute);cursor:pointer">고급: 수치 입력 (EEF target, m / deg) · 키보드 <kbd>W</kbd><kbd>S</kbd><kbd>A</kbd><kbd>D</kbd><kbd>Q</kbd><kbd>E</kbd></summary>
+        <div class="ctrl" id="sliders" style="margin-top:6px"></div>
+      </details>
+    </div>
+  </section>
+  <section>
+    <div class="cams">
+      <div class="card"><h3>top view (drag) <span class="v" id="iou_birdview"></span></h3><img id="birdview" class="drag" alt=""></div>
+      <div class="card"><h3>front-top (drag) <span class="v" id="iou_agentview"></span></h3><img id="agentview" class="drag" alt=""></div>
+      <div class="card"><h3>gripper cam <span class="v" id="iou_robot0_eye_in_hand"></span></h3><img id="robot0_eye_in_hand" alt=""></div>
+      <div class="card">
+        <h3>state</h3>
+        <table id="state"></table>
+        <div class="hint">IoU = twin vs. real full silhouette (amodal) · vis = visible pixels only (twin hidden by depth test)<br>
+          <span style="color:#4cc3ff">■</span> visible twin · <span style="color:#ff78ff">□</span> occluded twin outline</div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+const RES = 256;
+const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
+const send = (o) => ws.readyState === 1 && ws.send(JSON.stringify(o));
+const $ = (id) => document.getElementById(id);
+
+// ---------- sliders
+const S = [
+  ['x', -0.5, 0.5, 0.001], ['y', -0.5, 0.5, 0.001], ['z', 0.81, 1.5, 0.001],
+  ['roll', -90, 90, 1], ['pitch', -90, 90, 1], ['yaw', -180, 180, 1],
+];
+const sl = {}; let editing = false;
+for (const [k, lo, hi, st] of S) {
+  const lab = document.createElement('span'); lab.textContent = k;
+  const r = document.createElement('input'); Object.assign(r, {type:'range', min:lo, max:hi, step:st});
+  const n = document.createElement('span'); n.className = 'num';
+  r.addEventListener('input', () => { editing = true; n.textContent = (+r.value).toFixed(st < 1 ? 3 : 0); sendTarget(); });
+  r.addEventListener('change', () => { editing = false; });
+  $('sliders').append(lab, r, n); sl[k] = {r, n, st};
+}
+let lastSend = 0;
+function sendTarget() {
+  const t = performance.now(); if (t - lastSend < 30) return; lastSend = t;
+  send({type:'target', pos:['x','y','z'].map(k => +sl[k].r.value), rpy_deg:['roll','pitch','yaw'].map(k => +sl[k].r.value)});
+}
+function setSliders(pos, rpy) {
+  if (editing) return;
+  ['x','y','z'].forEach((k, i) => { sl[k].r.value = pos[i]; sl[k].n.textContent = pos[i].toFixed(3); });
+  ['roll','pitch','yaw'].forEach((k, i) => { sl[k].r.value = rpy[i]; sl[k].n.textContent = rpy[i].toFixed(0); });
+}
+
+// ---------- buttons / overlays / keys
+let gripOpen = true;
+function toggleGrip() { gripOpen = !gripOpen; send({type:'gripper', open:gripOpen}); }
+$('grip').onclick = toggleGrip;
+$('home').onclick = () => send({type:'home'});
+$('reset').onclick = () => send({type:'reset'});
+document.querySelectorAll('[data-ov]').forEach(c => c.onchange = () => send({type:'overlay', [c.dataset.ov]: c.checked}));
+const step = 0.01;
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') return;
+  const d = {w:[step,0,0], s:[-step,0,0], a:[0,step,0], d:[0,-step,0], q:[0,0,step], e:[0,0,-step]}[e.key.toLowerCase()];
+  if (d) { const p = ['x','y','z'].map((k, i) => +sl[k].r.value + d[i]);
+           send({type:'target', pos:p}); e.preventDefault(); }
+  if (e.code === 'Space') { toggleGrip(); e.preventDefault(); }
+});
+
+// ---------- drag on calibrated views
+for (const v of ['birdview', 'agentview']) {
+  const img = $(v); let down = false, last = 0;
+  const go = (e) => {
+    const t = performance.now(); if (t - last < 30) return; last = t;
+    const r = img.getBoundingClientRect();
+    send({type:'drag', view:v, u:(e.clientX - r.left) / r.width * RES - 0.5, v:(e.clientY - r.top) / r.height * RES - 0.5});
+  };
+  img.addEventListener('mousedown', (e) => { down = true; go(e); e.preventDefault(); });
+  window.addEventListener('mousemove', (e) => down && go(e));
+  window.addEventListener('mouseup', () => down = false);
+}
+
+// ---------- main view: grab handles (EEF sphere, camera boxes) and drag them in 3D; elsewhere = orbit
+let handles = {}, mainRes = [480, 640], grabPx = 28, mainDown = false;
+{
+  const img = $('main'); let last = 0;
+  const px = (e) => { const r = img.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width * mainRes[1] - 0.5, (e.clientY - r.top) / r.height * mainRes[0] - 0.5]; };
+  const inside = (e) => { const r = img.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; };
+  const near = (p) => { let best = null, bd = grabPx;
+    for (const [k, uv] of Object.entries(handles)) { if (!uv) continue;
+      const d = Math.hypot(p[0] - uv[0], p[1] - uv[1]); if (d < bd) { bd = d; best = k; } }
+    return best; };
+  img.addEventListener('mousedown', (e) => {
+    if (e.button !== 0 && e.button !== 2) return;
+    const p = px(e); mainDown = true;
+    const h = near(p);
+    img.style.cursor = h ? 'grabbing' : 'all-scroll';
+    send({type:'main_down', u:p[0], v:p[1], shift:e.shiftKey, button:e.button}); e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => {
+    const p = px(e);
+    if (!mainDown) { if (inside(e)) img.style.cursor = near(p) ? 'grab' : 'default'; return; }
+    const t = performance.now(); if (t - last < 25) return; last = t;
+    send({type:'main_move', u:p[0], v:p[1], shift:e.shiftKey});
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (!mainDown) return; mainDown = false;
+    const p = px(e); send({type:'main_move', u:p[0], v:p[1], shift:e.shiftKey}); send({type:'main_up'});
+    img.style.cursor = near(p) ? 'grab' : 'default';
+  });
+  img.addEventListener('wheel', (e) => { const p = px(e); send({type:'wheel', u:p[0], v:p[1], dy:e.deltaY}); e.preventDefault(); }, {passive:false});
+  img.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
+// ---------- camera relocation panel
+$('recalib').onclick = () => send({type:'recalib', cam:'all'});
+$('known').onchange = () => send({type:'known_move', value:$('known').checked});
+const CAMNAME = {birdview:'top view', agentview:'front-top'};
+window.camHome = (c) => send({type:'cam_home', cam:c});
+window.camRecalib = (c) => send({type:'recalib', cam:c});
+// camera pose sliders: [key, label, min, max, step]
+const CS = {
+  birdview:  [['x','x (m)',-1.2,1.2,0.01], ['y','y (m)',-1.2,1.2,0.01], ['z','height (m)',1.3,3.5,0.01]],
+  agentview: [['x','x (m)',-0.6,2.2,0.01], ['y','y (m)',-1.8,1.8,0.01], ['z','z (m)',0.85,2.6,0.01],
+              ['pan','pan (°)',0,360,1], ['tilt','tilt (°)',-89,30,1], ['roll','roll (°)',-45,45,1]],
+};
+const csl = {}; const csEditing = {};
+for (const [cam, defs] of Object.entries(CS)) {
+  csl[cam] = {};
+  for (const [k, lab, lo, hi, st] of defs) {
+    const l = document.createElement('span'); l.textContent = lab; l.style.fontSize = '11px';
+    const r = document.createElement('input'); Object.assign(r, {type:'range', min:lo, max:hi, step:st});
+    const n = document.createElement('span'); n.className = 'num';
+    r.addEventListener('input', () => { csEditing[cam] = true; n.textContent = (+r.value).toFixed(st < 1 ? 2 : 0); sendCam(cam); });
+    r.addEventListener('change', () => { csEditing[cam] = false; sendCam(cam, true); });
+    $('cs_' + cam).append(l, r, n); csl[cam][k] = {r, n, st};
+  }
+}
+const camLast = {};
+function sendCam(cam, force) {
+  const t = performance.now(); if (!force && t - (camLast[cam] || 0) < 30) return; camLast[cam] = t;
+  const g = (k) => csl[cam][k] ? +csl[cam][k].r.value : 0;
+  send({type:'cam_set', cam, pos:[g('x'), g('y'), g('z')], ang:[g('pan'), g('tilt'), g('roll')]});
+}
+function syncCamSliders(cams) {
+  for (const [cam, v] of Object.entries(cams)) {
+    if (csEditing[cam] || !csl[cam]) continue;
+    const val = {x:v.pos[0], y:v.pos[1], z:v.pos[2], pan:((v.ang[0] % 360) + 360) % 360, tilt:v.ang[1], roll:v.ang[2]};
+    for (const [k, o] of Object.entries(csl[cam])) { o.r.value = val[k]; o.n.textContent = val[k].toFixed(o.st < 1 ? 2 : 0); }
+  }
+}
+let lastCamHTML = '';
+function renderCams(cams, known, busy, q) {
+  $('known').checked = known;
+  $('recalib').disabled = !!busy;
+  $('recalib_info').textContent = busy ? `재계산 중: ${CAMNAME[busy]}${q.length ? ' (대기 ' + q.length + ')' : ''}` : '';
+  let h = '<tr><td></td><td>이동량 (캘리브 이후)</td><td>twin 카메라 오차</td><td>상태</td><td></td></tr>';
+  for (const [c, v] of Object.entries(cams)) {
+    const bad = v.err_mm > 5 || v.err_deg > 0.5;
+    h += `<tr><td>${CAMNAME[c]}</td><td>${v.moved_mm.toFixed(0)} mm · ${v.moved_deg.toFixed(1)}°</td>
+      <td style="color:${bad ? 'var(--red)' : '#6bdc8b'}">${v.err_mm.toFixed(1)} mm · ${v.err_deg.toFixed(2)}°</td>
+      <td style="color:var(--mute)">${v.status}</td>
+      <td><button onclick="camRecalib('${c}')" ${busy ? 'disabled' : ''}>재계산</button> <button onclick="camHome('${c}')" ${busy ? 'disabled' : ''}>원위치</button></td></tr>`;
+  }
+  if (h !== lastCamHTML) { $('camtab').innerHTML = h; lastCamHTML = h; }
+}
+
+// ---------- incoming frames
+ws.onopen = () => { $('status').textContent = 'connected'; $('status').className = 'ok'; };
+ws.onclose = () => { $('status').textContent = 'disconnected — restart server & reload'; $('status').className = ''; };
+ws.onmessage = (ev) => {
+  const m = JSON.parse(ev.data);
+  for (const [k, b64] of Object.entries(m.views)) $(k).src = 'data:image/jpeg;base64,' + b64;
+  for (const c of ['birdview', 'agentview', 'robot0_eye_in_hand'])
+    $('iou_' + c).textContent = m.iou[c] !== undefined
+      ? `IoU ${m.iou[c].amodal.toFixed(3)} · vis ${m.iou[c].visible.toFixed(3)}` : '';
+  const s = m.state; setSliders(s.target, s.rpy_deg);
+  handles = s.handles; mainRes = s.main_res; grabPx = s.grab_px;
+  renderCams(s.cams, s.known_move, s.recalib_busy, s.recalib_queue);
+  syncCamSliders(s.cams);
+  gripOpen = s.gripper_open; $('grip').textContent = 'Gripper: ' + (gripOpen ? 'open' : 'closed'); $('grip').classList.toggle('on', gripOpen);
+  const f = (a) => a.map(x => x.toFixed(3)).join(', ');
+  $('state').innerHTML = `
+    <tr><td>target</td><td>${f(s.target)}</td></tr>
+    <tr><td>EEF (real)</td><td>${f(s.eef)}</td></tr>
+    <tr><td>tracking err</td><td>${s.track_err_mm.toFixed(1)} mm</td></tr>
+    <tr><td>IK residual</td><td>${s.ik_err_mm.toFixed(2)} mm · ${s.ik_err_deg.toFixed(2)}°</td></tr>
+    <tr><td>q (rad)</td><td>${s.q.map(x => x.toFixed(2)).join(' ')}</td></tr>
+    <tr><td>render</td><td>${s.render_ms.toFixed(0)} ms/frame</td></tr>`;
+};
+</script>
+</body>
+</html>
