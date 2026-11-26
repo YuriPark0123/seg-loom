@@ -77,6 +77,10 @@ def robot_job(args):
                     erng = np.random.default_rng([seed, MODE_ID[mode], k])
                     gen.rng = erng
                     meta, arrays, frames, world = gen.run(mode, T=T)
+                    if not any(np.any(v) for f in frames.values() for v in f["vis"]):
+                        # the table / floor are always in view: all-zero labels mean the segmentation render broke
+                        raise RuntimeError("all label maps are empty (segmentation render broken, e.g. numpy>=2 "
+                                           "with mujoco 2.3.7); nothing saved")
                     tmp = ed + ".tmp"
                     shutil.rmtree(tmp, ignore_errors=True)
                     save_episode(tmp, meta, arrays, frames)
@@ -93,6 +97,11 @@ def robot_job(args):
 
 
 MODE_ID = {"motion": 1, "task": 2, "ref": 3}
+
+
+def _selftest():
+    from shadow.kinematic_mask import segmentation_selftest
+    segmentation_selftest()
 
 
 def _init_worker(gpus):
@@ -148,6 +157,9 @@ def main():
         from shadow.egl_devices import egl_index_for_gpu
         egl_ids = [egl_index_for_gpu(g) for g in a.gpus]
         print("GPU -> EGL device:", dict(zip(a.gpus, egl_ids)), flush=True)
+    # fail fast if label rendering is broken in this environment (checked in a worker-like spawned process)
+    with mp.get_context("spawn").Pool(1, initializer=_init_worker, initargs=(egl_ids,)) as p:
+        p.apply(_selftest)
     out = os.path.abspath(a.out)
     os.makedirs(os.path.join(out, "episodes"), exist_ok=True)
     modes = [(m.split(":")[0], int(m.split(":")[1])) for m in a.modes]
