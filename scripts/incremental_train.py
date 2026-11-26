@@ -48,6 +48,8 @@ class Ctl:
         self.train_cfg = None       # (simple folders, clutter folders, stage name)
         self.evals = []             # (stage, Popen, json path)
         self.remote = {}            # folder -> remote file count
+        self.remote_files = {}      # folder -> remote file paths
+        self.unpack_fail = {}
         self.last_poll = 0.0
         self.crashes = 0
 
@@ -80,6 +82,7 @@ class Ctl:
         done = {k for k in cnt if f"{k}/manifest.jsonl" in fs}
         new = sorted(done - set(self.remote))
         self.remote = {k: cnt[k] for k in done}
+        self.remote_files = {k: [f for f in fs if f.startswith(k + "/")] for k in done}
         if new:
             self.log(f"HF complete folders: {sorted(done)} (new: {new})")
 
@@ -95,6 +98,11 @@ class Ctl:
         dirs = [e for e in os.listdir(os.path.join(d, "episodes")) if not e.endswith(".tmp")]
         if set(eps) != set(dirs):
             return f"manifest {len(eps)} != episode dirs {len(dirs)}"
+        for e in dirs:
+            if not all(os.path.exists(os.path.join(d, "episodes", e, f)) for f in ("meta.json", "arrays.npz", "frames.npz")):
+                return f"incomplete episode {e}"
+        if len(eps) != 4000:
+            self.log(f"note: {folder} has {len(eps)} episodes (expected 4000)")
         sys.path.insert(0, ROOT)
         import numpy as np
         from shadow.datagen import unpack_image
@@ -110,11 +118,32 @@ class Ctl:
             folder, p = self.dl
             if p.poll() is None:
                 return
-            n, want = self.n_local(folder), self.remote.get(folder, -1)
-            if n < want:
-                self.log(f"download {folder}: {n}/{want} files (exit {p.returncode}), retrying")
+            want = self.remote_files.get(folder, [])
+            miss = [f for f in want if not os.path.exists(os.path.join(self.a.local, f))]
+            if miss or not want:
+                self.log(f"download {folder}: {len(want) - len(miss)}/{len(want)} files (exit {p.returncode}), retrying")
                 self.start_download(folder)
                 return
+            # tar-shard folders (train/r0800 on): robots.tar + episodes_NNN.tar -> unpack in place, once
+            tars = sorted(f for f in want if f.endswith(".tar"))
+            marker = os.path.join(self.local(folder), ".unpacked")
+            if tars and not os.path.exists(marker):
+                if getattr(p, "is_unpack", False) and p.returncode != 0:
+                    self.unpack_fail[folder] = self.unpack_fail.get(folder, 0) + 1
+                    self.log(f"unpack {folder} failed (exit {p.returncode}), attempt {self.unpack_fail[folder]}")
+                    if self.unpack_fail[folder] >= 3:
+                        self.st["bad"].append(folder); self.save(); self.dl = None
+                        self.report(f"- {now()} **{folder} tar 풀기 3회 실패, 학습에서 제외**")
+                        return
+                cmd = " && ".join(f"tar xf {os.path.join(self.a.local, t)} --no-same-owner -C {self.local(folder)}"
+                                  for t in tars) + f" && touch {marker}"
+                logf = open(os.path.join(self.a.out, "download.log"), "a")
+                q = subprocess.Popen(["bash", "-c", cmd], stdout=logf, stderr=subprocess.STDOUT)
+                q.is_unpack = True
+                self.dl = (folder, q)
+                self.log(f"unpack {folder}: {len(tars)} tar shards")
+                return
+            n = len(want)
             err = self.verify(folder)
             if err:
                 self.log(f"VERIFY FAILED {folder}: {err} -> not used")

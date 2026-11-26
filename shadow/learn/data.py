@@ -4,7 +4,7 @@ One item = one time step t of one episode, all three cameras:
 
   rgb      (C, 3, H, W) uint8     clean RGB (apply camera_model.degrade-style augmentation on top if wanted)
   am_r     (C, H, W)    uint8     amodal robot labels (0 bg, 1..Nb robot_bodies index + 1)
-  vis      (C, H, W)    uint8     visible labels (robot 1..Nb, objects 100+k, table 200/201, floor 202)
+  vis      (C, H, W)    uint8     visible labels (robot 1..Nb, objects 100+k, table 200/201, floor 202, clutter: desk distractors 210+k, walls/furniture/occluders 250)
   valid    (C, H, W)    bool      False on padding (images are padded to a common size)
   ray      (C, 3, H, W) float16   unit ray per pixel (lens-independent camera representation, M0)
   cam_K    (C, 4)  cam_dist (C, 5)  cam_kind (C,)  cam_size (C, 2)   for shadow.learn.camera.project
