@@ -15,7 +15,7 @@
 ## 2. 생성 명령
 
 ```bash
-conda activate shadow   # mujoco 2.3.7, opencv, scipy, trimesh, pyyaml
+conda activate shadow   # mujoco 2.3.7, opencv-python<5, scipy, trimesh, pycollada, pyyaml
 export MUJOCO_GL=egl
 
 # 평가셋: 실제 로봇 4종 + 처음 보는 절차적 로봇 50종

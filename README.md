@@ -28,7 +28,8 @@ URDF와 카메라 영상만으로 처음 보는 로봇과 카메라에서도 동
 
 ```bash
 conda create -n shadow python=3.10 && conda activate shadow
-pip install mujoco==2.3.7 opencv-python scipy trimesh pyyaml numpy fastapi uvicorn websockets
+pip install mujoco==2.3.7 "opencv-python<5" scipy trimesh pycollada pyyaml numpy fastapi uvicorn websockets
+# opencv-python 5.x에는 camera_model.py가 쓰는 cv2.undistortPointsIter가 없음. pycollada는 ur7e/panda의 .dae 메시용
 bash scripts/fetch_assets.sh          # 실제 로봇 URDF/메시 (고정 커밋)
 export MUJOCO_GL=egl
 ```
