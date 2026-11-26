@@ -47,6 +47,9 @@ class CameraModel:
         """(N,3) camera-frame points -> (N,2) pixels, valid mask (in front of the camera)."""
         p = np.asarray(pts_cam, np.float64).reshape(-1, 3)
         valid = p[:, 2] > 1e-6
+        # beyond the monotonic range the lens polynomial folds back and far-off points would land in the image
+        r = np.linalg.norm(p[:, :2], axis=1) / np.where(valid, p[:, 2], 1.0)
+        valid &= r < self.fold_radius()
         rv = tv = np.zeros(3)
         if self.kind == "fisheye":
             uv, _ = cv2.fisheye.projectPoints(p[None], rv, tv, self.K, self.dist[:4].reshape(4, 1))
@@ -54,6 +57,22 @@ class CameraModel:
             d = self.dist if self.kind == "brown" else np.zeros(5)
             uv, _ = cv2.projectPoints(p, rv, tv, self.K, d)
         return uv.reshape(-1, 2), valid
+
+    def fold_radius(self, r_hi=20.0, n=2048):
+        """Largest undistorted radius |(X/Z, Y/Z)| up to which the lens mapping still increases (inf: pinhole)."""
+        if self.kind == "pinhole":
+            return np.inf
+        r = np.linspace(1e-4, r_hi, n)
+        d = np.asarray(self.dist, float)
+        if self.kind == "fisheye":
+            th = np.arctan(r)
+            t2 = th * th
+            m = th * (1 + d[0] * t2 + d[1] * t2 ** 2 + d[2] * t2 ** 3 + d[3] * t2 ** 4)
+        else:
+            r2 = r * r
+            m = r * (1 + d[0] * r2 + d[1] * r2 ** 2 + d[4] * r2 ** 3)
+        dec = np.nonzero(np.diff(m) <= 0)[0]
+        return r[dec[0]] if len(dec) else r[-1]
 
     def unproject(self, uv: np.ndarray):
         """(N,2) pixels -> (N,3) unit rays in the camera frame."""
