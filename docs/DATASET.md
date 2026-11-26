@@ -1,5 +1,7 @@
 # 데이터셋 형식과 생성 방법
 
+> 데이터셋 버전과 변경 내역은 Hugging Face [`yrpark/seg-loom`](https://huggingface.co/datasets/yrpark/seg-loom) README의 "변경 내역"에 있다. 현재 v1 (렌즈 접힘 수정 반영), 이전 버전은 태그 `v0-pre-lens-fix`.
+
 [ARCHITECTURE.md](ARCHITECTURE.md) A.4(데이터 엔진, M8)를 구현한 결과물이다. MuJoCo EGL이 되는 곳이면 어디서나 생성할 수 있다. RTX 3090과 B200 모두에서 동작을 확인했다.
 
 ## 1. 구성 요소
