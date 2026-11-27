@@ -1,0 +1,24 @@
+step 2000 | 2993 frames x 3 cams | 1.4 min
+  all      IoU amodal 0.621 visible 0.621 | rot 4.56 -> 3.53 deg | trans 4.00 -> 3.62 cm (median)
+  real     IoU amodal 0.439 visible 0.437 | rot 4.57 -> 4.02 deg | trans 3.52 -> 3.31 cm (median)
+  procgen  IoU amodal 0.678 visible 0.678 | rot 4.56 -> 3.49 deg | trans 4.04 -> 3.65 cm (median)
+step 19000 | 2993 frames x 3 cams | 1.3 min
+  all      IoU amodal 0.705 visible 0.703 | rot 4.56 -> 3.36 deg | trans 4.00 -> 3.62 cm (median)
+  real     IoU amodal 0.480 visible 0.478 | rot 4.57 -> 3.81 deg | trans 3.52 -> 3.22 cm (median)
+  procgen  IoU amodal 0.775 visible 0.772 | rot 4.56 -> 3.33 deg | trans 4.04 -> 3.66 cm (median)
+step 41000 | 2993 frames x 3 cams | 1.2 min
+  all      IoU amodal 0.736 visible 0.735 | rot 4.56 -> 3.31 deg | trans 4.00 -> 3.60 cm (median)
+  real     IoU amodal 0.510 visible 0.511 | rot 4.57 -> 3.77 deg | trans 3.52 -> 3.13 cm (median)
+  procgen  IoU amodal 0.805 visible 0.804 | rot 4.56 -> 3.27 deg | trans 4.04 -> 3.64 cm (median)
+step 59000 | 2993 frames x 3 cams | 1.2 min
+  all      IoU amodal 0.754 visible 0.752 | rot 4.56 -> 3.29 deg | trans 4.00 -> 3.59 cm (median)
+  real     IoU amodal 0.550 visible 0.549 | rot 4.57 -> 3.71 deg | trans 3.52 -> 3.14 cm (median)
+  procgen  IoU amodal 0.817 visible 0.815 | rot 4.56 -> 3.24 deg | trans 4.04 -> 3.63 cm (median)
+step 76000 | 2993 frames x 3 cams | 1.1 min
+  all      IoU amodal 0.762 visible 0.758 | rot 4.56 -> 3.29 deg | trans 4.00 -> 3.60 cm (median)
+  real     IoU amodal 0.579 visible 0.571 | rot 4.57 -> 3.74 deg | trans 3.52 -> 3.14 cm (median)
+  procgen  IoU amodal 0.817 visible 0.815 | rot 4.56 -> 3.26 deg | trans 4.04 -> 3.65 cm (median)
+step 209628 | 2993 frames x 3 cams | 0.9 min
+  all      IoU amodal 0.784 visible 0.782 | rot 4.56 -> 3.26 deg | trans 4.00 -> 3.61 cm (median)
+  real     IoU amodal 0.572 visible 0.567 | rot 4.57 -> 3.69 deg | trans 3.52 -> 3.42 cm (median)
+  procgen  IoU amodal 0.850 visible 0.848 | rot 4.56 -> 3.23 deg | trans 4.04 -> 3.63 cm (median)

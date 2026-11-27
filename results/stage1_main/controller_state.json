@@ -1,0 +1,165 @@
+{
+ "verified": [
+  "train/r0000",
+  "train/r0200",
+  "train/r0400",
+  "train/r0600",
+  "train/r0800",
+  "train/r1000",
+  "train/r1200",
+  "train/r1400",
+  "train/r1600",
+  "train/r1800",
+  "train_clutter/r2000",
+  "train_clutter/r2200",
+  "train_clutter/r2400",
+  "train_clutter/r2600",
+  "train_clutter/r2800"
+ ],
+ "bad": [],
+ "stage": "stage3.5",
+ "stages": [
+  {
+   "stage": "stage1",
+   "start": "2026-11-27 05:12:39",
+   "step": 0,
+   "simple": [
+    "train/r0000",
+    "train/r0200",
+    "train/r0400",
+    "train/r0600",
+    "train/r0800",
+    "train/r1000",
+    "train/r1200",
+    "train/r1400",
+    "train/r1600",
+    "train/r1800"
+   ],
+   "clutter": [],
+   "planned_total": 129600,
+   "it_s": 6.0
+  },
+  {
+   "stage": "stage3.1",
+   "start": "2026-11-27 05:17:41",
+   "step": 2000,
+   "simple": [
+    "train/r0000",
+    "train/r0200",
+    "train/r0400",
+    "train/r0600",
+    "train/r0800",
+    "train/r1000",
+    "train/r1200",
+    "train/r1400",
+    "train/r1600",
+    "train/r1800"
+   ],
+   "clutter": [
+    "train_clutter/r2000"
+   ],
+   "planned_total": 162549,
+   "it_s": 7.432868765951206
+  },
+  {
+   "stage": "stage3.2",
+   "start": "2026-11-27 05:49:23",
+   "step": 19000,
+   "simple": [
+    "train/r0000",
+    "train/r0200",
+    "train/r0400",
+    "train/r0600",
+    "train/r0800",
+    "train/r1000",
+    "train/r1200",
+    "train/r1400",
+    "train/r1600",
+    "train/r1800"
+   ],
+   "clutter": [
+    "train_clutter/r2000",
+    "train_clutter/r2200"
+   ],
+   "planned_total": 216401,
+   "it_s": 9.138946735990324
+  },
+  {
+   "stage": "stage3.3",
+   "start": "2026-11-27 06:30:38",
+   "step": 41000,
+   "simple": [
+    "train/r0000",
+    "train/r0200",
+    "train/r0400",
+    "train/r0600",
+    "train/r0800",
+    "train/r1000",
+    "train/r1200",
+    "train/r1400",
+    "train/r1600",
+    "train/r1800"
+   ],
+   "clutter": [
+    "train_clutter/r2000",
+    "train_clutter/r2200",
+    "train_clutter/r2400"
+   ],
+   "planned_total": 234835,
+   "it_s": 8.97388788258408
+  },
+  {
+   "stage": "stage3.4",
+   "start": "2026-11-27 07:03:25",
+   "step": 59000,
+   "simple": [
+    "train/r0000",
+    "train/r0200",
+    "train/r0400",
+    "train/r0600",
+    "train/r0800",
+    "train/r1000",
+    "train/r1200",
+    "train/r1400",
+    "train/r1600",
+    "train/r1800"
+   ],
+   "clutter": [
+    "train_clutter/r2000",
+    "train_clutter/r2200",
+    "train_clutter/r2400",
+    "train_clutter/r2600"
+   ],
+   "planned_total": 262844,
+   "it_s": 9.43726079806906
+  },
+  {
+   "stage": "stage3.5",
+   "start": "2026-11-27 07:35:11",
+   "step": 76000,
+   "simple": [
+    "train/r0000",
+    "train/r0200",
+    "train/r0400",
+    "train/r0600",
+    "train/r0800",
+    "train/r1000",
+    "train/r1200",
+    "train/r1400",
+    "train/r1600",
+    "train/r1800"
+   ],
+   "clutter": [
+    "train_clutter/r2000",
+    "train_clutter/r2200",
+    "train_clutter/r2400",
+    "train_clutter/r2600",
+    "train_clutter/r2800"
+   ],
+   "planned_total": 209628,
+   "it_s": 9.279773957144716
+  }
+ ],
+ "started": "2026-11-27 05:12:39",
+ "finished": "2026-11-27 11:34:31"
+}
