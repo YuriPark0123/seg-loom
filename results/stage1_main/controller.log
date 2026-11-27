@@ -1,0 +1,85 @@
+2026-11-26 23:49:17 controller start: {'gpu': 4, 'out': '/home/guest1/yuri/seg-loom/out/stage1_main', 'local': '/home/guest1/yuri/seg-loom/data/hf', 'eval': '/home/guest1/yuri/seg-loom/data/eval', 'train_folders': 10, 'clutter_folders': 5, 'clutter_frac': 0.5, 'batch': 24, 'workers': 32, 'poll_min': 10, 'interim_hours': 6, 'final_hours': 4, 'default_its': 6.0}
+2026-11-26 23:49:26 HF complete folders: ['train/r0000'] (new: ['train/r0000'])
+2026-11-26 23:49:26 download train/r0000 started (3291/14403 files local)
+2026-11-27 00:10:07 HF complete folders: ['train/r0000', 'train/r0200'] (new: ['train/r0200'])
+2026-11-27 00:17:09 verified train/r0000 (14403 files)
+2026-11-27 00:17:09 download train/r0200 started (0/14403 files local)
+2026-11-27 00:41:23 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400'] (new: ['train/r0400'])
+2026-11-27 00:52:54 verified train/r0200 (14403 files)
+2026-11-27 00:52:54 download train/r0400 started (0/14403 files local)
+2026-11-27 01:23:45 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600'] (new: ['train/r0600'])
+2026-11-27 01:27:47 controller start: {'gpu': 4, 'out': '/home/guest1/yuri/seg-loom/out/stage1_main', 'local': '/home/guest1/yuri/seg-loom/data/hf', 'eval': '/home/guest1/yuri/seg-loom/data/eval', 'train_folders': 10, 'clutter_folders': 5, 'clutter_frac': 0.5, 'batch': 24, 'workers': 32, 'poll_min': 10, 'interim_hours': 6, 'final_hours': 4, 'default_its': 6.0}
+2026-11-27 01:28:15 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600'] (new: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600'])
+2026-11-27 01:28:15 download train/r0400 started (14403/14403 files local)
+2026-11-27 01:35:21 verified train/r0400 (14403 files)
+2026-11-27 01:35:21 download train/r0600 started (0/14403 files local)
+2026-11-27 01:49:46 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800'] (new: ['train/r0800'])
+2026-11-27 02:12:02 verified train/r0600 (14403 files)
+2026-11-27 02:12:02 download train/r0800 started (0/12 files local)
+2026-11-27 02:14:04 unpack train/r0800: 9 tar shards
+2026-11-27 02:15:04 verified train/r0800 (12 files)
+2026-11-27 02:21:50 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000'] (new: ['train/r1000'])
+2026-11-27 02:21:50 download train/r1000 started (0/12 files local)
+2026-11-27 02:23:52 unpack train/r1000: 9 tar shards
+2026-11-27 02:24:52 verified train/r1000 (12 files)
+2026-11-27 02:53:50 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200'] (new: ['train/r1200'])
+2026-11-27 02:53:50 download train/r1200 started (0/12 files local)
+2026-11-27 02:55:51 unpack train/r1200: 9 tar shards
+2026-11-27 02:56:57 verified train/r1200 (12 files)
+2026-11-27 03:26:01 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400'] (new: ['train/r1400'])
+2026-11-27 03:26:02 download train/r1400 started (0/12 files local)
+2026-11-27 03:28:03 unpack train/r1400: 9 tar shards
+2026-11-27 03:29:03 verified train/r1400 (12 files)
+2026-11-27 04:08:34 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600'] (new: ['train/r1600'])
+2026-11-27 04:08:34 download train/r1600 started (0/12 files local)
+2026-11-27 04:10:35 unpack train/r1600: 9 tar shards
+2026-11-27 04:11:37 verified train/r1600 (12 files)
+2026-11-27 04:40:34 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600', 'train/r1800'] (new: ['train/r1800'])
+2026-11-27 04:40:34 download train/r1800 started (0/12 files local)
+2026-11-27 04:42:35 unpack train/r1800: 9 tar shards
+2026-11-27 04:43:36 verified train/r1800 (12 files)
+2026-11-27 05:12:38 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600', 'train/r1800', 'train_clutter/r2000'] (new: ['train_clutter/r2000'])
+2026-11-27 05:12:38 download train_clutter/r2000 started (0/12 files local)
+2026-11-27 05:12:39 training stage1 started at step 0: 10 simple + 0 cluttered folders, plan 129600 steps (6 h at 6.00 it/s)
+2026-11-27 05:15:39 unpack train_clutter/r2000: 9 tar shards
+2026-11-27 05:16:39 verified train_clutter/r2000 (12 files)
+2026-11-27 05:16:39 SWITCH requested: stage1 -> stage3.1 (waits for the next 1000-step checkpoint)
+2026-11-27 05:17:41 stage1_end: checkpoint step 2000 -> /home/guest1/yuri/seg-loom/out/stage1_main/stages/stage1_end_step2000.pt, eval started
+2026-11-27 05:17:41 training stage3.1 started at step 2000: 10 simple + 1 cluttered folders, plan 162549 steps (6 h at 7.43 it/s)
+2026-11-27 05:19:41 eval stage1_end: all ('0.621 / 0.621', '3.53', '3.62') real ('0.439 / 0.437', '4.02', '3.31')
+2026-11-27 05:44:23 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600', 'train/r1800', 'train_clutter/r2000', 'train_clutter/r2200'] (new: ['train_clutter/r2200'])
+2026-11-27 05:44:23 download train_clutter/r2200 started (0/12 files local)
+2026-11-27 05:46:23 unpack train_clutter/r2200: 9 tar shards
+2026-11-27 05:47:23 verified train_clutter/r2200 (12 files)
+2026-11-27 05:47:23 SWITCH requested: stage3.1 -> stage3.2 (waits for the next 1000-step checkpoint)
+2026-11-27 05:49:23 stage3.1_end: checkpoint step 19000 -> /home/guest1/yuri/seg-loom/out/stage1_main/stages/stage3.1_end_step19000.pt, eval started
+2026-11-27 05:49:23 training stage3.2 started at step 19000: 10 simple + 2 cluttered folders, plan 216401 steps (6 h at 9.14 it/s)
+2026-11-27 05:51:24 eval stage3.1_end: all ('0.705 / 0.703', '3.36', '3.62') real ('0.480 / 0.478', '3.81', '3.22')
+2026-11-27 06:26:37 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600', 'train/r1800', 'train_clutter/r2000', 'train_clutter/r2200', 'train_clutter/r2400'] (new: ['train_clutter/r2400'])
+2026-11-27 06:26:37 download train_clutter/r2400 started (0/12 files local)
+2026-11-27 06:28:37 unpack train_clutter/r2400: 9 tar shards
+2026-11-27 06:29:38 verified train_clutter/r2400 (12 files)
+2026-11-27 06:29:38 SWITCH requested: stage3.2 -> stage3.3 (waits for the next 1000-step checkpoint)
+2026-11-27 06:30:38 stage3.2_end: checkpoint step 41000 -> /home/guest1/yuri/seg-loom/out/stage1_main/stages/stage3.2_end_step41000.pt, eval started
+2026-11-27 06:30:38 training stage3.3 started at step 41000: 10 simple + 3 cluttered folders, plan 234835 steps (6 h at 8.97 it/s)
+2026-11-27 06:32:38 eval stage3.2_end: all ('0.736 / 0.735', '3.31', '3.60') real ('0.510 / 0.511', '3.77', '3.13')
+2026-11-27 06:58:24 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600', 'train/r1800', 'train_clutter/r2000', 'train_clutter/r2200', 'train_clutter/r2400', 'train_clutter/r2600'] (new: ['train_clutter/r2600'])
+2026-11-27 06:58:24 download train_clutter/r2600 started (0/12 files local)
+2026-11-27 07:00:24 unpack train_clutter/r2600: 9 tar shards
+2026-11-27 07:01:24 verified train_clutter/r2600 (12 files)
+2026-11-27 07:01:24 SWITCH requested: stage3.3 -> stage3.4 (waits for the next 1000-step checkpoint)
+2026-11-27 07:03:25 stage3.3_end: checkpoint step 59000 -> /home/guest1/yuri/seg-loom/out/stage1_main/stages/stage3.3_end_step59000.pt, eval started
+2026-11-27 07:03:25 training stage3.4 started at step 59000: 10 simple + 4 cluttered folders, plan 262844 steps (6 h at 9.44 it/s)
+2026-11-27 07:05:25 eval stage3.3_end: all ('0.754 / 0.752', '3.29', '3.59') real ('0.550 / 0.549', '3.71', '3.14')
+2026-11-27 07:30:11 HF complete folders: ['train/r0000', 'train/r0200', 'train/r0400', 'train/r0600', 'train/r0800', 'train/r1000', 'train/r1200', 'train/r1400', 'train/r1600', 'train/r1800', 'train_clutter/r2000', 'train_clutter/r2200', 'train_clutter/r2400', 'train_clutter/r2600', 'train_clutter/r2800'] (new: ['train_clutter/r2800'])
+2026-11-27 07:30:11 download train_clutter/r2800 started (0/12 files local)
+2026-11-27 07:32:11 unpack train_clutter/r2800: 9 tar shards
+2026-11-27 07:33:11 verified train_clutter/r2800 (12 files)
+2026-11-27 07:33:11 SWITCH requested: stage3.4 -> stage3.5 (waits for the next 1000-step checkpoint)
+2026-11-27 07:35:11 stage3.4_end: checkpoint step 76000 -> /home/guest1/yuri/seg-loom/out/stage1_main/stages/stage3.4_end_step76000.pt, eval started
+2026-11-27 07:35:11 training stage3.5 started at step 76000: 10 simple + 5 cluttered folders, plan 209628 steps (4 h at 9.28 it/s)
+2026-11-27 07:37:11 eval stage3.4_end: all ('0.762 / 0.758', '3.29', '3.60') real ('0.579 / 0.571', '3.74', '3.14')
+2026-11-27 11:34:31 training finished (stage3.5)
+2026-11-27 11:34:31 stage3.5_final: checkpoint step 209628 -> /home/guest1/yuri/seg-loom/out/stage1_main/stages/stage3.5_final_step209628.pt, eval started
+2026-11-27 11:35:31 eval stage3.5_final: all ('0.784 / 0.782', '3.26', '3.61') real ('0.572 / 0.567', '3.69', '3.42')
+2026-11-27 11:35:31 all done
