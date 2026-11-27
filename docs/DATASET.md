@@ -32,10 +32,21 @@ python scripts/gen_dataset.py --out data/train_000 --procgen 2000 --seed 0 --mod
 # 3090에서 실제로 만든 학습셋: 로봇 200종씩 생성 → HF 업로드 → 확인 → 로컬 삭제 (디스크 부족 대응)
 bash scripts/gen_train_chunks.sh 0 9 24                                    # train/r0000..r1800 (seed 0~1999, 단순 장면)
 SPLIT=train_clutter CLUTTER=1.0 bash scripts/gen_train_chunks.sh 10 14 24  # train_clutter/r2000..r2800 (seed 2000~2999, 복잡한 장면)
+# 공개 실제 로봇 (2.1절): 로봇마다 인스턴스(근사 URDF·부착물·색) 여러 개
+SPLIT=eval_real  ROBOTS="<extra_splits.yaml의 eval 7종>"  K=4  SEED=100000 MODES="motion:12 task:8" bash scripts/gen_train_chunks.sh 0 0 24
+SPLIT=train_real ROBOTS="<extra_splits.yaml의 train 21종>" K=10 SEED=0 RECOLOR=0.5 CLUTTER=0.5 bash scripts/gen_train_chunks.sh 0 3 24
 ```
 
+### 2.1 공개 실제 로봇 (28종)
+
+- `python scripts/onboard_robots.py`가 공개 URDF/xacro를 받아 `assets/robots_train/<이름>/<이름>.urdf`(메시는 `package://extra/...`)와 `configs/robots/<이름>.yaml`을 만든다. 하는 일: xacro 전개(`$(find pkg)`는 package.xml로 해석), 팔 관절과 그리퍼 관절 자동 분리, 공구 방향(마지막 관절 축)과 TCP 추정 후 `tcp_frame` 링크 추가(z = 접근 방향), 그리퍼 열림/닫힘 방향 확인, reach와 "그리퍼 아래로" 기본 자세 탐색(작업 공간 75% 이상 도달), 손목 카메라 위치 자동 조정(로봇 안이 아니고, 화면의 1~30%에 공구가 보이는 가장 가까운 위치).
+- 출처는 `scripts/fetch_assets.sh`에 커밋으로 고정했고, 저장소·라이선스·변환 결과는 `configs/robots/extra_report.json`에 있다. 라이선스는 BSD-3 / Apache-2.0 / MIT만 썼다(GPL인 poppy, 라이선스 표기가 없는 Unitree Z1은 뺐다).
+- 분할은 `configs/robots/extra_splits.yaml`. **평가용 7종은 계열째로 뺐다**: KUKA(iiwa7, iiwa14), Flexiv(rizon4, rizon10), Rethink Sawyer, I2RT YAM, Comau e.DO. 학습용 21종: Fanuc 5, Kinova 4(gen2, gen3 lite, Jaco2, Mico), UFactory 5(xArm5/6/7, Lite6, 850), ROBOTIS 3(OMX-F, OMY-3M, OpenManipulator-X), Interbotix 4(PX150, RX200, WX250s, VX300s).
+- 원래 평가 로봇 4종과 그 사촌 기종(SO-ARM 계열, UR 전 계열, Franka FER/FR3, AgileX Piper)은 학습에 넣지 않았다.
+- `--instances A B`: 실제 로봇마다 인스턴스 A..B-1을 만든다. 인스턴스마다 근사 URDF 오차, 부착물, 손목 카메라 오차가 따로 뽑힌다(`<이름>_iNNN`). `--recolor p`: 확률 p로 로봇을 다시 칠한다(전체 색조 / 두 가지 색 / 링크마다 무작위). 같은 로봇의 인스턴스들은 메시 파일을 하드링크로 공유해 tar에는 한 번만 들어간다.
+
 - `--seed`는 절차적 로봇 번호의 시작값이다. 로봇 이름은 `pg{seed+i:07d}`이다. 분할(split)끼리 범위가 겹치면 안 된다. 기본 배정은 학습 0~99,999, 평가 100,000~, 기준셋 200,000~, smoke 900,000~이다.
-- `--clutter p`를 주면 에피소드마다 확률 p로 복잡한 장면(5절)을 만든다. 0이면 기존과 바이트 단위로 같은 결과가 나온다(난수를 쓰지 않음).
+- `--clutter p`를 주면 에피소드마다 확률 p로 복잡한 장면(5절)을 만든다. 0이면 난수를 쓰지 않아 기존과 같은 장면·궤적·라벨이 나온다. RGB는 GPU 렌더 특성상 같은 코드로 다시 돌려도 몇십 픽셀이 밝기 1~3 정도 달라질 수 있다.
 - `--level 0`을 주면 근사 URDF가 정답과 같아진다. 오차의 영향을 측정하는 실험에 쓴다.
 - `--gpus`를 주면 worker들을 해당 GPU(nvidia-smi 번호)에 나눠 배정한다. EGL 장치 번호는 nvidia-smi 번호와 순서가 다를 수 있어서 (B200 서버: EGL 0 = GPU 4, EGL 4 = GPU 0) `shadow/egl_devices.py`가 CUDA 번호로 대응을 찾아 `MUJOCO_EGL_DEVICE_ID`를 정한다. 직접 `MUJOCO_EGL_DEVICE_ID`를 쓸 때는 `python -m shadow.egl_devices`로 표를 먼저 확인한다.
 
@@ -130,7 +141,7 @@ SPLIT=train_clutter CLUTTER=1.0 bash scripts/gen_train_chunks.sh 10 14 24  # tra
 
 | 축 | 범위 |
 |---|---|
-| 로봇 | 절차적: 관절 3~7개, 크기 S 0.3~1.0m, 링크 스타일 2종, 색 10종, 그리퍼 2종 / 실제: so101, ur7e, piper, panda |
+| 로봇 | 절차적: 관절 3~7개, 크기 S 0.3~1.0m, 링크 스타일 2종, 색 10종, 그리퍼 2종 / 실제 평가: so101, ur7e, piper, panda + 공개 7종 / 실제 학습: 공개 21종 × 인스턴스 40 (2.1절) |
 | URDF 오차 | 길이 N(0, 5%)를 ±10%로 자름, 영점 U(±5°), 도형 ±15%, 원기둥↔박스 20%, 메시→박스 30%, 링크 누락 10% |
 | URDF에 없는 부착물 | 케이블(캡슐) / 박스 0~3개, 손목 카메라 장착 오차 위치 σ6mm, 각도 σ2.5° |
 | 카메라 모델 | pinhole / Brown / fisheye(KB), 화각 45~100°(fisheye 100~175°), 주점 오차, 출력 폭 320px |
@@ -154,8 +165,12 @@ SPLIT=train_clutter CLUTTER=1.0 bash scripts/gen_train_chunks.sh 10 14 24  # tra
 | `data/ref` | 실제 4 + 절차적 196 (seed 200000~) | 1000 (ref, 각 10프레임) | 10,000 × 카메라 3대 | 0.5GB | 7분 | — |
 | HF `train/r0000`~`r1800` (2026-11-27, 3090) | 절차적 2,000 (seed 0~1999), 단순 장면 | 40,000 (motion 20,000, task 20,000) | 2,170,860 × 카메라 3대 | 약 90GB | 6시간 (worker 24) | 18,677/20,000 (93.4%) |
 | HF `train_clutter/r2000`~`r2800` (2026-11-27, 3090) | 절차적 1,000 (seed 2000~2999), 복잡한 장면 | 20,000 (motion 10,000, task 10,000) | 1,087,588 × 카메라 3대 | 약 63GB | 3시간 (worker 24) | 9,318/10,000 (93.2%) |
+| HF `eval_real/i000` (2026-11-27, 3090) | 공개 실제 평가 7종 × 인스턴스 4 (원래 색, 단순 장면, seed 100000) | 560 (motion 336, task 224) | 30,969 × 카메라 3대 | 1.5GB | 7분 | 205/224 (91.5%) |
+| HF `train_real/i000`~`i030` (2026-11-28, 3090) | 공개 실제 학습 21종 × 인스턴스 40 (recolor 0.5, clutter 0.5) | 16,800 (motion 8,400, task 8,400) | 907,359 × 카메라 3대 | 51.9GB | 2.5시간 (worker 24) | 7,454/8,400 (88.7%) |
 
 학습셋 HF 형식: `train/r0000`~`r0600`은 에피소드 파일이 개별로 올라가 있고, `r0800`부터와 `train_clutter/`는 폴더마다 `robots.tar` + `episodes_000.tar`~`007.tar`(에피소드 500개씩)로 묶여 있다(HF 파일 단위 다운로드 제한 대응). 풀기: `for f in <폴더>/*.tar; do tar xf $f -C <폴더>; done`.
+
+`eval_real`/`train_real` 폴더도 같은 tar 형식이다(`robots.tar`에 `robots/<이름>_iNNN/` 인스턴스별 근사 URDF·메시). 로봇 이름은 `<로봇>_iNNN`, 분할은 `configs/robots/extra_splits.yaml`, 라벨 값은 위와 같다. 실제 로봇 task 성공률은 로봇마다 다르다: fanuc_cr7ia 0/400(도달 가능한 블럭 배치를 못 찾음, motion 에피소드는 정상), fanuc_m710ic70 228/400, fanuc_m10ia 283/400, 나머지 18종은 89~100%.
 
 task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실패로 기록해 두었으므로, 실행 가능성 피드백(M7)을 학습하는 데 그대로 쓸 수 있다.
 

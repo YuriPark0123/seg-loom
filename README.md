@@ -22,7 +22,8 @@ URDF와 카메라 영상만으로 처음 보는 로봇과 카메라에서도 동
 | `shadow/urdf_perturb.py` | 오차를 섞은 근사 URDF 생성 |
 | `shadow/datagen.py`, `scripts/gen_dataset.py` | 데이터셋 생성 (motion / task / ref 에피소드) |
 | `webapp/` | 대화형 데모: EEF 드래그 IK, 카메라 이동, 재캘리브레이션 |
-| `configs/robots/` | 실제 로봇 spec (so101, ur7e, piper, panda) |
+| `configs/robots/` | 실제 로봇 spec: 평가 4종(so101, ur7e, piper, panda) + 공개 로봇 28종(`extra_splits.yaml`: 학습 21, 평가 7) |
+| `scripts/onboard_robots.py` | 공개 URDF/xacro → 학습용 로봇 spec 자동 생성 |
 
 ## 설치
 
