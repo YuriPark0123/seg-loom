@@ -1,0 +1,49 @@
+name: xarm7
+urdf: assets/robots_train/xarm7/xarm7.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0558
+- -0.0419
+- 0.0605
+- 1.1739
+- 0.0026
+- 1.2143
+- 0.1152
+reach: 0.924
+rot_weight: 0.5
+asset_dir: assets/robots_train/xarm7/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - 1
+  - 0
+  pos:
+  - 0.0
+  - 0.1478
+  - -0.0739
+  look_at:
+  - 0
+  - 0
+  - 0.3234
+  fovy: 75
+gripper:
+  joints:
+  - drive_joint
+  open:
+  - 0.85
+  close:
+  - 0.0

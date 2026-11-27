@@ -38,7 +38,10 @@ def localize_meshes(root: ET.Element, urdf_dir: str, package_dirs: dict, out_dir
         if src not in seen:
             base = os.path.basename(src)
             dst = os.path.join("meshes", f"{len(seen):03d}_{base}")
-            shutil.copy(src, os.path.join(out_dir, dst))
+            try:                                   # hardlink: many instances of one robot share the mesh bytes (tar stores them once)
+                os.link(src, os.path.join(out_dir, dst))
+            except OSError:
+                shutil.copy(src, os.path.join(out_dir, dst))
             seen[src] = dst
         m.set("filename", seen[src])
 

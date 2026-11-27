@@ -1,0 +1,809 @@
+{
+ "edo": {
+  "ok": true,
+  "repo": "ianathompson/eDO_description",
+  "license": "BSD-3-Clause",
+  "source": "edo/robots/edo_sim.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": null,
+  "reach": 0.8,
+  "rest_err_mm": 0.6523455958592244,
+  "rest_rot_err_deg": 0.051426481735606995,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.14739583333333334
+ },
+ "fanuc_m710ic70": {
+  "ok": true,
+  "repo": "robot-descriptions/fanuc_m710ic_description",
+  "license": "BSD-3-Clause",
+  "source": "fanuc_m710ic_description/urdf/m710ic70.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": null,
+  "reach": 2.283,
+  "rest_err_mm": 0.33824895086335405,
+  "rest_rot_err_deg": 41.512602672286754,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.093125
+ },
+ "fanuc_lrmate200ic": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc",
+  "license": "BSD-3-Clause",
+  "source": "fanuc/fanuc_lrmate200ic_support/urdf/lrmate200ic.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": null,
+  "reach": 0.817,
+  "rest_err_mm": 3.2105188764886736,
+  "rest_rot_err_deg": 61.75362317833408,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.20145833333333332
+ },
+ "fanuc_m10ia": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc",
+  "license": "BSD-3-Clause",
+  "source": "fanuc/fanuc_m10ia_support/urdf/m10ia.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": null,
+  "reach": 1.617,
+  "rest_err_mm": 0.7704253299607996,
+  "rest_rot_err_deg": 0.1861743123901751,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.09208333333333334
+ },
+ "fanuc_cr7ia": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc",
+  "license": "BSD-3-Clause",
+  "source": "fanuc/fanuc_cr7ia_support/urdf/cr7ia.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": null,
+  "reach": 0.8,
+  "rest_err_mm": 3.813405450196079,
+  "rest_rot_err_deg": 63.37309469407298,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.12916666666666668
+ },
+ "fanuc_crx10ial": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc",
+  "license": "BSD-3-Clause",
+  "source": "fanuc/fanuc_crx10ia_support/urdf/crx10ial.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": null,
+  "reach": 1.415,
+  "rest_err_mm": 0.8058010735155839,
+  "rest_rot_err_deg": 0.0784114236703252,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.12234375
+ },
+ "kinova_gen2": {
+  "ok": true,
+  "repo": "Gepetto/example-robot-data",
+  "license": "BSD-3-Clause",
+  "source": "example-robot-data/robots/kinova_description/robots/kinova.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "j2s6s200_joint_1",
+   "j2s6s200_joint_2",
+   "j2s6s200_joint_3",
+   "j2s6s200_joint_4",
+   "j2s6s200_joint_5",
+   "j2s6s200_joint_6"
+  ],
+  "gripper": null,
+  "reach": 1.051,
+  "rest_err_mm": 1.9253951618741099,
+  "rest_rot_err_deg": 2.3275911827812683,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.035
+ },
+ "kinova_gen3_2f85": {
+  "ok": false,
+  "repo": "Kinovarobotics/ros2_kortex",
+  "license": "BSD-3-Clause",
+  "source": "ros2_kortex/kortex_description/robots/gen3_2f85.urdf",
+  "error": "RuntimeError: mesh not found: /root/c3pzero_ws/install/robotiq_description/share/robotiq_description/meshes/visual/robotiq_base.dae"
+ },
+ "kinova_gen3_lite": {
+  "ok": true,
+  "repo": "Kinovarobotics/ros2_kortex",
+  "license": "BSD-3-Clause",
+  "source": "ros2_kortex/kortex_description/robots/gen3_lite.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "right_finger_bottom_joint"
+  ],
+  "reach": 0.861,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.1106991764302832,
+  "rest_rot_err_deg": 0.11419059933453744,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.05479166666666667
+ },
+ "jaco2_j2n6s300": {
+  "ok": true,
+  "repo": "Kinovarobotics/kinova-ros",
+  "license": "BSD-3-Clause",
+  "source": "kinova-ros/kinova_description/urdf/j2n6s300_standalone.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "j2n6s300_joint_1",
+   "j2n6s300_joint_2",
+   "j2n6s300_joint_3",
+   "j2n6s300_joint_4",
+   "j2n6s300_joint_5",
+   "j2n6s300_joint_6"
+  ],
+  "gripper": [
+   "j2n6s300_joint_finger_1",
+   "j2n6s300_joint_finger_tip_1",
+   "j2n6s300_joint_finger_2",
+   "j2n6s300_joint_finger_tip_2",
+   "j2n6s300_joint_finger_3",
+   "j2n6s300_joint_finger_tip_3"
+  ],
+  "reach": 0.986,
+  "grip_width_open_close": [
+   0.10133511864793812,
+   0.0
+  ],
+  "rest_err_mm": 6.360483020189388,
+  "rest_rot_err_deg": 0.5303066839739763,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.015989583333333335
+ },
+ "jaco2_j2s7s300": {
+  "ok": false,
+  "repo": "Kinovarobotics/kinova-ros",
+  "license": "BSD-3-Clause",
+  "source": "kinova-ros/kinova_description/urdf/j2s7s300_standalone.xacro",
+  "error": "RuntimeError: validate: rest unreachable (19 mm)"
+ },
+ "mico_m1n6s200": {
+  "ok": true,
+  "repo": "Kinovarobotics/kinova-ros",
+  "license": "BSD-3-Clause",
+  "source": "kinova-ros/kinova_description/urdf/m1n6s200_standalone.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "m1n6s200_joint_1",
+   "m1n6s200_joint_2",
+   "m1n6s200_joint_3",
+   "m1n6s200_joint_4",
+   "m1n6s200_joint_5",
+   "m1n6s200_joint_6"
+  ],
+  "gripper": [
+   "m1n6s200_joint_finger_1",
+   "m1n6s200_joint_finger_tip_1",
+   "m1n6s200_joint_finger_2",
+   "m1n6s200_joint_finger_tip_2"
+  ],
+  "reach": 0.79,
+  "grip_width_open_close": [
+   0.10875729423363409,
+   0.0
+  ],
+  "rest_err_mm": 2.9743545609800557,
+  "rest_rot_err_deg": 0.08955633936132748,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.011197916666666667
+ },
+ "iiwa14": {
+  "ok": true,
+  "repo": "RobotLocomotion/drake",
+  "license": "BSD-3-Clause",
+  "source": "drake/manipulation/models/iiwa_description/urdf/iiwa14_no_collision.urdf",
+  "xacro_args": null,
+  "n_arm": 7,
+  "arm": [
+   "iiwa_joint_1",
+   "iiwa_joint_2",
+   "iiwa_joint_3",
+   "iiwa_joint_4",
+   "iiwa_joint_5",
+   "iiwa_joint_6",
+   "iiwa_joint_7"
+  ],
+  "gripper": null,
+  "reach": 1.091,
+  "rest_err_mm": 0.38223037587636843,
+  "rest_rot_err_deg": 0.014271988692820021,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.016979166666666667
+ },
+ "iiwa7": {
+  "ok": true,
+  "repo": "facebookresearch/differentiable-robot-model",
+  "license": "MIT",
+  "source": "differentiable-robot-model/diff_robot_data/kuka_iiwa/urdf/iiwa7.urdf",
+  "xacro_args": null,
+  "n_arm": 7,
+  "arm": [
+   "iiwa_joint_1",
+   "iiwa_joint_2",
+   "iiwa_joint_3",
+   "iiwa_joint_4",
+   "iiwa_joint_5",
+   "iiwa_joint_6",
+   "iiwa_joint_7"
+  ],
+  "gripper": null,
+  "reach": 1.088,
+  "rest_err_mm": 0.3752580890442233,
+  "rest_rot_err_deg": 0.017015095766924775,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.013645833333333333
+ },
+ "rizon4": {
+  "ok": true,
+  "repo": "flexivrobotics/flexiv_description",
+  "license": "Apache-2.0",
+  "source": "flexiv_description/urdf/flexiv.urdf.xacro",
+  "xacro_args": {
+   "robot_type": "Rizon4"
+  },
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": null,
+  "reach": 1.156,
+  "rest_err_mm": 0.5360216044215974,
+  "rest_rot_err_deg": 0.09535301164149079,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.140625
+ },
+ "rizon10": {
+  "ok": true,
+  "repo": "flexivrobotics/flexiv_description",
+  "license": "Apache-2.0",
+  "source": "flexiv_description/urdf/flexiv.urdf.xacro",
+  "xacro_args": {
+   "robot_type": "Rizon10"
+  },
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": null,
+  "reach": 1.269,
+  "rest_err_mm": 0.1974517009449101,
+  "rest_rot_err_deg": 0.10834479497189717,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.01046875
+ },
+ "xarm6": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2",
+  "license": "BSD-3-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro",
+  "xacro_args": {
+   "dof": "6",
+   "add_gripper": "true"
+  },
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "drive_joint"
+  ],
+  "reach": 0.87,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.8580239192428935,
+  "rest_rot_err_deg": 0.07024126470013198,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.17963541666666666
+ },
+ "xarm7": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2",
+  "license": "BSD-3-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro",
+  "xacro_args": {
+   "dof": "7",
+   "add_gripper": "true"
+  },
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "drive_joint"
+  ],
+  "reach": 0.924,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.9777157218619336,
+  "rest_rot_err_deg": 0.08050480694097832,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.1853125
+ },
+ "xarm5": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2",
+  "license": "BSD-3-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro",
+  "xacro_args": {
+   "dof": "5",
+   "add_gripper": "false"
+  },
+  "n_arm": 5,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5"
+  ],
+  "gripper": null,
+  "reach": 0.549,
+  "rest_err_mm": 1.304987796436758,
+  "rest_rot_err_deg": 43.014865002783836,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 0.73,
+  "wrist_robot_frac": 0.16739583333333333
+ },
+ "lite6": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2",
+  "license": "BSD-3-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro",
+  "xacro_args": {
+   "dof": "6",
+   "robot_type": "lite",
+   "add_gripper": "true"
+  },
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": null,
+  "reach": 0.56,
+  "rest_err_mm": 1.1374729049270194,
+  "rest_rot_err_deg": 0.05524467424384495,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.012239583333333333
+ },
+ "uf850": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2",
+  "license": "BSD-3-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro",
+  "xacro_args": {
+   "dof": "6",
+   "robot_type": "uf850",
+   "add_gripper": "true"
+  },
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "drive_joint"
+  ],
+  "reach": 1.03,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.6255126295051069,
+  "rest_rot_err_deg": 0.05185058593229639,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.07645833333333334
+ },
+ "omx_f": {
+  "ok": true,
+  "repo": "ROBOTIS-GIT/open_manipulator",
+  "license": "Apache-2.0",
+  "source": "open_manipulator/open_manipulator_description/urdf/omx_f/omx_f.urdf",
+  "xacro_args": null,
+  "n_arm": 5,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5"
+  ],
+  "gripper": [
+   "gripper_joint_1"
+  ],
+  "reach": 0.433,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.9279078548378044,
+  "rest_rot_err_deg": 1.111192645981151,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.026041666666666668
+ },
+ "omy_3m": {
+  "ok": true,
+  "repo": "ROBOTIS-GIT/open_manipulator",
+  "license": "Apache-2.0",
+  "source": "open_manipulator/open_manipulator_description/urdf/omy_3m/omy_3m.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": null,
+  "reach": 0.772,
+  "rest_err_mm": 1.3190612082408102,
+  "rest_rot_err_deg": 0.0820253697030814,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 0.85,
+  "wrist_robot_frac": 0.021927083333333333
+ },
+ "open_manipulator_x": {
+  "ok": true,
+  "repo": "ROBOTIS-GIT/open_manipulator",
+  "license": "Apache-2.0",
+  "source": "open_manipulator/open_manipulator_description/urdf/open_manipulator_x/open_manipulator_x.urdf",
+  "xacro_args": null,
+  "n_arm": 4,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4"
+  ],
+  "gripper": [
+   "gripper_left_joint"
+  ],
+  "reach": 0.425,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 2.962718940189906,
+  "rest_rot_err_deg": 91.338022047508,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.05921875
+ },
+ "openarm_v1": {
+  "ok": false,
+  "repo": "enactic/openarm_description",
+  "license": "Apache-2.0",
+  "source": "openarm_description/assets/robot/openarm_v1.0/urdf/openarm_v10.urdf.xacro",
+  "error": "RuntimeError: validate: rest unreachable (47 mm)"
+ },
+ "yam": {
+  "ok": true,
+  "repo": "robot-descriptions/i2rt",
+  "license": "MIT",
+  "source": "i2rt/i2rt/robot_models/yam/yam.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": null,
+  "reach": 0.803,
+  "rest_err_mm": 1.3240720245655044,
+  "rest_rot_err_deg": 59.82109630970751,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.012916666666666667
+ },
+ "arx_r5": {
+  "ok": false,
+  "repo": "robot-descriptions/i2rt",
+  "license": "MIT",
+  "source": "i2rt/i2rt/robot_models/arx_r5",
+  "error": "RuntimeError: mesh not found: /workspace/shadow/assets/src/extra/i2rt/i2rt/robot_models/arx_r5/meshes/base_link.STL"
+ },
+ "sawyer": {
+  "ok": true,
+  "repo": "RethinkRobotics/sawyer_robot",
+  "license": "Apache-2.0",
+  "source": "sawyer_robot/sawyer_description/urdf/sawyer.urdf.xacro",
+  "xacro_args": {
+   "electric_gripper": "false"
+  },
+  "n_arm": 7,
+  "arm": [
+   "right_j0",
+   "right_j1",
+   "right_j2",
+   "right_j3",
+   "right_j4",
+   "right_j5",
+   "right_j6"
+  ],
+  "gripper": null,
+  "reach": 1.127,
+  "rest_err_mm": 0.4516871215839058,
+  "rest_rot_err_deg": 0.08328466969148529,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 0.85,
+  "wrist_robot_frac": 0.10625
+ },
+ "px150": {
+  "ok": true,
+  "repo": "Interbotix/interbotix_ros_manipulators",
+  "license": "BSD-3-Clause",
+  "source": "interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/px150.urdf.xacro",
+  "xacro_args": {},
+  "n_arm": 5,
+  "arm": [
+   "waist",
+   "shoulder",
+   "elbow",
+   "wrist_angle",
+   "wrist_rotate"
+  ],
+  "gripper": [
+   "gripper",
+   "left_finger"
+  ],
+  "reach": 0.484,
+  "grip_width_open_close": [
+   0.013152745305705323,
+   0.0
+  ],
+  "rest_err_mm": 1.1298714530873197,
+  "rest_rot_err_deg": 36.55025012969917,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.06671875
+ },
+ "rx200": {
+  "ok": true,
+  "repo": "Interbotix/interbotix_ros_manipulators",
+  "license": "BSD-3-Clause",
+  "source": "interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/rx200.urdf.xacro",
+  "xacro_args": {},
+  "n_arm": 5,
+  "arm": [
+   "waist",
+   "shoulder",
+   "elbow",
+   "wrist_angle",
+   "wrist_rotate"
+  ],
+  "gripper": [
+   "gripper",
+   "left_finger"
+  ],
+  "reach": 0.577,
+  "grip_width_open_close": [
+   0.013152745305705323,
+   0.0
+  ],
+  "rest_err_mm": 0.8413897608039484,
+  "rest_rot_err_deg": 33.50099344775227,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.0371875
+ },
+ "wx250s": {
+  "ok": true,
+  "repo": "Interbotix/interbotix_ros_manipulators",
+  "license": "BSD-3-Clause",
+  "source": "interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/wx250s.urdf.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "waist",
+   "shoulder",
+   "elbow",
+   "forearm_roll",
+   "wrist_angle",
+   "wrist_rotate"
+  ],
+  "gripper": [
+   "gripper",
+   "left_finger"
+  ],
+  "reach": 0.671,
+  "grip_width_open_close": [
+   0.013152745305705323,
+   0.0
+  ],
+  "rest_err_mm": 1.210509081468267,
+  "rest_rot_err_deg": 0.08163128528716881,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.022239583333333333
+ },
+ "vx300s": {
+  "ok": true,
+  "repo": "Interbotix/interbotix_ros_manipulators",
+  "license": "BSD-3-Clause",
+  "source": "interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/vx300s.urdf.xacro",
+  "xacro_args": {},
+  "n_arm": 6,
+  "arm": [
+   "waist",
+   "shoulder",
+   "elbow",
+   "forearm_roll",
+   "wrist_angle",
+   "wrist_rotate"
+  ],
+  "gripper": [
+   "gripper",
+   "left_finger"
+  ],
+  "reach": 0.802,
+  "grip_width_open_close": [
+   0.022981676698381047,
+   0.0
+  ],
+  "rest_err_mm": 1.000755365687012,
+  "rest_rot_err_deg": 0.08067586761125566,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.0528125
+ }
+}

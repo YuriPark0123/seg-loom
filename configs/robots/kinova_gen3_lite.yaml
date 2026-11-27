@@ -1,0 +1,47 @@
+name: kinova_gen3_lite
+urdf: assets/robots_train/kinova_gen3_lite/kinova_gen3_lite.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.3132
+- -0.7401
+- 0.6519
+- -1.57
+- -1.7482
+- 1.8827
+reach: 0.861
+rot_weight: 0.5
+asset_dir: assets/robots_train/kinova_gen3_lite/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - 1
+  - 0
+  pos:
+  - 0.0
+  - 0.2152
+  - -0.0689
+  look_at:
+  - 0
+  - 0
+  - 0.3013
+  fovy: 75
+gripper:
+  joints:
+  - right_finger_bottom_joint
+  open:
+  - 0.85
+  close:
+  - 0.0

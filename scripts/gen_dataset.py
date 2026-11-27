@@ -35,7 +35,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def robot_job(args):
-    name, kind, seed, out, modes, T, level, clutter = args
+    name, kind, seed, out, modes, T, level, clutter = args[:8]
+    inst, recolor = (args[8], args[9]) if len(args) > 8 else (None, 0.0)
     from shadow.datagen import EpisodeGen, robot_render_geoms, sample_robot_extras, save_episode
     from shadow.mj_world import Layout
     from shadow.procgen import generate_robot
@@ -53,11 +54,14 @@ def robot_job(args):
             spec = RobotSpec.load(p)
         else:
             spec = RobotSpec.load(name)
+            if inst is not None:                       # instance k of a real robot: own approx URDF / extras / colours
+                spec.asset_dir = spec.out_dir              # keep the converted-model cache of the base robot
+                spec.name = f"{name}_i{inst:03d}"
         rdir = os.path.join(out, "robots", spec.name)
         layout = Layout(spec)
         if not os.path.exists(os.path.join(rdir, "extras.json")):
             rec = export_robot(spec, rdir, rng, level=level)
-            extras = sample_robot_extras(spec, layout, rng)
+            extras = sample_robot_extras(spec, layout, rng, recolor=recolor)
             json.dump(rec, open(os.path.join(rdir, "perturb.json"), "w"), indent=1)
             json.dump(extras, open(os.path.join(rdir, "extras.json"), "w"), indent=1)
             y = {k: v for k, v in spec.__dict__.items() if not k.startswith("_")}
@@ -133,6 +137,9 @@ def main():
     ap.add_argument("--T", type=int, default=60, help="frames per motion/ref episode (task length is scripted)")
     ap.add_argument("--level", type=float, default=1.0, help="URDF error level (0 = exact URDF)")
     ap.add_argument("--clutter", type=float, default=0.0, help="probability of a cluttered scene per episode")
+    ap.add_argument("--instances", type=int, nargs=2, default=None, metavar=("START", "END"),
+                    help="real robots: generate instances START..END-1 of each (own approx URDF, extras, colours)")
+    ap.add_argument("--recolor", type=float, default=0.0, help="probability of repainting a robot instance")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--gpus", type=int, nargs="*", default=None,
                     help="GPUs (nvidia-smi / CUDA indices) to spread the EGL workers over")
@@ -164,7 +171,11 @@ def main():
     out = os.path.abspath(a.out)
     os.makedirs(os.path.join(out, "episodes"), exist_ok=True)
     modes = [(m.split(":")[0], int(m.split(":")[1])) for m in a.modes]
-    jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level, a.clutter) for i, r in enumerate(a.robots)]
+    if a.instances:
+        jobs = [(r, "real", a.seed + 10_000_000 + i + 100_000 * k, out, modes, a.T, a.level, a.clutter, k, a.recolor)
+                for k in range(*a.instances) for i, r in enumerate(a.robots)]
+    else:
+        jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level, a.clutter) for i, r in enumerate(a.robots)]
     jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level, a.clutter) for i in range(a.procgen)]
     if a.robot_range:
         jobs = jobs[a.robot_range[0]:a.robot_range[1]]

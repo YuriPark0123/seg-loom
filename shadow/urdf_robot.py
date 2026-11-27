@@ -115,7 +115,7 @@ def urdf_to_mjcf(spec: RobotSpec, rebuild=False) -> str:
                 if m is None:
                     continue
                 src = _resolve_mesh(m.get("filename"), urdf_dir, spec.package_dirs)
-                dst = _convert_mesh(src, os.path.join(out, "meshes", f"{kind[:3]}_{link.get('name')}_{k}"))
+                dst = _convert_mesh(src, os.path.join(out, "meshes", f"{kind[:3]}_{link.get('name').replace('/', '_')}_{k}"))
                 m.set("filename", os.path.basename(dst))
     # named materials defined once and reused by name only -> inline the colors
     named = {}

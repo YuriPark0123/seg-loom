@@ -233,7 +233,8 @@ def validate(spec, rng, n_pts=12):
     target = base + np.array([0.5 * L.R, 0.0, 0.3 * L.R])
     best = None
     for k in range(10):
-        q0 = rng.uniform(ik.lo * 0.5, ik.hi * 0.5) if k else np.zeros(len(ik.lo))
+        lo_, hi_ = np.clip(ik.lo, -np.pi, np.pi), np.clip(ik.hi, -np.pi, np.pi)          # continuous joints: inf limits
+        q0 = rng.uniform(lo_ * 0.5, hi_ * 0.5) if k else np.zeros(len(ik.lo))
         q0 = np.where(np.isfinite(q0), q0, 0)
         for flip in (False, True):
             q, ep, er = ik.solve(q0, target, _down_R(flip), iters=200)

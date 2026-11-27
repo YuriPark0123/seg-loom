@@ -1,0 +1,42 @@
+# Real robots added for training (scripts/onboard_robots.py; sources + licenses in extra_report.json).
+# Evaluation robots are held out by FAMILY so no close relative is ever trained on.
+# Never used for training (original eval robots and their relatives): so101 (SO-ARM100/101/102), ur7e (whole UR
+# family, e.g. ur5e/ur10e), panda (Franka FER / FR3), piper (AgileX Piper).
+eval:      # 7 robots, 5 families
+  - iiwa7          # KUKA
+  - iiwa14         # KUKA
+  - rizon4         # Flexiv
+  - rizon10        # Flexiv
+  - sawyer         # Rethink
+  - yam            # I2RT
+  - edo            # Comau e.DO
+train:     # 21 robots
+  - fanuc_m710ic70
+  - fanuc_lrmate200ic
+  - fanuc_m10ia
+  - fanuc_cr7ia
+  - fanuc_crx10ial
+  - kinova_gen2
+  - kinova_gen3_lite
+  - jaco2_j2n6s300
+  - mico_m1n6s200
+  - xarm5
+  - xarm6
+  - xarm7
+  - lite6
+  - uf850
+  - omx_f
+  - omy_3m
+  - open_manipulator_x
+  - px150
+  - rx200
+  - wx250s
+  - vx300s
+dropped:   # tried, not usable
+  kinova_gen3_2f85: needs robotiq_description (not cloned)
+  jaco2_j2s7s300: no gripper-down rest pose found
+  openarm_v1: no gripper-down rest pose found
+  arx_r5: meshes missing in the source repo
+  poppy_ergo_jr: GPLv3 (copyleft) - not used
+  unitree_z1: license not stated - not used
+  abb (abb_experimental): default branch has no models

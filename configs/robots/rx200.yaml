@@ -1,0 +1,48 @@
+name: rx200
+urdf: assets/robots_train/rx200/rx200.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- waist
+- shoulder
+- elbow
+- wrist_angle
+- wrist_rotate
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0018
+- -0.1564
+- 0.1103
+- 1.1685
+- -1.1906
+reach: 0.577
+rot_weight: 0.1
+asset_dir: assets/robots_train/rx200/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.0923
+  - 0.0
+  - -0.0462
+  look_at:
+  - 0
+  - 0
+  - 0.2019
+  fovy: 75
+gripper:
+  joints:
+  - gripper
+  - left_finger
+  open:
+  - 0.0
+  - 0.037
+  close:
+  - 0.0
+  - 0.015

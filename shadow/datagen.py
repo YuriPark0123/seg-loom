@@ -50,8 +50,9 @@ def _unit(v):
 
 
 # =============================================================================== per-robot extras
-def sample_robot_extras(spec: RobotSpec, layout: Layout, rng: np.random.Generator):
-    """Things the URDF does not know: cables / boxes on links, wrist-camera mount error."""
+def sample_robot_extras(spec: RobotSpec, layout: Layout, rng: np.random.Generator, recolor=0.0):
+    """Things the URDF does not know: cables / boxes on links, wrist-camera mount error, and (with
+    probability recolor; 0 = rng untouched) a repaint of the robot: per body a tint or a new colour."""
     m = mujoco.MjModel.from_xml_string(twin_xml(spec, layout))
     bodies = [m.body(b).name for b in range(m.nbody) if m.body_rootid[b] == m.body("robot_mount").id
               and m.body(b).name not in ("robot_mount",)]
@@ -75,7 +76,20 @@ def sample_robot_extras(spec: RobotSpec, layout: Layout, rng: np.random.Generato
             col = list(rng.uniform(0.05, 0.9, 3)) + [1]
             att.append(dict(body=b, type="box", size=sz.tolist(), pos=p.tolist(), quat=q.tolist(), rgba=col, kind="box"))
     wrist = dict(dpos=(rng.normal(0, 0.006, 3)).tolist(), drot=(rng.normal(0, np.deg2rad(2.5), 3)).tolist())
-    return dict(attachments=att, wrist_delta=wrist, bodies=bodies)
+    out = dict(attachments=att, wrist_delta=wrist, bodies=bodies)
+    if recolor > 0 and rng.random() < recolor:
+        base = rng.uniform(0.05, 0.95, 3); acc = rng.uniform(0.05, 0.95, 3)
+        mode = str(rng.choice(["tint", "two_tone", "random"]))
+        rc = {}
+        for b in bodies:
+            if mode == "tint":
+                rc[b] = dict(mul=np.clip(rng.normal(1, 0.25) * base / base.mean(), 0.2, 1.6).tolist())
+            elif mode == "two_tone":
+                rc[b] = dict(rgb=(base if rng.random() < 0.7 else acc).tolist())
+            else:
+                rc[b] = dict(rgb=rng.uniform(0.05, 0.95, 3).tolist())
+        out["recolor"] = dict(mode=mode, bodies=rc)
+    return out
 
 
 # =============================================================================== scene
@@ -149,6 +163,18 @@ def build_world_xml(spec: RobotSpec, layout: Layout, scene: dict, extras: dict, 
         ET.SubElement(bodies[a["body"]], "geom", name=f"attach{k}", type=a["type"], size=_s(a["size"]),
                       pos=_s(a["pos"]), quat=_s(a["quat"]), rgba=_s(a["rgba"]), group="1", contype="0",
                       conaffinity="0", density="0")
+    if extras.get("recolor"):                       # repaint robot visual geoms (attachments keep their colour)
+        rc = extras["recolor"]["bodies"]
+        for b in wb.iter("body"):
+            if b.get("name") in rc:
+                for g in b.findall("geom"):
+                    if g.get("group") != "1" or (g.get("name") or "").startswith("attach"):
+                        continue
+                    old = np.array([float(v) for v in (g.get("rgba") or "0.75 0.75 0.78 1").split()])
+                    new = np.clip(old[:3] * rc[b.get("name")]["mul"], 0, 1) if "mul" in rc[b.get("name")] else np.array(rc[b.get("name")]["rgb"])
+                    g.set("rgba", _s(np.r_[new, old[3]]))
+                    if g.get("material"):
+                        g.attrib.pop("material")
     for c in wb.iter("camera"):
         if c.get("name") == "wrist":
             wd = extras["wrist_delta"]

@@ -1,0 +1,40 @@
+name: fanuc_m710ic70
+urdf: assets/robots_train/fanuc_m710ic70/fanuc_m710ic70.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.0363
+- 0.3384
+- -0.7519
+- 0.3117
+- 2.05
+- -1.0388
+reach: 2.283
+rot_weight: 0.5
+asset_dir: assets/robots_train/fanuc_m710ic70/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.3653
+  - 0.0
+  - -0.1826
+  look_at:
+  - 0
+  - 0
+  - 0.799
+  fovy: 75

@@ -1,0 +1,40 @@
+name: kinova_gen2
+urdf: assets/robots_train/kinova_gen2/kinova_gen2.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- j2s6s200_joint_1
+- j2s6s200_joint_2
+- j2s6s200_joint_3
+- j2s6s200_joint_4
+- j2s6s200_joint_5
+- j2s6s200_joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -1.5663
+- 3.6755
+- 1.9531
+- -3.1118
+- 1.7504
+- -0.0004
+reach: 1.051
+rot_weight: 0.5
+asset_dir: assets/robots_train/kinova_gen2/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - 1
+  - 0
+  pos:
+  - 0.0
+  - 0.1682
+  - -0.0841
+  look_at:
+  - 0
+  - 0
+  - 0.3678
+  fovy: 75

@@ -1,0 +1,40 @@
+name: fanuc_cr7ia
+urdf: assets/robots_train/fanuc_cr7ia/fanuc_cr7ia.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.1148
+- 1.3267
+- -0.1585
+- -0.9299
+- -2.0944
+- 0.3603
+reach: 0.8
+rot_weight: 0.5
+asset_dir: assets/robots_train/fanuc_cr7ia/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - -1
+  - 0
+  pos:
+  - 0.0
+  - -0.128
+  - -0.064
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75

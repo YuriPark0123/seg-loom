@@ -1,0 +1,40 @@
+name: edo
+urdf: assets/robots_train/edo/edo.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 1.5167
+- 0.4453
+- 1.485
+- -0.0004
+- 1.2111
+- -1.624
+reach: 0.8
+rot_weight: 0.5
+asset_dir: assets/robots_train/edo/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.128
+  - 0.0
+  - -0.064
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75

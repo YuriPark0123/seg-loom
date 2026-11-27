@@ -1,0 +1,50 @@
+name: wx250s
+urdf: assets/robots_train/wx250s/wx250s.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- waist
+- shoulder
+- elbow
+- forearm_roll
+- wrist_angle
+- wrist_rotate
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0019
+- 0.144
+- -0.1929
+- -0.0003
+- 1.6186
+- -1.5681
+reach: 0.671
+rot_weight: 0.5
+asset_dir: assets/robots_train/wx250s/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.1074
+  - 0.0
+  - -0.0537
+  look_at:
+  - 0
+  - 0
+  - 0.2349
+  fovy: 75
+gripper:
+  joints:
+  - gripper
+  - left_finger
+  open:
+  - 0.0
+  - 0.037
+  close:
+  - 0.0
+  - 0.015

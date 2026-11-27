@@ -1,0 +1,42 @@
+name: iiwa7
+urdf: assets/robots_train/iiwa7/iiwa7.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- iiwa_joint_1
+- iiwa_joint_2
+- iiwa_joint_3
+- iiwa_joint_4
+- iiwa_joint_5
+- iiwa_joint_6
+- iiwa_joint_7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0
+- 0.5652
+- 0.0
+- -1.6057
+- 0.0
+- 0.9703
+- -0.0
+reach: 1.088
+rot_weight: 0.5
+asset_dir: assets/robots_train/iiwa7/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.272
+  - 0.0
+  - -0.087
+  look_at:
+  - 0
+  - 0
+  - 0.3808
+  fovy: 75

@@ -1,0 +1,38 @@
+name: xarm5
+urdf: assets/robots_train/xarm5/xarm5.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0
+- 0.5975
+- -0.8855
+- 2.6789
+- -0.0
+reach: 0.549
+rot_weight: 0.1
+asset_dir: assets/robots_train/xarm5/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.0878
+  - 0.0
+  - -0.0439
+  look_at:
+  - 0
+  - 0
+  - 0.1922
+  fovy: 75

@@ -8,3 +8,5 @@ assets/robots/*/*
 !assets/robots/ur7e/ur7e_raw.urdf
 assets/procgen*/
 .vscode/
+assets/robots_train/*/mj*/
+assets/robots_train/*/*_raw.urdf

@@ -1,0 +1,43 @@
+name: open_manipulator_x
+urdf: assets/robots_train/open_manipulator_x/open_manipulator_x.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.1459
+- -0.193
+- -0.1273
+- 1.2152
+reach: 0.425
+rot_weight: 0.1
+asset_dir: assets/robots_train/open_manipulator_x/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.068
+  - 0.0
+  - -0.034
+  look_at:
+  - 0
+  - 0
+  - 0.1487
+  fovy: 75
+gripper:
+  joints:
+  - gripper_left_joint
+  open:
+  - 0.02
+  close:
+  - -0.011

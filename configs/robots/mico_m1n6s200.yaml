@@ -1,0 +1,56 @@
+name: mico_m1n6s200
+urdf: assets/robots_train/mico_m1n6s200/mico_m1n6s200.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- m1n6s200_joint_1
+- m1n6s200_joint_2
+- m1n6s200_joint_3
+- m1n6s200_joint_4
+- m1n6s200_joint_5
+- m1n6s200_joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.1781
+- 2.4202
+- 4.1197
+- -3.672
+- 1.7329
+- -0.7098
+reach: 0.79
+rot_weight: 0.5
+asset_dir: assets/robots_train/mico_m1n6s200/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.2765
+  - 0.0
+  - -0.0632
+  look_at:
+  - 0
+  - 0
+  - 0.2765
+  fovy: 75
+gripper:
+  joints:
+  - m1n6s200_joint_finger_1
+  - m1n6s200_joint_finger_tip_1
+  - m1n6s200_joint_finger_2
+  - m1n6s200_joint_finger_tip_2
+  open:
+  - 1.51
+  - 2.0
+  - 1.51
+  - 2.0
+  close:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0

@@ -1,0 +1,40 @@
+name: fanuc_lrmate200ic
+urdf: assets/robots_train/fanuc_lrmate200ic/fanuc_lrmate200ic.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.1086
+- 0.8407
+- -0.7485
+- 0.857
+- 2.0944
+- -0.6052
+reach: 0.817
+rot_weight: 0.5
+asset_dir: assets/robots_train/fanuc_lrmate200ic/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.1307
+  - 0.0
+  - -0.0654
+  look_at:
+  - 0
+  - 0
+  - 0.2859
+  fovy: 75

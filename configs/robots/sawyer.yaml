@@ -1,0 +1,42 @@
+name: sawyer
+urdf: assets/robots_train/sawyer/sawyer.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- right_j0
+- right_j1
+- right_j2
+- right_j3
+- right_j4
+- right_j5
+- right_j6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.2917
+- 0.7745
+- -2.0408
+- 1.5408
+- -2.1285
+- -0.6575
+- -0.1519
+reach: 1.127
+rot_weight: 0.5
+asset_dir: assets/robots_train/sawyer/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.1803
+  - 0.0
+  - -0.0902
+  look_at:
+  - 0
+  - 0
+  - 0.3944
+  fovy: 75

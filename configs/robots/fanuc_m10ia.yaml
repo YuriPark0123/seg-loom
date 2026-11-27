@@ -1,0 +1,40 @@
+name: fanuc_m10ia
+urdf: assets/robots_train/fanuc_m10ia/fanuc_m10ia.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.0
+- 0.5315
+- -0.7848
+- 0.0114
+- 2.8858
+- -1.559
+reach: 1.617
+rot_weight: 0.5
+asset_dir: assets/robots_train/fanuc_m10ia/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - -1
+  - 0
+  pos:
+  - 0.0
+  - -0.2587
+  - -0.1294
+  look_at:
+  - 0
+  - 0
+  - 0.5659
+  fovy: 75
