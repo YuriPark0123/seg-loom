@@ -5,7 +5,7 @@
 #   env SPLIT=train (HF folder / local data/<SPLIT>), CLUTTER=0.0 (probability of a cluttered scene)
 #   real robots instead of procedural ones: ROBOTS="xarm6 wx250s ..." K=10 (instances per chunk) RECOLOR=0.5
 #     chunk c = instances [c*K, (c+1)*K) of every robot, folder <SPLIT>/iNNN (NNN = first instance)
-#   MODES="motion:10 task:10"
+#   MODES="motion:10 task:10"   LENFRAC=0.10 (approx-URDF link-length error, see gen_dataset.py --len-frac)
 #   FIX="robot_a robot_b": re-make only these robots in already uploaded chunks (download, drop, regenerate, re-upload)
 # Uploaded per chunk:  manifest.jsonl, config.json, errors.log, robots.tar (robots/ + procgen/),
 #                      episodes_000.tar ... (500 episode folders each, uncompressed; members are <ep>/{meta.json,arrays.npz,frames.npz})
@@ -14,7 +14,7 @@ set -u
 act() { set +u; conda activate "$1"; set -u; }
 cd "$(dirname "$0")/.."
 C0=${1:-0}; C1=${2:-9}; W=${3:-20}; N=200; SPLIT=${SPLIT:-train}; CLUTTER=${CLUTTER:-0.0}; SHARD=500
-ROBOTS=${ROBOTS:-}; K=${K:-10}; RECOLOR=${RECOLOR:-0.0}; MODES=${MODES:-motion:10 task:10}
+ROBOTS=${ROBOTS:-}; K=${K:-10}; RECOLOR=${RECOLOR:-0.0}; MODES=${MODES:-motion:10 task:10}; LENFRAC=${LENFRAC:-0.10}
 source "$(conda info --base)/etc/profile.d/conda.sh"
 for c in $(seq $C0 $C1); do
   if [ -n "$ROBOTS" ]; then
@@ -48,7 +48,7 @@ PY
   fi
   act shadow
   MUJOCO_GL=egl timeout -k 60 6h python scripts/gen_dataset.py --out $out $GEN \
-      --modes $MODES --workers $W --gpus 0 --clutter $CLUTTER || { echo "gen failed chunk $c"; exit 1; }
+      --modes $MODES --workers $W --gpus 0 --clutter $CLUTTER --len-frac $LENFRAC || { echo "gen failed chunk $c"; exit 1; }
   # ---- pack
   rm -rf $up; mkdir -p $up
   cp $out/manifest.jsonl $out/config.json $out/errors.log $up/ 2>/dev/null
