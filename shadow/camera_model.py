@@ -38,8 +38,8 @@ class CameraModel:
         return np.array([[self.fx, 0, self.cx], [0, self.fy, self.cy], [0, 0, 1.0]])
 
     def describe(self):
-        r = self.unproject(np.array([[0, self.cy], [self.width - 1, self.cy]]))
-        hfov = np.rad2deg(np.arccos(np.clip(r[0] @ r[1], -1, 1)))
+        r = self.unproject(np.c_[np.linspace(0, self.width - 1, 65), np.full(65, self.cy)])
+        hfov = 2 * np.rad2deg(np.nanmax(np.arccos(np.clip(r[:, 2], -1, 1))))
         return f"{self.kind} {self.width}x{self.height} f={self.fx:.0f} hfov~{hfov:.0f}deg dist={np.round(self.dist, 3).tolist()}"
 
     # ---------------- projection
@@ -75,17 +75,61 @@ class CameraModel:
         return r[dec[0]] if len(dec) else r[-1]
 
     def unproject(self, uv: np.ndarray):
-        """(N,2) pixels -> (N,3) unit rays in the camera frame."""
-        uv = np.asarray(uv, np.float64).reshape(-1, 1, 2)
+        """(N,2) pixels -> (N,3) unit rays in the camera frame.
+
+        Exact inversion (2026-11-28): the radial part by bisection on the monotonic range of the lens polynomial,
+        then (brown) a few Newton steps for the tangential terms. cv2.undistortPoints / cv2.fisheye.undistortPoints
+        did not converge near the corners of strong lenses (errors up to hundreds of pixels after re-projection)."""
+        uv = np.asarray(uv, np.float64).reshape(-1, 2)
+        xd, yd = (uv[:, 0] - self.cx) / self.fx, (uv[:, 1] - self.cy) / self.fy
+        rd = np.hypot(xd, yd)
+        d = np.asarray(self.dist, float)
+        safe = np.where(rd > 1e-12, rd, 1.0)
         if self.kind == "fisheye":
-            n = cv2.fisheye.undistortPoints(uv, self.K, self.dist[:4].reshape(4, 1)).reshape(-1, 2)
-        elif self.kind == "brown":
-            n = cv2.undistortPointsIter(uv, self.K, self.dist, None, None,
-                                        (cv2.TERM_CRITERIA_COUNT | cv2.TERM_CRITERIA_EPS, 40, 1e-9)).reshape(-1, 2)
-        else:
-            n = ((uv.reshape(-1, 2) - [self.cx, self.cy]) / [self.fx, self.fy])
-        r = np.c_[n, np.ones(len(n))]
+            k = d[:4]
+            f = lambda th: th * (1 + k[0] * th ** 2 + k[1] * th ** 4 + k[2] * th ** 6 + k[3] * th ** 8)
+            hi = np.arctan(self.fold_radius())                    # theta of the monotonic limit (< pi/2)
+            th = self._bisect(f, rd, hi)
+            s = np.sin(th) / safe
+            r = np.c_[xd * s, yd * s, np.cos(th)]
+            r[rd <= 1e-12] = [0, 0, 1]
+            return r / np.linalg.norm(r, axis=1, keepdims=True)
+        if self.kind == "brown":
+            k1, k2, p1, p2, k3 = d[:5]
+            f = lambda r: r * (1 + k1 * r ** 2 + k2 * r ** 4 + k3 * r ** 6)
+            hi = min(self.fold_radius(), 20.0)
+            ru = self._bisect(f, rd, hi)
+            x, y = xd * ru / safe, yd * ru / safe
+            x[rd <= 1e-12] = 0; y[rd <= 1e-12] = 0
+            for _ in range(4):                                    # Newton on the full model (tangential terms)
+                r2 = x * x + y * y
+                rad = 1 + k1 * r2 + k2 * r2 ** 2 + k3 * r2 ** 3
+                drad = k1 + 2 * k2 * r2 + 3 * k3 * r2 ** 2        # d rad / d r2
+                ex = x * rad + 2 * p1 * x * y + p2 * (r2 + 2 * x * x) - xd
+                ey = y * rad + p1 * (r2 + 2 * y * y) + 2 * p2 * x * y - yd
+                a = rad + 2 * x * x * drad + 2 * p1 * y + 6 * p2 * x
+                b = 2 * x * y * drad + 2 * p1 * x + 2 * p2 * y
+                c = 2 * x * y * drad + 2 * p1 * x + 2 * p2 * y
+                e = rad + 2 * y * y * drad + 6 * p1 * y + 2 * p2 * x
+                det = a * e - b * c
+                det = np.where(np.abs(det) > 1e-12, det, 1e-12)
+                x, y = x - (e * ex - b * ey) / det, y - (a * ey - c * ex) / det
+            r = np.c_[x, y, np.ones(len(x))]
+            return r / np.linalg.norm(r, axis=1, keepdims=True)
+        r = np.c_[xd, yd, np.ones(len(xd))]
         return r / np.linalg.norm(r, axis=1, keepdims=True)
+
+    @staticmethod
+    def _bisect(f, target, hi, n=20001):
+        """x in [0, hi] with f(x) = target for f increasing on [0, hi] (clamped to hi beyond its range): a dense
+        table + linear interpolation, then two Newton steps (numerical derivative) -> ~1e-12 relative."""
+        xs = np.linspace(0, hi, n)
+        x = np.interp(target, f(xs), xs)
+        for _ in range(2):
+            h = 1e-7 * max(hi, 1e-6)
+            d = (f(x + h) - f(x - h)) / (2 * h)
+            x = np.clip(x - (f(x) - target) / np.where(np.abs(d) > 1e-12, d, 1e-12), 0, hi)
+        return x
 
     def ray_map(self):
         """(H,W,3) unit ray per pixel - the camera-model-independent representation."""
@@ -100,25 +144,50 @@ class CameraModel:
 
 
 def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", "fisheye")) -> CameraModel:
-    """Sample a plausible real camera: resolution, FOV, principal-point offset, lens distortion."""
+    """Sample a plausible real camera: resolution, FOV, principal-point offset, lens distortion.
+
+    Every pixel has a valid ray (fixed 2026-11-28; the random draws are the same as before, only the derived values
+    changed): fisheye = Kannala-Brandt lens whose DIAGONAL field of view is the sampled one (<= 170 deg, so the
+    farthest corner ray stays below 90 deg, which cv2.fisheye can represent; the old pinhole-style tan() formula
+    made these lenses up to ~290 deg wide and the outer ring of the image showed rays clamped at 90 deg); brown =
+    k1, k2 shrunk until the radial polynomial is still increasing at the farthest corner (strong barrel values
+    folded back inside the image, so the corners had no ray)."""
     W, H = [(640, 480), (848, 480), (1280, 720), (1920, 1080), (640, 640), (1280, 960)][rng.integers(6)]
     kind = kinds[rng.integers(len(kinds))]
     if kind == "fisheye":
-        hfov = rng.uniform(100, 175)
-        fx = (W / 2) / np.tan(np.deg2rad(hfov / 2) * 0.82)            # KB lens: approx equidistant
+        fov = min(rng.uniform(100, 175), 170.0)                 # diagonal
         dist = np.r_[rng.normal(0, 0.03), rng.normal(0, 0.02), rng.normal(0, 0.01), rng.normal(0, 0.005), 0]
+        fx = None
     else:
-        hfov = rng.uniform(45, 100)
-        fx = (W / 2) / np.tan(np.deg2rad(hfov / 2))
+        fov = rng.uniform(45, 100)                              # horizontal
+        fx = (W / 2) / np.tan(np.deg2rad(fov / 2))
         dist = np.zeros(5)
         if kind == "brown":
             k1 = rng.uniform(-0.35, 0.15)
             dist = np.array([k1, rng.uniform(-0.1, 0.15) * (abs(k1) > 0.1), rng.normal(0, 0.002), rng.normal(0, 0.002),
                              0.0])
-    fy = fx * rng.uniform(0.995, 1.005)
+    fy_ratio = rng.uniform(0.995, 1.005)
     cx = W / 2 - 0.5 + rng.normal(0, 0.015 * W)
     cy = H / 2 - 0.5 + rng.normal(0, 0.015 * H)
-    return CameraModel(W, H, fx, fy, cx, cy, kind, dist)
+    corner = max(np.hypot(u - cx, v - cy) for u in (-0.5, W - 0.5) for v in (-0.5, H - 0.5))     # px
+    if kind == "fisheye":
+        th = np.deg2rad(fov / 2)
+        td = th * (1 + dist[0] * th ** 2 + dist[1] * th ** 4 + dist[2] * th ** 6 + dist[3] * th ** 8)
+        fx = corner / td / min(fy_ratio, 1.0)
+    elif kind == "brown":
+        rc = corner / (fx * min(fy_ratio, 1.0)) * 1.03          # farthest corner, distorted normalised radius
+        for _ in range(60):
+            # up to the farthest corner the radial map must keep a slope >= 0.3 (no fold, and no near-flat part
+            # that squeezes a wide range of angles into a few pixels and cannot be inverted reliably)
+            r = np.linspace(1e-4, 20, 8192)
+            m = r * (1 + dist[0] * r ** 2 + dist[1] * r ** 4)
+            slope = 1 + 3 * dist[0] * r ** 2 + 5 * dist[1] * r ** 4
+            reach = np.nonzero(m >= rc)[0]
+            upto = reach[0] + 1 if len(reach) else len(r)
+            if len(reach) and slope[:upto].min() >= 0.3:
+                break
+            dist[:2] *= 0.9
+    return CameraModel(W, H, fx, fx * fy_ratio, cx, cy, kind, dist)
 
 
 # ------------------------------------------------------------------------------- rendering
@@ -152,8 +221,10 @@ class ModelRenderer:
         else:                                            # cube map
             S = int(min(max_src // 2, max(cam.width, cam.height)))
             self.faces = self.FACES
-            fs = S / 2 / 1.0                             # 90-degree faces
-            self.fovy = 90.0
+            # faces a bit wider than 90 deg: a pixel is looked up at most 1/1.05 of the way to a face edge, so the
+            # bilinear lookup never mixes in the neighbouring face of the atlas (seams showed as dotted lines)
+            fs = S / 2 / 1.05
+            self.fovy = float(np.rad2deg(2 * np.arctan(1.05)))
             loc = np.stack([rays @ F for F in self.faces], 0)          # (5,H,W,3) ray in each face frame
             face = np.argmax(loc[..., 2], 0)
             lf = np.take_along_axis(loc, face[None, ..., None].repeat(3, -1), 0)[0]

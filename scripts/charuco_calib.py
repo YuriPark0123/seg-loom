@@ -63,14 +63,12 @@ def hfov_of(cam: CameraModel):
     return h if h > 1e-3 else 2 * np.arctan(cam.width / 2 / cam.fx)
 
 
-def random_board_pose(cam: CameraModel, rng, tilt_deg=50):
+def random_board_pose(cam: CameraModel, rng, tilt_deg=50, target=None):
     """Board pose (R, t: p_cam = R p_board + t) as if held by hand: centre on the ray of a random pixel (edges
     included, so the distortion is observed), size 25-60 % of the field of view, tilted up to tilt_deg."""
-    u = rng.uniform(0.1, 0.9) * cam.width
-    v = rng.uniform(0.1, 0.9) * cam.height
+    u, v = target if target is not None else (rng.uniform(0.1, 0.9) * cam.width, rng.uniform(0.1, 0.9) * cam.height)
     d = cam.unproject(np.array([[u, v]]))[0]
-    frac = rng.uniform(0.25, 0.6)
-    dist = float(np.clip(A4[0] / (frac * min(hfov_of(cam), np.deg2rad(150))), 0.12, 3.0))
+    frac = rng.uniform(0.25, 0.6)                              # board width on screen / image width
     z = -d                                                     # board normal towards the camera
     a = rng.normal(size=3); a -= (a @ z) * z; a /= np.linalg.norm(a)
     tilt = np.deg2rad(rng.uniform(0, tilt_deg))
@@ -81,8 +79,16 @@ def random_board_pose(cam: CameraModel, rng, tilt_deg=50):
     x = np.cross(rng.normal(size=3), zb); x /= np.linalg.norm(x)
     y = np.cross(zb, x)
     R = np.stack([x, y, zb], 1)
-    centre = dist * d
-    t = centre - R @ np.array([A4[0] / 2, A4[1] / 2, 0])
+    corners = np.array([[0, 0, 0], [A4[0], 0, 0], [0, A4[1], 0], [A4[0], A4[1], 0]]) - [A4[0] / 2, A4[1] / 2, 0]
+    dist = float(np.clip(A4[0] / (frac * min(hfov_of(cam), np.deg2rad(150))), 0.08, 3.0))
+    for _ in range(4):                     # distance at which the sheet spans `frac` of the image width there
+        uv, ok = cam.project(corners @ R.T + dist * d)
+        if not ok.all():
+            dist *= 1.5
+            continue
+        w = np.ptp(uv[:, 0]) if np.ptp(uv[:, 0]) > 1 else 1.0
+        dist = float(np.clip(dist * w / (frac * cam.width), 0.08, 3.0))
+    t = dist * d - R @ np.array([A4[0] / 2, A4[1] / 2, 0])
     return R, t
 
 
@@ -173,7 +179,10 @@ def calibrate(obs, size, rng, kinds=("brown3", "brown", "fisheye")):
     ok = {k: v["holdout"] for k, v in info.items() if "holdout" in v and np.isfinite(v["holdout"])}
     if not ok:
         return None, info
-    best = min(ok, key=ok.get)
+    # near-ties go to the simpler model: brown3 (k1 k2 p1 p2) < fisheye (k1..k4) < brown (+k3); extra terms only
+    # fit the covered area better and extrapolate badly to the rest of the image
+    lo = min(ok.values())
+    best = next(k for k in ("brown3", "fisheye", "brown") if k in ok and ok[k] <= lo * 1.15 + 0.02)
     try:
         cam, rms = _fit(best, obs, size)
         info["rms_all"] = rms
@@ -209,7 +218,18 @@ def cam_dict(c: CameraModel):
 
 
 # ------------------------------------------------------------------------------------------- main
-def sim_study(n, views, seed):
+GRID = (6, 4)
+
+
+def coverage(cells, uv, size):
+    i = np.clip((uv[:, 0] / size[0] * GRID[0]).astype(int), 0, GRID[0] - 1)
+    j = np.clip((uv[:, 1] / size[1] * GRID[1]).astype(int), 0, GRID[1] - 1)
+    cells[j, i] = True
+
+
+def sim_study(n, views, seed, max_tries=80):
+    """Guided capture, as the interactive tool will do it: the board is brought to cells of a 6x4 image grid that no
+    detected corner has covered yet, until all cells are covered and `views` views are detected (or max_tries)."""
     board = make_board()
     sheet, off, ppm = sheet_image(board, ppm=6000)
     rng = np.random.default_rng(seed)
@@ -217,9 +237,18 @@ def sim_study(n, views, seed):
     for i in range(n):
         gt = random_camera(rng)
         obs = []
-        for _ in range(views):
+        cells = np.zeros(GRID[::-1], bool)
+        for _ in range(max_tries):
+            if len(obs) >= views and cells.all():
+                break
+            free = np.argwhere(~cells)
+            if len(free):
+                cj, ci = free[rng.integers(len(free))]
+                target = ((ci + rng.uniform(0.2, 0.8)) / GRID[0] * gt.width, (cj + rng.uniform(0.2, 0.8)) / GRID[1] * gt.height)
+            else:
+                target = None
             try:
-                R, t = random_board_pose(gt, rng)
+                R, t = random_board_pose(gt, rng, target=target)
                 img = render_view(gt, sheet, off, ppm, R, t, rng)
                 d = detect(board, img)
             except Exception as e:                      # one bad view must not stop the study
@@ -228,7 +257,8 @@ def sim_study(n, views, seed):
             if d is not None:
                 obj, uv = d
                 obs.append((obj, uv))
-        row = dict(i=i, gt=cam_dict(gt), hfov_deg=float(np.rad2deg(hfov_of(gt))), views_ok=len(obs))
+                coverage(cells, uv, (gt.width, gt.height))
+        row = dict(coverage=float(cells.mean()), i=i, gt=cam_dict(gt), hfov_deg=float(np.rad2deg(hfov_of(gt))), views_ok=len(obs))
         if len(obs) >= 6:
             try:
                 est, info = calibrate(obs, (gt.width, gt.height), rng)
