@@ -191,3 +191,51 @@ task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실�
 - 사람 손에 의한 가림, 사진 텍스처(지금은 절차적 텍스처만).
 - 로봇 여러 대가 함께 있는 장면.
 - 형태가 블럭이 아닌 조작 대상(방해 물체로는 원기둥·복합 형상이 있지만 잡는 대상은 블럭뿐).
+
+## 9. 버그 기록: 그리퍼 연동 관절이 항상 0으로 그려지던 문제 (2026-11-28)
+
+**증상.** 일부 로봇에서 그리퍼 손가락 하나(또는 여러 링크)가 열고 닫는 명령과 상관없이 항상 0 위치에 그려졌다. 이미지와 라벨(visible/amodal 마스크, 자세)도 모두 그 상태로 만들어졌다. B200 세션이 xarm, px150, rx200, wx250s, vx300s, kinova_gen3_lite, open_manipulator_x, omx_f에서 처음 발견했다.
+
+**원인 1: 연동(mimic) 관절을 아무도 채우지 않았다.**
+- URDF의 `<mimic>` 관절(다른 관절을 따라 움직이는 관절)은 MuJoCo로 바꿀 때 `<equality joint>` 제약이 된다(`shadow/urdf_robot.py`).
+- MuJoCo에서 이 제약은 물리 계산(`mj_step`)을 돌릴 때만 맞춰진다.
+- 데이터 생성은 물리를 돌리지 않는다. 관절각을 `qpos`에 직접 넣고 `mj_kinematics`로 자세만 계산한다.
+- 그래서 config의 `gripper.joints`에 적힌 관절만 움직이고, 그것을 따라가야 할 관절은 처음 값 0에 그대로 남았다.
+- onboarding 코드에는 "mimic 관절은 MuJoCo에서 자동으로 따라간다"는 잘못된 가정이 주석으로 남아 있었다.
+
+**원인 2: 그리퍼 open/close가 거꾸로 저장되어 있었다.**
+- onboarding은 관절 한계의 위쪽 값을 open, 아래쪽 값을 close로 정한다. 그다음 `finalize`에서 손가락 사이 거리를 재서 open 쪽이 더 좁으면 둘을 바꾼다.
+- 하지만 이 거리를 재는 `gripper_width_table`은 "닫힌 상태 대비 변화량의 절댓값을 누적한 값"을 돌려준다. 그래서 첫 값이 항상 0이고, 바꾸는 조건이 한 번도 참이 될 수 없었다.
+- 또 관절 하나로 구동하는 그리퍼(xarm, Robotiq, UMI 등)는 측정할 손가락 끝이 하나뿐이라 거리가 늘 0이었다.
+- 결과: xarm6, xarm7, uf850, kinova_gen3_lite, arx_l5와 모든 Robotiq/UMI 조합에서 `open` 값이 실제로는 닫힌 자세였다.
+- omx_f는 URDF의 그리퍼 한계가 ±2π(한 바퀴)라서 open/close 값 자체가 의미가 없었다.
+
+**영향 범위.**
+- 연동 관절이 0에 고정된 로봇:
+  - xarm6, xarm7, uf850, px150, rx200, wx250s, vx300s, kinova_gen3_lite, open_manipulator_x, omx_f (`train_real` 21종 중 10종)
+  - arx_l5, seeed_devarm, trossen_wxai
+  - 36개 그리퍼 조합 전부 (`<팔>__robotiq`, `<팔>__umi`)
+- 영향 없음:
+  - 절차적 로봇(`train`, `train_clutter`, `eval`, `ref`): 두 손가락 관절을 모두 직접 지정한다.
+  - `eval_real` 7종, 원래 평가 4종(panda, piper, so101, ur7e).
+- 점검 방법: 모든 `configs/robots/*.yaml`에 대해 MuJoCo 모델의 joint equality를 훑고, 따라가는 관절이 `arm_joints`나 `gripper.joints`에 없는 로봇을 찾았다.
+
+**해결 (커밋 526502f).**
+1. `shadow/kinematic_mask.py`에 `apply_joint_couplings(model, data, explicit)`를 추가했다.
+   - joint equality의 다항식 `q1 - q1_0 = c0 + c1·(q2 - q2_0) + …`로 따라가는 관절 값을 계산해 넣는다.
+   - 따라가는 관절의 따라가는 관절이 있을 수 있어 여러 번 반복한다.
+   - 직접 지정한 관절은 건드리지 않는다.
+   - 관절을 설정하는 모든 곳에서 호출한다: `datagen.RenderWorld.set_q`, `mj_world.World.set_joints`, `kinematic_mask.RobotKinematics.set_joints`, `calibration`의 `set_joints`.
+2. `gripper_width_table`이 연동 관절이 있는 로봇에서는 그리퍼 관절(구동 + 연동)이 움직이는 모든 geom 사이의 최대 거리로 폭을 잰다. `raw=True`는 절대 거리를 돌려준다.
+3. `scripts/onboard_robots.py`의 `finalize`는 open/close를 비교할 때 이 절대 거리(`raw=True`)를 쓴다.
+   - URDF 한계가 실제 행정이 아닌 경우를 위해 `GRIP_RANGE`를 두었다. omx_f는 MoveIt srdf에 따라 open 1.0, close 0.0이다.
+4. 기존 config 41개의 open/close를 고쳤다. 다른 값(rest 자세 등)은 그대로 두었다.
+5. 검증:
+   - 그리퍼 근접 렌더에서 수정 전에는 한쪽 손가락만, 수정 후에는 양쪽이 같이 열리고 닫혔다.
+   - 시험 생성(10종 × 인스턴스 2)에서 손가락이 로봇 마스크에 포함되었다. task 성공은 112/120이었다.
+
+**데이터 교체.**
+- `train_real/i000`~`i030`: 위 10종만 같은 시드로 다시 만들어 덮어썼다(`FIX=`).
+- `eval_real2/i000`: 전체를 다시 만들었다.
+- `train_real2`: 별도 저장소 `yrpark/seg-loom-real2`에 처음부터 다시 만든다. 수정 전 v2 데이터는 쓰지 않는다.
+- `grip_cmd`(1 = open)는 고친 config를 따른다. 수정 전 데이터에서 위 open/close가 뒤바뀐 로봇의 `grip_cmd`는 의미가 반대였다.
