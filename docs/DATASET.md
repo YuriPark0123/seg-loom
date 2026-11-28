@@ -166,11 +166,11 @@ SPLIT=train_real ROBOTS="<extra_splits.yaml의 train 21종>" K=10 SEED=0 RECOLOR
 | HF `train/r0000`~`r1800` (2026-11-27, 3090) | 절차적 2,000 (seed 0~1999), 단순 장면 | 40,000 (motion 20,000, task 20,000) | 2,170,860 × 카메라 3대 | 약 90GB | 6시간 (worker 24) | 18,677/20,000 (93.4%) |
 | HF `train_clutter/r2000`~`r2800` (2026-11-27, 3090) | 절차적 1,000 (seed 2000~2999), 복잡한 장면 | 20,000 (motion 10,000, task 10,000) | 1,087,588 × 카메라 3대 | 약 63GB | 3시간 (worker 24) | 9,318/10,000 (93.2%) |
 | HF `eval_real/i000` (2026-11-27, 3090) | 공개 실제 평가 7종 × 인스턴스 4 (원래 색, 단순 장면, seed 100000) | 560 (motion 336, task 224) | 30,969 × 카메라 3대 | 1.5GB | 7분 | 205/224 (91.5%) |
-| HF `train_real/i000`~`i030` (2026-11-28, 3090) | 공개 실제 학습 21종 × 인스턴스 40 (recolor 0.5, clutter 0.5) | 16,800 (motion 8,400, task 8,400) | 907,359 × 카메라 3대 | 51.9GB | 2.5시간 (worker 24) | 7,454/8,400 (88.7%) |
+| HF `train_real/i000`~`i030` (2026-11-28, 3090) | 공개 실제 학습 21종 × 인스턴스 40 (recolor 0.5, clutter 0.5) | 16,800 (motion 8,400, task 8,400) | 907,359 × 카메라 3대 | 51.9GB | 2.5시간 (worker 24) | 7,890/8,400 (93.9%) |
 
 학습셋 HF 형식: `train/r0000`~`r0600`은 에피소드 파일이 개별로 올라가 있고, `r0800`부터와 `train_clutter/`는 폴더마다 `robots.tar` + `episodes_000.tar`~`007.tar`(에피소드 500개씩)로 묶여 있다(HF 파일 단위 다운로드 제한 대응). 풀기: `for f in <폴더>/*.tar; do tar xf $f -C <폴더>; done`.
 
-`eval_real`/`train_real` 폴더도 같은 tar 형식이다(`robots.tar`에 `robots/<이름>_iNNN/` 인스턴스별 근사 URDF·메시). 로봇 이름은 `<로봇>_iNNN`, 분할은 `configs/robots/extra_splits.yaml`, 라벨 값은 위와 같다. 실제 로봇 task 성공률은 로봇마다 다르다: fanuc_cr7ia 0/400(도달 가능한 블럭 배치를 못 찾음, motion 에피소드는 정상), fanuc_m710ic70 228/400, fanuc_m10ia 283/400, 나머지 18종은 89~100%.
+`eval_real`/`train_real` 폴더도 같은 tar 형식이다(`robots.tar`에 `robots/<이름>_iNNN/` 인스턴스별 근사 URDF·메시). 로봇 이름은 `<로봇>_iNNN`, 분할은 `configs/robots/extra_splits.yaml`, 라벨 값은 위와 같다. 실제 로봇 task 성공률은 로봇마다 다르다: 큰 Fanuc 2종(m710ic70 236/400, m10ia 290/400)과 crx10ial 318/400이 낮고 나머지는 89~100%. 2026-11-28: 공구 방향(tcp_frame)이 뒤집혀 있던 Fanuc 5종·xarm5(train_real)와 sawyer(eval_real)를 고쳐서(04eb5cf) 같은 시드로 다시 만들어 교체했다(`gen_train_chunks.sh`의 `FIX=`). 예전엔 fanuc_cr7ia가 0/400이었다.
 
 task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실패로 기록해 두었으므로, 실행 가능성 피드백(M7)을 학습하는 데 그대로 쓸 수 있다.
 
