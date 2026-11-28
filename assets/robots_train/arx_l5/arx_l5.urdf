@@ -1,0 +1,230 @@
+<robot name="arx_l5">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.0001655988 4.082368e-05 0.02910591" rpy="0 0 0" />
+      <mass value="0.12842" />
+      <inertia ixx="6.38232e-05" iyy="6.38232e-05" izz="3.79947e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0001655988 4.082368e-05 0.02910591" rpy="1.282659 0.6081607 1.388001" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/base_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link1">
+    <inertial>
+      <origin xyz="0.0050395 -0.0077407 0.020897" rpy="0 0 0" />
+      <mass value="0.096804" />
+      <inertia ixx="0.000118945" iyy="9.40205e-05" izz="4.70346e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.008193467 0.002822168 0.02789775" rpy="1.529366 0.6095041 0.001903593" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link1.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link2">
+    <inertial>
+      <origin xyz="-0.12992 -0.0011822 -2.6366e-05" rpy="0 0 0" />
+      <mass value="1.1988" />
+      <inertia ixx="0.0164704" iyy="0.01646" izz="0.000649595" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.1320967 0.0004201841 3.029364e-06" rpy="1.569806 -1.567745 1.572733" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link2.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link3">
+    <inertial>
+      <origin xyz="0.16181 0.0011723 -0.05455" rpy="0 0 0" />
+      <mass value="0.84082" />
+      <inertia ixx="0.0084909" iyy="0.00841207" izz="0.000747034" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.1200676 -0.0008058858 -0.05132423" rpy="1.683962 -0.1210624 1.565459" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link3.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.112 -0.025 -0.06" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/prim_8.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="1 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.112 0.023 -0.06" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/prim_9.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="1 0 0 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link4">
+    <inertial>
+      <origin xyz="0.041751 0.0054236 -0.03337" rpy="0 0 0" />
+      <mass value="0.12432" />
+      <inertia ixx="0.000303193" iyy="0.000235316" izz="0.000101491" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.05010247 0.0003426291 -0.04147683" rpy="-0.08510678 -0.725906 0.08884364" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link4.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link5">
+    <inertial>
+      <origin xyz="-8.3435e-05 -1.5428e-05 0.052216" rpy="0 0 0" />
+      <mass value="0.63601" />
+      <inertia ixx="0.000848329" iyy="0.00082" izz="0.000251671" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.001410876 -5.139694e-05 0.05343759" rpy="0.01178316 0.0817306 0.1535921" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link5.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link6">
+    <inertial>
+      <origin xyz="0.041697 2.4368e-05 0.00014464" rpy="0 0 0" />
+      <mass value="0.44089" />
+      <inertia ixx="0.0005" iyy="0.00038" izz="0.00028" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.04117573 5.339325e-06 0.000389757" rpy="-1.168322 -1.537886 2.739559" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link6.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.03853662 -0.0009403935 0.07056388" rpy="0.01618291 0.1668373 -0.01262509" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/camera.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link7">
+    <inertial>
+      <origin xyz="-0.00035522 -0.007827 -0.0029883" rpy="0 0 0" />
+      <mass value="0.064798" />
+      <inertia ixx="3e-05" iyy="3e-05" izz="2e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.003370396 -0.01176578 -0.004418039" rpy="-0.8849251 -1.213635 -2.268975" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link7.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link8">
+    <inertial>
+      <origin xyz="-0.000355223 0.00782769 0.00242006" rpy="0 0 0" />
+      <mass value="0.0647982" />
+      <inertia ixx="3e-05" iyy="3e-05" izz="2e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.00329117 0.01178544 0.002409181" rpy="-2.744784 -1.091564 -0.4425282" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/arx_l5/meshes/link8.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="joint1" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="2" />
+    <parent link="base_link" />
+    <child link="link1" />
+    <origin xyz="0 0 0.0565" rpy="0 0 0" />
+  </joint>
+  <joint name="joint2" type="revolute">
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="3.14" effort="100" velocity="2" />
+    <parent link="link1" />
+    <child link="link2" />
+    <origin xyz="0.02 0 0.047" rpy="0 0 0" />
+  </joint>
+  <joint name="joint3" type="revolute">
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="3.14" effort="100" velocity="2" />
+    <parent link="link2" />
+    <child link="link3" />
+    <origin xyz="-0.264 0 0" rpy="3.141585 0 0" />
+  </joint>
+  <joint name="joint4" type="revolute">
+    <axis xyz="0 1 0" />
+    <limit lower="-1.7" upper="1.7" effort="100" velocity="2" />
+    <parent link="link3" />
+    <child link="link4" />
+    <origin xyz="0.245 -5e-05 -0.06" rpy="0 0 0" />
+  </joint>
+  <joint name="joint5" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-1.7" upper="1.7" effort="100" velocity="2" />
+    <parent link="link4" />
+    <child link="link5" />
+    <origin xyz="0.073914 5e-05 -0.083391" rpy="0 0 0" />
+  </joint>
+  <joint name="joint6" type="revolute">
+    <axis xyz="1 0 0" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="2" />
+    <parent link="link5" />
+    <child link="link6" />
+    <origin xyz="0.025286 0 0.083391" rpy="-3.141585 0 0" />
+  </joint>
+  <joint name="joint7" type="prismatic">
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="0.044" effort="100" velocity="2" />
+    <parent link="link6" />
+    <child link="link7" />
+    <origin xyz="0.08657 0.024896 -0.0002436" rpy="0 0 0" />
+    <mimic joint="joint8" multiplier="-1" offset="0" />
+  </joint>
+  <joint name="joint8" type="prismatic">
+    <axis xyz="0 1 0" />
+    <limit lower="-0.044" upper="0" effort="100" velocity="2" />
+    <parent link="link6" />
+    <child link="link8" />
+    <origin xyz="0.08657 -0.0249 -0.00024366" rpy="0 0 0" />
+  </joint>
+<link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="link6" /><child link="tcp_frame" /><origin xyz="0.141442 -0.0014706 -0.000202641" rpy="1.5708 0 1.5708" /></joint></robot>

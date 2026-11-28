@@ -1,0 +1,650 @@
+<robot name="kinova">
+    <material name="black">
+        <color rgba="0.0 0.0 0.0 1.0" />
+    </material>
+    <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0" />
+    </material>
+    <material name="green">
+        <color rgba="0.0 0.8 0.0 1.0" />
+    </material>
+    <material name="grey">
+        <color rgba="0.2 0.2 0.2 1.0" />
+    </material>
+    <material name="light_grey">
+        <color rgba="0.4 0.4 0.4 1.0" />
+    </material>
+    <material name="orange">
+        <color rgba="1.0 0.423529411765 0.0392156862745 1.0" />
+    </material>
+    <material name="brown">
+        <color rgba="0.870588235294 0.811764705882 0.764705882353 1.0" />
+    </material>
+    <material name="red">
+        <color rgba="0.8 0.0 0.0 1.0" />
+    </material>
+    <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+    </material>
+    
+    
+    
+    <link name="base">
+      <inertial>
+        <mass value="0.01" />
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5" />
+      </inertial>
+    </link>
+
+    <link name="j2s6s200_link_base">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/base.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/base.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.46784" />
+            <origin rpy="0 0 0" xyz="0 0 0.1255" />
+            <inertia ixx="0.000951270861568" ixy="0" ixz="0" iyy="0.000951270861568" iyz="0" izz="0.000374272" />
+        </inertial>
+    </link>
+    <joint name="jaco_mounting_block_to_j2s6s200_link_base" type="fixed">
+        <parent link="base" />
+        <child link="j2s6s200_link_base" />
+        <axis xyz="0 0 0" />
+        <limit effort="0" lower="0" upper="0" velocity="0" />
+        <origin rpy="0 0 1.57079632679" xyz="0.000 0.000 0.000" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_link_1">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/shoulder.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/ring_big.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/shoulder.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.7477" />
+            <origin xyz="0 -0.002 -0.0605" />
+            <inertia ixx="0.00152031725204" ixy="0" ixz="0" iyy="0.00152031725204" iyz="0" izz="0.00059816" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_1" type="continuous">
+        <parent link="j2s6s200_link_base" />
+        <child link="j2s6s200_link_1" />
+        <axis xyz="0 0 1" />
+        <limit effort="40" lower="-6.28318530718" upper="6.28318530718" velocity="0.628318530718" />
+        <origin rpy="0 3.14159265359 0" xyz="0 0 0.15675" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_link_2">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/arm.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/ring_big.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/arm.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.99" />
+            <origin xyz="0 -0.2065 -0.01" />
+            <inertia ixx="0.010502207991" ixy="0" ixz="0" iyy="0.000792" iyz="0" izz="0.010502207991" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_2" type="revolute">
+        <parent link="j2s6s200_link_1" />
+        <child link="j2s6s200_link_2" />
+        <axis xyz="0 0 1" />
+        <limit effort="80" lower="0.820304748437" upper="5.46288055874" velocity="0.628318530718" />
+        <origin rpy="-1.57079632679 0 3.14159265359" xyz="0 0.0016 -0.11875" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_link_3">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/forearm.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/ring_big.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/forearm.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.6763" />
+            <origin xyz="0 0.081 -0.0086" />
+            <inertia ixx="0.00142022431908" ixy="0" ixz="0" iyy="0.000304335" iyz="0" izz="0.00142022431908" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_3" type="revolute">
+        <parent link="j2s6s200_link_2" />
+        <child link="j2s6s200_link_3" />
+        <axis xyz="0 0 1" />
+        <limit effort="40" lower="0.331612557879" upper="5.9515727493" velocity="0.628318530718" />
+        <origin rpy="0 3.14159265359 0" xyz="0 -0.410 0" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_link_4">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/wrist_spherical_1.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/ring_small.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/wrist_spherical_1.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.463" />
+            <origin xyz="0 0.0028848942 -0.0541932613" />
+            <inertia ixx="0.0004321316048" ixy="0" ixz="0" iyy="0.0004321316048" iyz="0" izz="9.26e-05" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_4" type="continuous">
+        <parent link="j2s6s200_link_3" />
+        <child link="j2s6s200_link_4" />
+        <axis xyz="0 0 1" />
+        <limit effort="20" lower="-6.28318530718" upper="6.28318530718" velocity="0.837758040957" />
+        <origin rpy="-1.57079632679 0 3.14159265359" xyz="0 0.2073 -0.0114" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_link_5">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/wrist_spherical_2.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/ring_small.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/wrist_spherical_2.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.463" />
+            <origin xyz="0 0.0497208855 -0.0028562765" />
+            <inertia ixx="0.0004321316048" ixy="0" ixz="0" iyy="9.26e-05" iyz="0" izz="0.0004321316048" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_5" type="revolute">
+        <parent link="j2s6s200_link_4" />
+        <child link="j2s6s200_link_5" />
+        <axis xyz="0 0 1" />
+        <limit effort="20" lower="0.523598775598" upper="5.75958653158" velocity="0.837758040957" />
+        <origin rpy="1.57079632679 0 3.14159265359" xyz="0 0 -0.10375" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_link_6">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/hand_2finger.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.3 0.3 0.3 1" />
+            </material>
+        </visual>
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/ring_small.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/hand_2finger.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.99" />
+            <origin xyz="0 0 -0.06" />
+            <inertia ixx="0.0003453236187" ixy="0" ixz="0" iyy="0.0003453236187" iyz="0" izz="0.0005816" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_6" type="continuous">
+        <parent link="j2s6s200_link_5" />
+        <child link="j2s6s200_link_6" />
+        <axis xyz="0 0 1" />
+        <limit effort="20" lower="-6.28318530718" upper="6.28318530718" velocity="0.837758040957" />
+        <origin rpy="-1.57079632679 0 3.14159265359" xyz="0 0.10375 0" />
+        <dynamics damping="0.0" friction="0.0" />
+    </joint>
+    <link name="j2s6s200_end_effector">
+      <inertial>
+        <mass value="0.01" />
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5" />
+      </inertial>
+    </link>
+    <joint name="j2s6s200_joint_end_effector" type="fixed">
+        <parent link="j2s6s200_link_6" />
+        <child link="j2s6s200_end_effector" />
+        <axis xyz="0 0 0" />
+        <limit effort="2000" lower="0" upper="0" velocity="1" />
+        
+        <origin rpy="3.14159265359 1.57079632679 0" xyz="0 0 -0.1600" />
+    </joint>
+    <link name="j2s6s200_link_finger_1">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_proximal.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_proximal.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.01" />
+            <origin xyz="0.022 0 0" />
+            <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_finger_1" type="fixed">
+        <parent link="j2s6s200_link_6" />
+        <child link="j2s6s200_link_finger_1" />
+        <axis xyz="0 0 1" />
+        <origin rpy="-1.570796327 .649262481663582 1.57079632679490" xyz="-0.0025 0.03095 -0.11482" />
+        <limit effort="2" lower="0" upper="1.51" velocity="1" />
+    </joint>
+    <link name="j2s6s200_link_finger_tip_1">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_distal.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_distal.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.01" />
+            <origin xyz="0.022 0 0" />
+            <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_finger_tip_1" type="fixed">
+        <parent link="j2s6s200_link_finger_1" />
+        <child link="j2s6s200_link_finger_tip_1" />
+        <axis xyz="0 0 1" />
+        <origin rpy="0 0 0" xyz="0.044 -0.003 0" />
+        <limit effort="2" lower="0" upper="2" velocity="1" />
+    </joint>
+    <link name="j2s6s200_link_finger_2">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_proximal.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_proximal.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.01" />
+            <origin xyz="0.022 0 0" />
+            <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_finger_2" type="fixed">
+        <parent link="j2s6s200_link_6" />
+        <child link="j2s6s200_link_finger_2" />
+        <axis xyz="0 0 1" />
+        <origin rpy="-1.570796327 .649262481663582 -1.57079632679490" xyz="-0.0025 -0.03095 -0.11482" />
+        <limit effort="2" lower="0" upper="1.51" velocity="1" />
+    </joint>
+    <link name="j2s6s200_link_finger_tip_2">
+        <visual>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_distal.dae" />
+            </geometry>
+            <material name="carbon_fiber">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+            </material>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://extra/example-robot-data/robots/kinova_description/meshes/finger_distal.dae" />
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.01" />
+            <origin xyz="0.022 0 0" />
+            <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5" />
+        </inertial>
+    </link>
+    <joint name="j2s6s200_joint_finger_tip_2" type="fixed">
+        <parent link="j2s6s200_link_finger_2" />
+        <child link="j2s6s200_link_finger_tip_2" />
+        <axis xyz="0 0 1" />
+        <origin rpy="0 0 0" xyz="0.044 -0.003 0" />
+        <limit effort="2" lower="0" upper="2" velocity="1" />
+    </joint>
+    <link name="g_base">
+    <inertial>
+      <origin xyz="7.77116e-05 8.42713e-05 0.0311656" rpy="0 0 0" />
+      <mass value="0.777441" />
+      <inertia ixx="0.000260285" iyy="0.000225381" izz="0.000152708" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-7.771157e-05 -8.427132e-05 0.04196563" rpy="-0.01335899 -0.002736357 -1.564192" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/base.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0001131925 -0.0004415163 0.005789429" rpy="1.707289 1.568211 1.779604" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/base_coupling.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-9.916264e-12 1.427633e-11 0.09737303" rpy="-3.141582 -1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/c-a01-85-open.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_driver">
+    <inertial>
+      <origin xyz="-0.0175297 0.00165308 -0.00469625" rpy="0 0 0" />
+      <mass value="0.00899563" />
+      <inertia ixx="1.72352e-06" iyy="1.60906e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01752974 0.001653076 -0.004696253" rpy="-1.571173 -0.0005289555 -1.688815" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/driver.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_coupler">
+    <inertial>
+      <origin xyz="0.00367747 0.01986 0.0055" rpy="0 0 0" />
+      <mass value="0.0140974" />
+      <inertia ixx="4.16206e-06" iyy="3.52216e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.003677466 0.01986 0.005500003" rpy="-1.570796 0 -0.2532217" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/coupler.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_spring_link">
+    <inertial>
+      <origin xyz="-0.0183 -0.0205732 0.01205" rpy="0 0 0" />
+      <mass value="0.0221642" />
+      <inertia ixx="8.96853e-06" iyy="6.71733e-06" izz="2.63931e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01829995 -0.02057319 0.01205" rpy="1.570796 2.220446e-16 -0.7266945" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/spring_link.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_follower">
+    <inertial>
+      <origin xyz="-0.00852976 -0.0014822 -0.00910001" rpy="0 0 0" />
+      <mass value="0.0125222" />
+      <inertia ixx="2.67415e-06" iyy="2.4559e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.008529763 -0.001482198 -0.00910001" rpy="1.570797 -9.799661e-07 2.075119" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/follower.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0009870422 0.02183357 -0.009100006" rpy="-1.570796 3.382649e-06 -0.2320785" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/tongue.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_pad">
+    <inertial>
+      <origin xyz="0.043258 0 0.129375" rpy="0 0 0" />
+      <mass value="0.0035" />
+      <inertia ixx="1e-06" iyy="1e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+  </link>
+  <link name="g_right_driver">
+    <inertial>
+      <origin xyz="-0.0175297 0.00165308 -0.00469625" rpy="0 0 0" />
+      <mass value="0.00899563" />
+      <inertia ixx="1.72352e-06" iyy="1.60906e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01752974 0.001653076 -0.004696253" rpy="-1.571173 -0.0005289555 -1.688815" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/driver.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_coupler">
+    <inertial>
+      <origin xyz="0.00367747 0.01986 0.0055" rpy="0 0 0" />
+      <mass value="0.0140974" />
+      <inertia ixx="4.16206e-06" iyy="3.52216e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.003677466 0.01986 0.005500003" rpy="-1.570796 0 -0.2532217" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/coupler.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_spring_link">
+    <inertial>
+      <origin xyz="-0.0183 -0.0205732 0.01205" rpy="0 0 0" />
+      <mass value="0.0221642" />
+      <inertia ixx="8.96853e-06" iyy="6.71733e-06" izz="2.63931e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01829995 -0.02057319 0.01205" rpy="1.570796 2.220446e-16 -0.7266945" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/spring_link.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_follower">
+    <inertial>
+      <origin xyz="-0.00852976 -0.0014822 -0.00910001" rpy="0 0 0" />
+      <mass value="0.0125222" />
+      <inertia ixx="2.67415e-06" iyy="2.4559e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.0009870422 0.02183357 -0.009100006" rpy="-1.570796 3.382649e-06 -0.2320785" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/tongue.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.008529763 -0.001482198 -0.00910001" rpy="1.570797 -9.799661e-07 2.075119" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/follower.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_pad">
+    <inertial>
+      <origin xyz="0.043258 0 0.129375" rpy="0 0 0" />
+      <mass value="0.0035" />
+      <inertia ixx="1e-06" iyy="1e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+  </link>
+  <joint name="g_left_driver_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_left_driver" />
+    <origin xyz="-0.0306011 0.00475 0.0657045" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="g_left_coupler_fixed" type="fixed">
+    <parent link="g_left_driver" />
+    <child link="g_left_coupler" />
+    <origin xyz="-0.0314249 0.00453223 -0.0102" rpy="0 0 3.141593" />
+  </joint>
+  <joint name="g_left_spring_link_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.296706" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_left_spring_link" />
+    <origin xyz="-0.0127 -0.012 0.07222" rpy="-1.570796 0 0" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999961" offset="8.48158e-05" />
+  </joint>
+  <joint name="g_left_follower" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.872664" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_left_spring_link" />
+    <child link="g_left_follower" />
+    <origin xyz="-0.0382079 -0.0425003 0.00295" rpy="-3.141593 0 3.80462e-05" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999846" offset="0.000147861" />
+  </joint>
+  <joint name="g_left_pad_fixed" type="fixed">
+    <parent link="g_left_follower" />
+    <child link="g_left_pad" />
+    <origin xyz="-0.0377897 -0.103916 -0.0091" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="g_right_driver_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_right_driver" />
+    <origin xyz="0.0306011 -0.00475 0.0657045" rpy="-1.570796 0 3.141593" />
+    <mimic joint="g_left_driver_joint" multiplier="1" offset="0" />
+  </joint>
+  <joint name="g_right_coupler_fixed" type="fixed">
+    <parent link="g_right_driver" />
+    <child link="g_right_coupler" />
+    <origin xyz="-0.0314249 0.00453223 -0.0102" rpy="0 0 3.141593" />
+  </joint>
+  <joint name="g_right_spring_link_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.296706" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_right_spring_link" />
+    <origin xyz="0.0127 0.012 0.07222" rpy="-1.570796 0 3.141593" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999949" offset="8.47569e-05" />
+  </joint>
+  <joint name="g_right_follower_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.872664" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_right_spring_link" />
+    <child link="g_right_follower" />
+    <origin xyz="-0.0382079 -0.0425003 0.00295" rpy="-3.141593 0 0" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999835" offset="0.000145747" />
+  </joint>
+  <joint name="g_right_pad_fixed" type="fixed">
+    <parent link="g_right_follower" />
+    <child link="g_right_pad" />
+    <origin xyz="-0.0377897 -0.103916 -0.0091" rpy="-1.570796 0 0" />
+  </joint>
+<joint name="gripper_mount" type="fixed"><parent link="j2s6s200_link_6" /><child link="g_base" /><origin xyz="-0 -0 -0.162444" rpy="-3.14159 2.64237e-06 1.56989" /></joint><link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="g_base" /><child link="tcp_frame" /><origin xyz="-0.0694635 6.23539e-05 0.103514" rpy="-2.65359e-06 2.64237e-06 -7.01175e-12" /></joint></robot>

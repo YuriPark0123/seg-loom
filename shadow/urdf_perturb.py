@@ -61,7 +61,7 @@ def perturb_urdf(true_root: ET.Element, out_dir: str, rng: np.random.Generator, 
     """true_root: parsed URDF whose mesh filenames are relative to out_dir (see localize_meshes).
     Writes out_dir/approx.urdf, returns the record of applied errors."""
     root = copy.deepcopy(true_root)
-    rec = dict(length={}, zero_deg={}, shape={}, dropped=[], level=level)
+    rec = dict(length={}, zero_deg={}, shape={}, dropped=[], level=level, len_frac=len_frac)
     for j in root.findall("joint"):
         o = j.find("origin")
         if o is None:
@@ -125,7 +125,7 @@ def perturb_urdf(true_root: ET.Element, out_dir: str, rng: np.random.Generator, 
     return rec
 
 
-def export_robot(spec, out_dir: str, rng: np.random.Generator, level=1.0):
+def export_robot(spec, out_dir: str, rng: np.random.Generator, level=1.0, len_frac=0.10):
     """Self-contained robot folder for the dataset: true.urdf + approx.urdf + meshes + record."""
     os.makedirs(out_dir, exist_ok=True)
     root = ET.parse(spec.urdf).getroot()
@@ -137,5 +137,5 @@ def export_robot(spec, out_dir: str, rng: np.random.Generator, level=1.0):
     links = root.findall("link")
     if links:
         protect.add(links[0].get("name"))
-    rec = perturb_urdf(root, out_dir, rng, level=level, protect=protect)
+    rec = perturb_urdf(root, out_dir, rng, level=level, protect=protect, len_frac=len_frac)
     return rec

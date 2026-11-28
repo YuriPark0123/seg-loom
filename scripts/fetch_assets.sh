@@ -28,3 +28,7 @@ get https://github.com/RethinkRobotics/sawyer_robot.git sawyer_robot d1ef3d0
 [ -d drake ] || { git clone -q --filter=blob:none --sparse https://github.com/RobotLocomotion/drake.git drake && \
   git -C drake sparse-checkout set manipulation/models/iiwa_description; }
 git -C drake checkout -q 7abea0556 && echo "drake @ 7abea0556 (iiwa_description only)"
+# MuJoCo menagerie (MJCF) -> URDF + OBJ in extra/menagerie_urdf. MuJoCo >= 3 is needed to read these models; the
+# repo env has 2.3.7, so the conversion runs in its own env:  conda create -n mjconv python=3.11 && pip install mujoco trimesh scipy
+get https://github.com/google-deepmind/mujoco_menagerie.git mujoco_menagerie 79a68d4
+conda run -n mjconv python ../../../scripts/mjcf_to_urdf.py --menagerie . > /dev/null && echo "menagerie -> menagerie_urdf converted"

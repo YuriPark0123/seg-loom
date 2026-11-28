@@ -72,6 +72,41 @@ SOURCES = {
     "wx250s": ("interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/wx250s.urdf.xacro", {}, "Interbotix/interbotix_ros_manipulators", "BSD-3-Clause"),
     "vx300s": ("interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_descriptions/urdf/vx300s.urdf.xacro", {}, "Interbotix/interbotix_ros_manipulators", "BSD-3-Clause"),
 }
+# MuJoCo menagerie models (MJCF), converted to URDF by scripts/mjcf_to_urdf.py into assets/src/extra/menagerie_urdf/
+# (fetch_assets.sh). name -> (menagerie xml, subtree root body or None, license). Not taken: franka/ur/so-arm/piper
+# (eval robots and their cousins), low_cost_robot_arm (Koch arm, the design SO-ARM100 descends from), humanoids,
+# hello_robot_stretch (prismatic arm), dyna_taku (no license grant), aloha / trossen vx300s/wx250s / xarm7 / lite6 /
+# sawyer / iiwa14 / rizon4 / yam (already onboarded from their ROS descriptions).
+MENAGERIE = {
+    "arx_l5": ("arx_l5/arx_l5.xml", None, "BSD-3-Clause"),
+    "unitree_z1": ("unitree_z1/z1_gripper.xml", None, "BSD-3-Clause"),
+    "kinova_gen3": ("kinova_gen3/gen3.xml", None, "BSD-3-Clause"),
+    "fanuc_crx5ia": ("fanuc_crx5ia/crx5ia.xml", None, "Apache-2.0"),
+    "trossen_wxai": ("trossen_wxai/wxai_follower.xml", None, "BSD-3-Clause"),
+    "seeed_devarm": ("seeed_rebot_devarm/seeed_rebot_devarm.xml", None, "MIT"),
+    "google_robot": ("google_robot/robot.xml", None, "Apache-2.0"),
+    # dropped: "pal_tiago": ("pal_tiago/tiago.xml", "torso_lift_link", "Apache-2.0"),        rest unreachable (31 mm)
+    # dropped: "rby1": ("rainbow_robotics_rby1/rby1a_1.2.xml", "link_torso_5", "Apache-2.0"),   rest pose under the table
+    "rizon4s": ("flexiv_rizon4s/flexiv_rizon4s.xml", None, "Apache-2.0"),
+    # grippers only (mounted on bare-flange arms below)
+    "robotiq_2f85": ("robotiq_2f85_v4/2f85.xml", None, "BSD-2-Clause"),
+    "umi_gripper": ("umi_gripper/umi_gripper.xml", None, "MIT"),
+}
+GRIPPERS = ("robotiq_2f85", "umi_gripper")
+for _n, (_x, _r, _l) in MENAGERIE.items():
+    if _n not in GRIPPERS:
+        SOURCES[_n] = (f"menagerie_urdf/{_n}/{_n}.urdf", None, "google-deepmind/mujoco_menagerie", _l)
+# arm + gripper: a real gripper on the flange of an arm whose description has none (mounted on the arm's own
+# tcp_frame, i.e. the flange face with the approach axis fixed in 04eb5cf). Eval arms only get eval combos.
+BARE_TRAIN = ["fanuc_m710ic70", "fanuc_lrmate200ic", "fanuc_m10ia", "fanuc_cr7ia", "fanuc_crx10ial", "fanuc_crx5ia",
+              "kinova_gen2", "kinova_gen3", "xarm5", "lite6", "omy_3m"]
+BARE_EVAL = ["iiwa7", "iiwa14", "rizon4", "rizon10", "rizon4s", "sawyer", "edo"]
+COMBOS = {f"{a}__{g.split('_')[0]}": (a, g) for a in BARE_TRAIN + BARE_EVAL for g in GRIPPERS}
+# the first 28 (data made 2026-11-27) keep the reach-scaled wrist camera they were generated with
+LEGACY_WRIST = {"edo", "fanuc_m710ic70", "fanuc_lrmate200ic", "fanuc_m10ia", "fanuc_cr7ia", "fanuc_crx10ial", "kinova_gen2",
+                "kinova_gen3_lite", "jaco2_j2n6s300", "mico_m1n6s200", "iiwa14", "iiwa7", "rizon4", "rizon10", "xarm6", "xarm7",
+                "xarm5", "lite6", "uf850", "omx_f", "omy_3m", "open_manipulator_x", "yam", "sawyer", "px150", "rx200",
+                "wx250s", "vx300s"}
 FINGER_RE = re.compile(r"finger|gripper|jaw|knuckle|claw|drive|hand_joint|thumb|tip", re.I)
 
 
@@ -350,7 +385,7 @@ def finalize(spec, rng):
         raise RuntimeError(f"validate: {vinfo.get('reason')}")
     spec["rest_q"] = [round(float(v), 4) for v in rest]
     yaml.safe_dump(spec, open(p, "w"), sort_keys=False)
-    spec["wrist_cam"], info["wrist_robot_frac"] = tune_wrist(p, spec, rng)
+    spec["wrist_cam"], info["wrist_robot_frac"] = tune_wrist(p, spec, rng, flange_anchor=spec["name"] not in LEGACY_WRIST)
     yaml.safe_dump(spec, open(p, "w"), sort_keys=False)
     return spec, info
 
@@ -382,7 +417,7 @@ def _inside_robot(w, pt, margin):
     return False
 
 
-def tune_wrist(p, spec, rng, max_frac=0.3):
+def tune_wrist(p, spec, rng, max_frac=0.3, flange_anchor=True):
     """Wrist camera: smallest side offset (4 directions) that is outside the robot, sees < max_frac robot and,
     preferably, a bit of the tool (fraction >= 0.01). Returns (wrist_cam, robot fraction)."""
     from shadow.camera_model import CameraModel
@@ -391,14 +426,23 @@ def tune_wrist(p, spec, rng, max_frac=0.3):
     from shadow.urdf_robot import RobotSpec
     S = RobotSpec.load(p); L = Layout(S); R = L.R
     cam = CameraModel(160, 120, 80.0, 80.0, 80.0, 60.0)
+    if flange_anchor:
+        # real wrist cameras sit near the flange a few cm off-axis, whatever the arm size: offsets scale with
+        # min(R, 0.8 m) and the camera is pulled back by the tool length (flange -> tcp), so a long gripper stays in view
+        tj = next(j for j in ET.parse(S.urdf).getroot().findall("joint") if j.get("name") == "tcp_frame_joint")
+        tool = float(np.linalg.norm(np.array(tj.find("origin").get("xyz").split(), float)))
+        s_ = min(R, 0.8)
+        ks, back, look = (0.1, 0.16, 0.25, 0.35, 0.5), tool + 0.04 * s_, 0.35 * s_
+    else:                                          # robots onboarded before 2026-11-28 (their data exists)
+        s_, ks, back, look = R, (0.16, 0.25, 0.35, 0.5, 0.7), 0.08 * R, 0.35 * R
     extras = dict(attachments=[], wrist_delta=dict(dpos=[0, 0, 0], drot=[0, 0, 0]), bodies=[])
     scene = sample_scene(S, L, np.random.default_rng(0), n_obj=0)
     fallback = None
-    for k in (0.16, 0.25, 0.35, 0.5, 0.7):
+    for k in ks:
         cands = []
         for sx in ([1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0]):
-            wc = dict(side_axis=sx, pos=[round(float(v), 4) for v in np.array(sx) * k * R + np.r_[0, 0, -0.08 * R]],
-                      look_at=[0, 0, round(0.35 * R, 4)], fovy=75)
+            wc = dict(side_axis=sx, pos=[round(float(v), 4) for v in np.array(sx) * k * s_ + np.r_[0, 0, -back]],
+                      look_at=[0, 0, round(look, 4)], fovy=75)
             S.wrist_cam = wc
             w = DataWorld(S, L, scene, extras)
             w.set_q(S.rest_q, [float(v) for v in (S.gripper["open"] if S.gripper else [])]); w.refresh()
@@ -421,6 +465,7 @@ def tune_wrist(p, spec, rng, max_frac=0.3):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", nargs="*")
+    ap.add_argument("--combos", action="store_true", help="also build every arm + gripper combination")
     a = ap.parse_args()
     os.makedirs(OUT_CFG, exist_ok=True)
     pk = package_map()
@@ -446,6 +491,96 @@ def main():
             if os.environ.get("DEBUG"):
                 traceback.print_exc()
         json.dump(report, open(rep_p, "w"), indent=1, default=str)
+    for name, (arm, grip) in COMBOS.items():
+        if (a.only and name not in a.only) or (not a.only and not a.combos):
+            continue
+        rng = np.random.default_rng(sum(map(ord, name)))
+        src, args, repo, lic = SOURCES[arm]
+        try:
+            s = os.path.join(EXTRA, src)
+            if os.path.isdir(s):
+                s = sorted(glob.glob(os.path.join(s, "*.urdf")))[0]
+            repo_dir = os.path.join(EXTRA, src.split("/")[0])
+            text = attach_gripper(flatten(s, args, pk), arm, grip)
+            spec = derive(name, text, pk, rng, os.path.dirname(s), repo_dir)
+            spec, info = finalize(spec, rng)
+            report[name] = dict(ok=True, repo=f"{repo} + google-deepmind/mujoco_menagerie ({grip})",
+                                license=f"{lic} + {MENAGERIE[grip][2]}", source=f"{src} + menagerie_urdf/{grip}",
+                                xacro_args=args, arm_of=arm, gripper_of=grip, n_arm=len(spec["arm_joints"]),
+                                arm=spec["arm_joints"], gripper=(spec.get("gripper") or {}).get("joints"), reach=spec["reach"], **info)
+            print(f"OK   {name:28s} arm {len(spec['arm_joints'])} grip {len((spec.get('gripper') or {}).get('joints', []))} reach {spec['reach']:.2f} ws {info['workspace']:.2f}", flush=True)
+        except Exception as e:
+            report[name] = dict(ok=False, repo=repo, license=lic, source=src, arm_of=arm, gripper_of=grip, error=f"{type(e).__name__}: {e}")
+            print(f"FAIL {name:28s} {type(e).__name__}: {str(e)[:160]}", flush=True)
+            if os.environ.get("DEBUG"):
+                traceback.print_exc()
+        json.dump(report, open(rep_p, "w"), indent=1, default=str)
+
+
+def gripper_axes(grip):
+    """Approach axis (base -> fingertips) and finger slide axis of a converted gripper, in its base frame."""
+    import mujoco
+    p = os.path.join(EXTRA, "menagerie_urdf", grip, f"{grip}.urdf")
+    r = ET.parse(p).getroot()
+    mj = ET.SubElement(r, "mujoco")
+    ET.SubElement(mj, "compiler", meshdir=os.path.dirname(p), strippath="false", discardvisual="false", fusestatic="false")
+    m = mujoco.MjModel.from_xml_string(ET.tostring(r, encoding="unicode").replace('filename="meshes/', 'filename="meshes/'))
+    d = mujoco.MjData(m); mujoco.mj_kinematics(m, d)
+    fing = [m.jnt_bodyid[j] for j in range(m.njnt) if FINGER_RE.search(m.joint(j).name)]
+    sub = lambda b0: [b for b in range(m.nbody) if _under(m, b, b0)]
+    cen = []
+    for b0 in fing:
+        pts = [d.geom_xpos[g] for g in range(m.ngeom) if m.geom_bodyid[g] in sub(b0)]
+        if pts:
+            cen.append(np.mean(pts, 0))
+    c = np.mean(cen, 0)
+    a = c / np.linalg.norm(c)
+    side = cen[0] - cen[-1]
+    side = side - (side @ a) * a
+    side = side / np.linalg.norm(side) if np.linalg.norm(side) > 1e-6 else np.cross(a, [1, 0, 0]) / np.linalg.norm(np.cross(a, [1, 0, 0]))
+    return a, side
+
+
+def _under(m, b, r):
+    while b > 0:
+        if b == r:
+            return True
+        b = m.body_parentid[b]
+    return False
+
+
+def attach_gripper(arm_text, arm, grip):
+    """Arm URDF text + converted gripper, fixed at the arm's onboarded tcp_frame (flange face, z = approach)."""
+    from scipy.spatial.transform import Rotation
+    tj = next(j for j in ET.parse(os.path.join(OUT_URDF, arm, f"{arm}.urdf")).getroot().findall("joint")
+              if j.get("name") == "tcp_frame_joint")
+    flange = tj.find("parent").get("link")
+    xyz = np.array(tj.find("origin").get("xyz").split(), float)
+    R_mount = Rotation.from_euler("xyz", np.array(tj.find("origin").get("rpy").split(), float)).as_matrix()
+    a, side = gripper_axes(grip)
+    A = np.stack([np.cross(side, a), side, a], 1)              # gripper-frame columns -> mount x, y, z
+    R = R_mount @ A.T
+    root = ET.fromstring(arm_text)
+    gp = os.path.join(EXTRA, "menagerie_urdf", grip)
+    g = ET.parse(os.path.join(gp, f"{grip}.urdf")).getroot()
+    pre = "g_"
+    for el in g.iter():
+        k = {"link": "name", "joint": "name", "material": "name", "parent": "link", "child": "link", "mimic": "joint"}.get(el.tag)
+        if k and el.get(k):
+            el.set(k, pre + el.get(k))
+        if el.tag == "mesh":
+            el.set("filename", os.path.join(gp, el.get("filename")))
+    links = [l for l in g.findall("link")]
+    childs = {j.find("child").get("link") for j in g.findall("joint")}
+    base = next(l.get("name") for l in links if l.get("name") not in childs)
+    for el in list(g):
+        if el.tag in ("link", "joint"):
+            root.append(el)
+    mj = ET.SubElement(root, "joint", name="gripper_mount", type="fixed")
+    ET.SubElement(mj, "parent", link=flange); ET.SubElement(mj, "child", link=base)
+    ET.SubElement(mj, "origin", xyz=" ".join(f"{v:.6g}" for v in xyz),
+                  rpy=" ".join(f"{v:.6g}" for v in Rotation.from_matrix(R).as_euler("xyz")))
+    return ET.tostring(root, encoding="unicode")
 
 
 if __name__ == "__main__":

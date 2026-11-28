@@ -1,0 +1,49 @@
+name: sawyer__umi
+urdf: assets/robots_train/sawyer__umi/sawyer__umi.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- right_j0
+- right_j1
+- right_j2
+- right_j3
+- right_j4
+- right_j5
+- right_j6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.0044
+- -0.8717
+- -0.6319
+- 0.8234
+- 0.394
+- 1.7102
+- 1.2875
+reach: 1.452
+rot_weight: 0.5
+asset_dir: assets/robots_train/sawyer__umi/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.08
+  - 0.0
+  - -0.2118
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_right_finger_joint
+  open:
+  - 0.05
+  close:
+  - 0.0

@@ -1,0 +1,432 @@
+<robot xmlns:ns0="http://drake.mit.edu" name="iiwa14">
+  
+  <material name="Black">
+    <color rgba="0.0 0.0 0.0 1.0" />
+  </material>
+  <material name="Blue">
+    <color rgba="0.0 0.0 0.8 1.0" />
+  </material>
+  <material name="Green">
+    <color rgba="0.0 0.8 0.0 1.0" />
+  </material>
+  <material name="Grey">
+    <color rgba="0.4 0.4 0.4 1.0" />
+  </material>
+  <material name="Silver">
+    <color rgba="0.6 0.6 0.6 1.0" />
+  </material>
+  <material name="Orange">
+    <color rgba="1.0 0.423529411765 0.0392156862745 1.0" />
+  </material>
+  <material name="Brown">
+    <color rgba="0.870588235294 0.811764705882 0.764705882353 1.0" />
+  </material>
+  <material name="Red">
+    <color rgba="0.8 0.0 0.0 1.0" />
+  </material>
+  <material name="White">
+    <color rgba="1.0 1.0 1.0 1.0" />
+  </material>
+  
+  <link name="base"><inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+  
+  <joint name="iiwa_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0" />
+    <parent link="base" />
+    <child link="iiwa_link_0" />
+  </joint>
+  <link name="iiwa_link_0">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.1 0 0.07" />
+      <mass value="5" />
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.06" iyz="0" izz="0.03" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_0.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+    <self_collision_checking>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <capsule length="0.25" radius="0.15" />
+      </geometry>
+    </self_collision_checking>
+  </link>
+  
+  <joint name="iiwa_joint_1" type="revolute">
+    <parent link="iiwa_link_0" />
+    <child link="iiwa_link_1" />
+    <origin rpy="0 0 0" xyz="0 0 0.1575" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="8.57" effort="320" lower="-2.96705972839" upper="2.96705972839" velocity="1.4835298641951802" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_1">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.03 0.12" />
+      <mass value="5.76" />
+      <inertia ixx="0.033" ixy="0" ixz="0" iyy="0.0333" iyz="0" izz="0.0123" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_1.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+  </link>
+  
+  <joint name="iiwa_joint_2" type="revolute">
+    <parent link="iiwa_link_1" />
+    <child link="iiwa_link_2" />
+    <origin rpy="1.570796326794897   0 3.141592653589793" xyz="0 0 0.2025" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="8.57" effort="320" lower="-2.09439510239" upper="2.09439510239" velocity="1.4835298641951802" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_2">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0003 0.059 0.042" />
+      <mass value="6.35" />
+      
+      
+      <inertia ixx="0.0305" ixy="0" ixz="0" iyy="0.0304" iyz="0" izz="0.011" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_2_orange.obj" />
+      </geometry>
+      <material name="Orange" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_2_grey.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+  </link>
+  
+  <joint name="iiwa_joint_3" type="revolute">
+    <parent link="iiwa_link_2" />
+    <child link="iiwa_link_3" />
+    <origin rpy="1.570796326794897 0 3.141592653589793" xyz="0 0.2045 0" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="8.74" effort="176" lower="-2.96705972839" upper="2.96705972839" velocity="1.7453292519943295" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_3">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.03 0.13" />
+      <mass value="3.5" />
+      
+      
+      <inertia ixx="0.025" ixy="0" ixz="0" iyy="0.0238" iyz="0" izz="0.0076" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_3.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/band.obj" />
+      </geometry>
+      <material name="Silver" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/kuka.obj" />
+      </geometry>
+      <material name="Black" />
+    </visual>
+  </link>
+  
+  <joint name="iiwa_joint_4" type="revolute">
+    <parent link="iiwa_link_3" />
+    <child link="iiwa_link_4" />
+    <origin rpy="1.570796326794897 0 0" xyz="0 0 0.2155" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="11.36" effort="176" lower="-2.09439510239" upper="2.09439510239" velocity="1.3089969389957472" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_4">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.067 0.034" />
+      <mass value="3.5" />
+      
+      
+      <inertia ixx="0.017" ixy="0" ixz="0" iyy="0.0164" iyz="0" izz="0.006" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_4_orange.obj" />
+      </geometry>
+      <material name="Orange" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_4_grey.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+  </link>
+  
+  <joint name="iiwa_joint_5" type="revolute">
+    <parent link="iiwa_link_4" />
+    <child link="iiwa_link_5" />
+    <origin rpy="-1.570796326794897 3.141592653589793 0" xyz="0 0.1845 0" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="12.23" effort="110" lower="-2.96705972839" upper="2.96705972839" velocity="2.2689280275926285" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_5">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0001 0.021 0.076" />
+      <mass value="3.5" />
+      
+      
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.0087" iyz="0" izz="0.00449" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_5.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/band.obj" />
+      </geometry>
+      <material name="Silver" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/kuka.obj" />
+      </geometry>
+      <material name="Black" />
+    </visual>
+  </link>
+  
+  <joint name="iiwa_joint_6" type="revolute">
+    <parent link="iiwa_link_5" />
+    <child link="iiwa_link_6" />
+    <origin rpy="1.570796326794897 0 0" xyz="0 0 0.2155" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="15.72" effort="40" lower="-2.09439510239" upper="2.09439510239" velocity="2.356194490192345" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_6">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0.0006 0.0004" />
+      <mass value="1.8" />
+      
+      
+      <inertia ixx="0.0049" ixy="0" ixz="0" iyy="0.0047" iyz="0" izz="0.0036" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_6_orange.obj" />
+      </geometry>
+      <material name="Orange" />
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_6_grey.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+  </link>
+  
+  <joint name="iiwa_joint_7" type="revolute">
+    <parent link="iiwa_link_6" />
+    <child link="iiwa_link_7" />
+    <origin rpy="-1.570796326794897 3.141592653589793 0" xyz="0 0.081 0" />
+    <axis xyz="0 0 1" />
+    <limit ns0:acceleration="15.72" effort="40" lower="-3.05432619099" upper="3.05432619099" velocity="2.356194490192345" />
+    <dynamics damping="0.5" />
+  </joint>
+  <link name="iiwa_link_7">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.02" />
+      <mass value="1.2" />
+      
+      
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/drake/manipulation/models/iiwa_description/meshes/visual/link_7.obj" />
+      </geometry>
+      <material name="Grey" />
+    </visual>
+  </link>
+  <joint name="iiwa_joint_ee" type="fixed">
+    <parent link="iiwa_link_7" />
+    <child link="iiwa_link_ee_kuka" />
+    <origin rpy="3.141592653589793 3.141592653589793 3.141592653589793" xyz="0 0 0.045" />
+    <axis xyz="0 0 1" />
+  </joint>
+  <link name="iiwa_link_ee_kuka">
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+  <joint name="tool0_joint" type="fixed">
+    <parent link="iiwa_link_7" />
+    <child link="iiwa_link_ee" />
+    <origin rpy="0 -1.570796326794897 0" xyz="0 0 0.045" />
+  </joint>
+  <link name="iiwa_link_ee">
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+  <frame link="iiwa_link_ee" name="iiwa_frame_ee" rpy="3.141592653589793 0 1.570796326794897" xyz="0.09 0 0" />
+  
+  <link name="g_body1">
+    <inertial>
+      <origin xyz="0.001596798 0.003504282 0.02287167" rpy="0 0 0" />
+      <mass value="1.56013" />
+      <inertia ixx="0.00553071" iyy="0.00409211" izz="0.00272421" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0 -0.002 0.062" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_0.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.6 0.6 0.6 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.069 -0.057 0.04" rpy="0 1.190152 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_1.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.069 -0.057 0.04" rpy="0 -1.190152 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_2.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0002903696 0.009971137 0.02497243" rpy="0.1124452 -1.473184 1.483" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/base_link.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.01829678 -0.07888115 -0.003825782" rpy="0.8735072 1.478333 -2.197912" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/gopro.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_finger_holder">
+    <inertial>
+      <origin xyz="-0.0613355 0.104073 -0.0013157" rpy="0 0 0" />
+      <mass value="0.080081" />
+      <inertia ixx="0.000104597" iyy="0.000102992" izz="1.90532e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.051 0.063 0.006" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_16.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.06440684 0.08112334 -3.970886e-05" rpy="1.233061 -0.3781388 0.2840046" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/left_finger_holder.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.05643616 0.124442 -0.003" rpy="1.714303 1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/left_finger.obj" />
+      </geometry>
+      <material name="g_mat4">
+        <color rgba="0.92 0.68 0.24 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_finger_holder">
+    <inertial>
+      <origin xyz="0.0613353 0.104073 -0.00131574" rpy="0 0 0" />
+      <mass value="0.080081" />
+      <inertia ixx="0.000104597" iyy="0.000102992" izz="1.90532e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.051 0.063 0.006" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_27.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.06440684 0.08112334 -3.970884e-05" rpy="1.233061 0.3781388 -0.2840046" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/right_finger_holder.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.05643616 0.124442 -0.003" rpy="1.714303 -1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/right_finger.obj" />
+      </geometry>
+      <material name="g_mat4">
+        <color rgba="0.92 0.68 0.24 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="g_left_finger_joint" type="prismatic">
+    <axis xyz="1 0 0" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="g_body1" />
+    <child link="g_left_finger_holder" />
+    <origin xyz="0 0 0" rpy="1.570796 0 0" />
+    <mimic joint="g_right_finger_joint" multiplier="1" offset="-2.50102e-08" />
+  </joint>
+  <joint name="g_right_finger_joint" type="prismatic">
+    <axis xyz="-1 0 0" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="g_body1" />
+    <child link="g_right_finger_holder" />
+    <origin xyz="0 0 0" rpy="1.570796 0 0" />
+  </joint>
+<joint name="gripper_mount" type="fixed"><parent link="iiwa_link_7" /><child link="g_body1" /><origin xyz="0 0 0.045" rpy="-0.0110218 -1.53846e-09 -1.5708" /></joint><link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="g_body1" /><child link="tcp_frame" /><origin xyz="0.0480692 0.00114678 0.173243" rpy="0.0110218 1.44509e-09 1.59282e-11" /></joint></robot>

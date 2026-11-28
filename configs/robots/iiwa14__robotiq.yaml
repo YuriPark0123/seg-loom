@@ -1,0 +1,49 @@
+name: iiwa14__robotiq
+urdf: assets/robots_train/iiwa14__robotiq/iiwa14__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- iiwa_joint_1
+- iiwa_joint_2
+- iiwa_joint_3
+- iiwa_joint_4
+- iiwa_joint_5
+- iiwa_joint_6
+- iiwa_joint_7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.1204
+- 0.7391
+- 0.2358
+- -1.0491
+- -0.1616
+- 1.3693
+- -1.4832
+reach: 1.204
+rot_weight: 0.5
+asset_dir: assets/robots_train/iiwa14__robotiq/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - -1
+  - 0
+  pos:
+  - 0.0
+  - -0.08
+  - -0.1567
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0

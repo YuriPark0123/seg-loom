@@ -1,0 +1,47 @@
+name: lite6__robotiq
+urdf: assets/robots_train/lite6__robotiq/lite6__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0037
+- 0.1046
+- 1.3383
+- -0.0011
+- 1.2316
+- -1.5666
+reach: 0.671
+rot_weight: 0.5
+asset_dir: assets/robots_train/lite6__robotiq/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.0671
+  - 0.0
+  - -0.1515
+  look_at:
+  - 0
+  - 0
+  - 0.2349
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0

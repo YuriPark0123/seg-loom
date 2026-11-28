@@ -1,0 +1,40 @@
+name: fanuc_crx5ia
+urdf: assets/robots_train/fanuc_crx5ia/fanuc_crx5ia.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- J1
+- J2
+- J3
+- J4
+- J5
+- J6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.2488
+- 0.2466
+- -0.0369
+- 0.0006
+- -1.2865
+- 1.3212
+reach: 1.059
+rot_weight: 0.5
+asset_dir: assets/robots_train/fanuc_crx5ia/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - -1
+  - 0
+  pos:
+  - 0.0
+  - -0.08
+  - -0.177
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75

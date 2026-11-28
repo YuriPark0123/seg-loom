@@ -10,6 +10,11 @@ eval:      # 7 robots, 5 families
   - sawyer         # Rethink
   - yam            # I2RT
   - edo            # Comau e.DO
+eval_v2:   # 2026-11-28: the 7 above + 2 new + their gripper combos (23). google_robot = held-out new family.
+  - rizon4s        # Flexiv (menagerie)
+  - google_robot   # Google / Everyday Robots (menagerie)
+  # + <arm>__robotiq and <arm>__umi for every bare-flange eval arm: iiwa7 iiwa14 rizon4 rizon10 rizon4s sawyer edo
+  #   (the grippers themselves also appear in training combos; the arms never do)
 train:     # 21 robots
   - fanuc_m710ic70
   - fanuc_lrmate200ic
@@ -32,11 +37,24 @@ train:     # 21 robots
   - rx200
   - wx250s
   - vx300s
+train_v2:  # 2026-11-28: the 21 above + 6 menagerie arms + 22 arm+gripper combos (49)
+  - arx_l5         # ARX (closest eval robot: piper - different maker and kinematics)
+  - unitree_z1     # Unitree (menagerie copy is BSD-3-Clause)
+  - kinova_gen3    # Kinova
+  - fanuc_crx5ia   # Fanuc
+  - trossen_wxai   # Trossen (Interbotix family)
+  - seeed_devarm   # Seeed reBot DevArm (closest eval robot: so101 - 6 arm joints vs 5, own design)
+  # + <arm>__robotiq and <arm>__umi (Robotiq 2F-85 / UMI gripper on the flange) for every bare-flange train arm:
+  #   fanuc_m710ic70 fanuc_lrmate200ic fanuc_m10ia fanuc_cr7ia fanuc_crx10ial fanuc_crx5ia kinova_gen2 kinova_gen3
+  #   xarm5 lite6 omy_3m
 dropped:   # tried, not usable
   kinova_gen3_2f85: needs robotiq_description (not cloned)
   jaco2_j2s7s300: no gripper-down rest pose found
   openarm_v1: no gripper-down rest pose found
   arx_r5: meshes missing in the source repo
   poppy_ergo_jr: GPLv3 (copyleft) - not used
-  unitree_z1: license not stated - not used
+  unitree_z1: license not stated in the ROS repo - not used (the menagerie copy is BSD-3 and is used)
+  pal_tiago: (menagerie, cut at the torso) rest pose unreachable
+  rby1: (menagerie, cut at the torso) rest pose under the table
+  low_cost_robot_arm: (menagerie) Koch arm, design ancestor of SO-ARM100 -> cousin of so101, not used
   abb (abb_experimental): default branch has no models

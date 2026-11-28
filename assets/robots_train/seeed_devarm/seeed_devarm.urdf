@@ -1,0 +1,341 @@
+<robot name="seeed_devarm">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="2.876419e-06 -0.0001223025 0.02433761" rpy="0 0 0" />
+      <mass value="1.1774" />
+      <inertia ixx="0.00275877" iyy="0.00213119" izz="0.0013304" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="1.130077e-05 0.0001192093 0.03404442" rpy="-2.688717 -1.568587 -2.0238" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/base_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link1">
+    <inertial>
+      <origin xyz="0.008176523 0.001225842 0.03314197" rpy="0 0 0" />
+      <mass value="0.4655" />
+      <inertia ixx="0.000272817" iyy="0.000213413" izz="0.00015464" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.009429178 0.001121956 0.0386836" rpy="2.255448 0.4191967 -0.001392986" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/link1.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link2">
+    <inertial>
+      <origin xyz="-0.1178648 -0.003422264 -0.02715519" rpy="0 0 0" />
+      <mass value="1.552" />
+      <inertia ixx="0.0100848" iyy="0.00988484" izz="0.000577462" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.1182043 0.0004664905 -0.02732891" rpy="-1.684846 -1.555654 -1.456275" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/motor_2_3.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1187948 -0.002444327 -0.02628009" rpy="1.570423 0.0003310992 1.57122" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc2.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1177559 -0.005877262 -0.02625841" rpy="1.570686 -0.000439137 1.570426" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla2_black.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1253362 0.00758951 -0.02625088" rpy="-6.379975e-05 -3.402883e-06 1.72989" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla2_green.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.72 0.85 0.2 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link3">
+    <inertial>
+      <origin xyz="0.1034272 -0.06641379 -0.02710687" rpy="0 0 0" />
+      <mass value="1.252" />
+      <inertia ixx="0.00764228" iyy="0.00745913" izz="0.000551215" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.06718899 -0.05154837 -0.02567764" rpy="1.582331 0.1034783 1.32048" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc3.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.2280046 -0.0725857 -0.03088213" rpy="-0.001389664 0.01699689 1.581004" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/motor_4.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.08919195 -0.07549059 -0.02624668" rpy="1.570998 -1.605553e-05 1.622951" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla3_black.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.1253362 -0.08683565 -0.02625088" rpy="6.379611e-05 3.402982e-06 1.72989" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla3_green.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.72 0.85 0.2 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link4">
+    <inertial>
+      <origin xyz="0.04755445 -0.04411135 -0.03141119" rpy="0 0 0" />
+      <mass value="0.46" />
+      <inertia ixx="0.000619745" iyy="0.000465172" izz="0.000225289" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.08700552 -0.08079986 -0.03092725" rpy="2.028365 -1.539939 1.11411" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/motor_5.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.02434291 -0.02048499 -0.0305145" rpy="1.592497 0.001860567 1.041249" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc4.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link5">
+    <inertial>
+      <origin xyz="-0.01144006 4.790774e-06 0.04804875" rpy="0 0 0" />
+      <mass value="0.201205" />
+      <inertia ixx="9.84572e-05" iyy="7.39221e-05" izz="7.09762e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.003777801 7.515092e-06 0.04817526" rpy="-2.041021 -1.541218 -2.672772" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/motor_6.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.01258005 -9.381713e-07 0.02579356" rpy="1.488303e-05 -0.3703249 0.0001613573" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc5.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.03567824 1.148908e-07 0.07672513" rpy="1.314783e-05 -0.2145182 -6.184663e-06" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla5_green.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.72 0.85 0.2 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link6">
+    <inertial>
+      <origin xyz="1.80196e-05 2.483346e-08 0.004348058" rpy="0 0 0" />
+      <mass value="0.1" />
+      <inertia ixx="2.84766e-05" iyy="1.47425e-05" izz="1.45729e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="3.29871e-05 -1.443552e-06 0.004041082" rpy="1.735659 -1.570709 -0.1280958" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/link6.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="gripper_end">
+    <inertial>
+      <origin xyz="-0.1127517 0.0001284431 -5.726024e-06" rpy="0 0 0" />
+      <mass value="0.65" />
+      <inertia ixx="0.000453574" iyy="0.000373537" izz="0.000158259" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.09031241 -3.79455e-08 4.297848e-10" rpy="1.570796 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla7_green.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.72 0.85 0.2 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.09034329 -7.322376e-07 5.117012e-08" rpy="1.570798 -4.262516e-05 -5.009141e-06" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc7.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1337074 0.0001658022 -6.503491e-06" rpy="1.573469 -0.0132993 1.581773" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/motor_7.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="gripper_left">
+    <inertial>
+      <origin xyz="-0.002180087 0.01870904 0.009321886" rpy="0 0 0" />
+      <mass value="0.0752" />
+      <inertia ixx="1.09878e-05" iyy="9.50146e-06" izz="9.3078e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="8.245892e-07 0.0126004 0.01346744" rpy="-3.138968 -1.237265 -1.573297" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla_left.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.005939119 0.03593228 0.002453911" rpy="0.2093376 -0.1310458 1.252872" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc_left.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="gripper_right">
+    <inertial>
+      <origin xyz="0.002180087 -0.01870904 0.009321886" rpy="0 0 0" />
+      <mass value="0.0752" />
+      <inertia ixx="1.09878e-05" iyy="9.50146e-06" izz="9.3078e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-8.245892e-07 -0.0126004 0.01346744" rpy="0.002624741 -1.237265 1.568296" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/pla_right.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.05 0.05 0.06 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.005939119 -0.03593228 0.002453911" rpy="-0.2093376 0.1310458 1.252872" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/seeed_devarm/meshes/cnc_right.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.78 0.78 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="joint1" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-2.8" upper="2.8" effort="100" velocity="2" />
+    <parent link="base_link" />
+    <child link="link1" />
+    <origin xyz="-0.00034283 -0.00098683 0.075" rpy="0 0 0" />
+  </joint>
+  <joint name="joint2" type="revolute">
+    <axis xyz="0 0 -1" />
+    <limit lower="-3.14" upper="0" effort="100" velocity="2" />
+    <parent link="link1" />
+    <child link="link2" />
+    <origin xyz="0.020343 0.027237 0.07" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="joint3" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="0" effort="100" velocity="2" />
+    <parent link="link2" />
+    <child link="link3" />
+    <origin xyz="-0.236 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="joint4" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-1.79" upper="1.69" effort="100" velocity="2" />
+    <parent link="link3" />
+    <child link="link4" />
+    <origin xyz="0.228 -0.072746 0.0045" rpy="0 0 0" />
+  </joint>
+  <joint name="joint5" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-1.57" upper="1.57" effort="100" velocity="2" />
+    <parent link="link4" />
+    <child link="link5" />
+    <origin xyz="0.087 -0.048 -0.03075" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="joint6" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="2" />
+    <parent link="link5" />
+    <child link="link6" />
+    <origin xyz="0.0365 0 0.048" rpy="-0 1.570796 0" />
+  </joint>
+  <joint name="gripper_end_fixed" type="fixed">
+    <parent link="link6" />
+    <child link="gripper_end" />
+    <origin xyz="0 0 0.16621" rpy="3.141593 -1.570796 0" />
+  </joint>
+  <joint name="joint_left" type="prismatic">
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="gripper_end" />
+    <child link="gripper_left" />
+    <origin xyz="-0.041939 -7.3385e-05 0" rpy="1.570796 -1.570796 0" />
+    <mimic joint="joint_right" multiplier="1" offset="0" />
+  </joint>
+  <joint name="joint_right" type="prismatic">
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="gripper_end" />
+    <child link="gripper_right" />
+    <origin xyz="-0.041939 7.3385e-05 0" rpy="-1.570796 -1.570796 0" />
+  </joint>
+<link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="gripper_end" /><child link="tcp_frame" /><origin xyz="-0.0726597 0.0114794 0.00337485" rpy="-1.5708 0 1.5708" /></joint></robot>

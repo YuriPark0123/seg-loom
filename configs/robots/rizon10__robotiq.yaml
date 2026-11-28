@@ -1,0 +1,49 @@
+name: rizon10__robotiq
+urdf: assets/robots_train/rizon10__robotiq/rizon10__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -0.2881
+- -1.2217
+- 0.7729
+- 0.7065
+- 2.4113
+- 2.9626
+- 1.7596
+reach: 1.379
+rot_weight: 0.5
+asset_dir: assets/robots_train/rizon10__robotiq/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - 1
+  - 0
+  pos:
+  - 0.0
+  - 0.08
+  - -0.1567
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0

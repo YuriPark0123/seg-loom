@@ -1,0 +1,47 @@
+name: edo__robotiq
+urdf: assets/robots_train/edo__robotiq/edo__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -1.5484
+- -0.3645
+- -1.0779
+- -0.0006
+- -1.6986
+- 0.0215
+reach: 0.916
+rot_weight: 0.5
+asset_dir: assets/robots_train/edo__robotiq/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.08
+  - 0.0
+  - -0.1567
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0

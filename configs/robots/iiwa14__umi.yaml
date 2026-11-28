@@ -1,0 +1,49 @@
+name: iiwa14__umi
+urdf: assets/robots_train/iiwa14__umi/iiwa14__umi.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- iiwa_joint_1
+- iiwa_joint_2
+- iiwa_joint_3
+- iiwa_joint_4
+- iiwa_joint_5
+- iiwa_joint_6
+- iiwa_joint_7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.3968
+- 0.9061
+- 2.0436
+- 0.8376
+- 0.7866
+- -1.717
+- -1.9056
+reach: 1.261
+rot_weight: 0.5
+asset_dir: assets/robots_train/iiwa14__umi/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.08
+  - 0.0
+  - -0.2118
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_right_finger_joint
+  open:
+  - 0.05
+  close:
+  - 0.0

@@ -1,0 +1,47 @@
+name: kinova_gen2__umi
+urdf: assets/robots_train/kinova_gen2__umi/kinova_gen2__umi.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- j2s6s200_joint_1
+- j2s6s200_joint_2
+- j2s6s200_joint_3
+- j2s6s200_joint_4
+- j2s6s200_joint_5
+- j2s6s200_joint_6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- -1.4892
+- 3.667
+- 2.6143
+- 3.0519
+- 1.2387
+- -1.5025
+reach: 1.219
+rot_weight: 0.5
+asset_dir: assets/robots_train/kinova_gen2__umi/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.08
+  - 0.0
+  - -0.2118
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_right_finger_joint
+  open:
+  - 0.05
+  close:
+  - 0.0

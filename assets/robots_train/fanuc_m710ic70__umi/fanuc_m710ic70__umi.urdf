@@ -1,0 +1,310 @@
+<robot name="m710ic70">
+ <link name="base_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/base_link.stl" />
+        </geometry>
+          <material name="fanuc_black" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/base_link.stl" />
+        </geometry>
+      </collision>
+<inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+<link name="link_1">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/link_1.stl" />
+        </geometry>
+          <material name="fanuc_yellow" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/link_1.stl" />
+        </geometry>
+      </collision>
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <link name="link_2">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/link_2.stl" />
+        </geometry>
+          <material name="fanuc_yellow" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/link_2.stl" />
+        </geometry>
+      </collision>
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <link name="link_3">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/link_3.stl" />
+        </geometry>
+          <material name="fanuc_yellow" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/link_3.stl" />
+        </geometry>
+      </collision>
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <link name="link_4">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/link_4.stl" />
+        </geometry>
+          <material name="fanuc_yellow" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/link_4.stl" />
+        </geometry>
+      </collision>
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <link name="link_5">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/link_5.stl" />
+        </geometry>
+          <material name="fanuc_yellow" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/link_5.stl" />
+        </geometry>
+      </collision>
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <link name="link_6">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/visual/link_6.stl" />
+        </geometry>
+          <material name="fanuc_black" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://extra/fanuc_m710ic_description/meshes/m710ic50/collision/link_6.stl" />
+        </geometry>
+      </collision>
+    <inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+
+    
+    <joint name="joint_1" type="revolute">
+      <origin xyz="0 0 0.565" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="link_1" />
+      <axis xyz="0 0 1" />
+      <limit effort="0" lower="-3.1415" upper="3.1415" velocity="3.0543" />
+    </joint>
+    <joint name="joint_2" type="revolute">
+      <origin xyz="0.150 0 0" rpy="0 0 0" />
+      <parent link="link_1" />
+      <child link="link_2" />
+      <axis xyz="0 1 0" />
+      <limit effort="0" lower="-1.5707" upper="2.3561" velocity="3.0543" />
+    </joint>
+    <joint name="joint_3" type="revolute">
+      <origin xyz="0 0 0.870" rpy="0 0 0" />
+      <parent link="link_2" />
+      <child link="link_3" />
+      <axis xyz="0 -1 0" />
+      <limit effort="0" lower="-2.7925" upper="4.8869" velocity="3.0543" />
+    </joint>
+    <joint name="joint_4" type="revolute">
+      <origin xyz="0 0 0.170" rpy="0 0 0" />
+      <parent link="link_3" />
+      <child link="link_4" />
+      <axis xyz="-1 0 0" />
+      <limit effort="0" lower="-6.2830" upper="6.2830" velocity="4.3633" />
+    </joint>
+    <joint name="joint_5" type="revolute">
+      <origin xyz="1.016 0 0" rpy="0 0 0" />
+      <parent link="link_4" />
+      <child link="link_5" />
+      <axis xyz="0 -1 0" />
+      <limit effort="0" lower="-2.1816" upper="2.1816" velocity="4.3633" />
+    </joint>
+    <joint name="joint_6" type="revolute">
+      <origin xyz="0.175 0 0" rpy="0 0 0" />
+      <parent link="link_5" />
+      <child link="link_6" />
+      <axis xyz="-1 0 0" />
+      <limit effort="0" lower="-6.2831" upper="6.2831" velocity="6.1959" />
+    </joint>
+
+    
+    <link name="base"><inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <joint name="base_link-base" type="fixed">
+      <origin xyz="0 0 0.565" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="base" />
+    </joint>
+
+    
+    <link name="flange"><inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <joint name="joint_6-flange" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="link_6" />
+      <child link="flange" />
+    </joint>
+
+    
+    <link name="tool0"><inertial><mass value="0.01" /><inertia ixx="1e-5" iyy="1e-5" izz="1e-5" ixy="0" ixz="0" iyz="0" /></inertial></link>
+    <joint name="link_6-tool0" type="fixed">
+      <origin xyz="0 0 0" rpy="3.14159 -1.570795 0" />
+      <parent link="flange" />
+      <child link="tool0" />
+    </joint>
+<link name="g_body1">
+    <inertial>
+      <origin xyz="0.001596798 0.003504282 0.02287167" rpy="0 0 0" />
+      <mass value="1.56013" />
+      <inertia ixx="0.00553071" iyy="0.00409211" izz="0.00272421" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0 -0.002 0.062" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_0.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.6 0.6 0.6 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.069 -0.057 0.04" rpy="0 1.190152 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_1.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.069 -0.057 0.04" rpy="0 -1.190152 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_2.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0002903696 0.009971137 0.02497243" rpy="0.1124452 -1.473184 1.483" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/base_link.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.01829678 -0.07888115 -0.003825782" rpy="0.8735072 1.478333 -2.197912" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/gopro.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_finger_holder">
+    <inertial>
+      <origin xyz="-0.0613355 0.104073 -0.0013157" rpy="0 0 0" />
+      <mass value="0.080081" />
+      <inertia ixx="0.000104597" iyy="0.000102992" izz="1.90532e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.051 0.063 0.006" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_16.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.06440684 0.08112334 -3.970886e-05" rpy="1.233061 -0.3781388 0.2840046" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/left_finger_holder.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.05643616 0.124442 -0.003" rpy="1.714303 1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/left_finger.obj" />
+      </geometry>
+      <material name="g_mat4">
+        <color rgba="0.92 0.68 0.24 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_finger_holder">
+    <inertial>
+      <origin xyz="0.0613353 0.104073 -0.00131574" rpy="0 0 0" />
+      <mass value="0.080081" />
+      <inertia ixx="0.000104597" iyy="0.000102992" izz="1.90532e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.051 0.063 0.006" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_27.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.06440684 0.08112334 -3.970884e-05" rpy="1.233061 0.3781388 -0.2840046" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/right_finger_holder.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.05643616 0.124442 -0.003" rpy="1.714303 -1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/right_finger.obj" />
+      </geometry>
+      <material name="g_mat4">
+        <color rgba="0.92 0.68 0.24 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="g_left_finger_joint" type="prismatic">
+    <axis xyz="1 0 0" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="g_body1" />
+    <child link="g_left_finger_holder" />
+    <origin xyz="0 0 0" rpy="1.570796 0 0" />
+    <mimic joint="g_right_finger_joint" multiplier="1" offset="-2.50102e-08" />
+  </joint>
+  <joint name="g_right_finger_joint" type="prismatic">
+    <axis xyz="-1 0 0" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="g_body1" />
+    <child link="g_right_finger_holder" />
+    <origin xyz="0 0 0" rpy="1.570796 0 0" />
+  </joint>
+<joint name="gripper_mount" type="fixed"><parent link="link_6" /><child link="g_body1" /><origin xyz="0 -0 -0" rpy="3.13017 1.57079 3.1412" /></joint><link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="g_body1" /><child link="tcp_frame" /><origin xyz="0.0480692 0.0011468 0.173243" rpy="0.01103 -5.65666e-06 -6.23955e-08" /></joint></robot>

@@ -1,0 +1,507 @@
+<robot name="fanuc_crx5ia">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.02329 -0.00113 0.04668" rpy="0 0 0" />
+      <mass value="2.695" />
+      <inertia ixx="0.0100092" iyy="0.00872988" izz="0.00387875" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.1144688 -0.01296543 0.02999209" rpy="1.301736 -0.0009748627 -0.003527937" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/base_0.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.698 0.698 0.698 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.01246111 0.0002678855 0.02620953" rpy="3.121725 -1.548859 -0.002787773" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/base_1.obj" />
+      </geometry>
+      <material name="mat1">
+        <color rgba="0.278 0.278 0.278 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1218148 -0.004547251 0.03062612" rpy="-1.167985 -1.508363 -1.600433" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/base_2.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.102 0.102 0.102 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1078489 0.02209197 0.02399998" rpy="0 3.328344e-06 -0.02146945" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/base_3.obj" />
+      </geometry>
+      <material name="mat3">
+        <color rgba="0.502 0.502 0.502 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.1037693 -0.01300041 0.029997" rpy="-0.2884216 -7.402407e-06 -1.927325e-06" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/base_4.obj" />
+      </geometry>
+      <material name="mat4">
+        <color rgba="0.8 0.8 0.8 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="J1_link">
+    <inertial>
+      <origin xyz="-0.00223 -0.04084 -0.03" rpy="0 0 0" />
+      <mass value="5.173" />
+      <inertia ixx="0.027101" iyy="0.0236098" izz="0.0117026" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="8.165815e-07 -0.01320474 -0.0187846" rpy="0.357791 6.106256e-05 -3.982546e-05" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j1_0.obj" />
+      </geometry>
+      <material name="mat5">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="2.457804e-08 0.005665017 -0.08767306" rpy="-0.0003294167 0.5300919 1.570202" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j1_1.obj" />
+      </geometry>
+      <material name="mat6">
+        <color rgba="0.122 0.749 0.122 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="J2_link">
+    <inertial>
+      <origin xyz="0.00013 -0.14378 0.18566" rpy="0 0 0" />
+      <mass value="5.014" />
+      <inertia ixx="0.183168" iyy="0.179784" izz="0.0122821" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="7.949121e-07 -0.1514849 0.206974" rpy="-0.02760815 3.97396e-06 -2.731619e-05" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j2.obj" />
+      </geometry>
+      <material name="mat5">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="J3_link">
+    <inertial>
+      <origin xyz="0.0303 -0.01286 -0.0002" rpy="0 0 0" />
+      <mass value="3.133" />
+      <inertia ixx="0.00911124" iyy="0.00908195" izz="0.00522878" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.02349531 -0.006238087 -3.90511e-07" rpy="-1.638448 -1.570628 -1.351345" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j3_0.obj" />
+      </geometry>
+      <material name="mat5">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.09855976 -3.874185e-08 -6.367725e-08" rpy="-0.7327343 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j3_1.obj" />
+      </geometry>
+      <material name="mat6">
+        <color rgba="0.122 0.749 0.122 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="J4_link">
+    <inertial>
+      <origin xyz="0.28287 0.00109 0.00019" rpy="0 0 0" />
+      <mass value="3.508" />
+      <inertia ixx="0.0537928" iyy="0.0537804" izz="0.00322269" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.3051223 -0.002960917 5.03263e-07" rpy="-1.592135 -1.570736 -1.580433" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j4_0.obj" />
+      </geometry>
+      <material name="mat5">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.2334179 0.000928908 1.550633e-05" rpy="-1.543287 -1.569819 -2.302082" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j4_1.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.102 0.102 0.102 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.2351556 -0.002032787 -4.037001e-05" rpy="1.699778 -1.570425 2.033743" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j4_2.obj" />
+      </geometry>
+      <material name="mat7">
+        <color rgba="1 0 0 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="J5_link">
+    <inertial>
+      <origin xyz="0.01442 -0.09491 0.00164" rpy="0 0 0" />
+      <mass value="2.434" />
+      <inertia ixx="0.00732803" iyy="0.00673403" izz="0.00332064" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.01064191 -0.1187899 1.03158e-07" rpy="-1.273548 -1.570774 -2.348028" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j5_0.obj" />
+      </geometry>
+      <material name="mat5">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0758236 -0.13 -1.186725e-07" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j5_1.obj" />
+      </geometry>
+      <material name="mat6">
+        <color rgba="0.122 0.749 0.122 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="J6_link">
+    <inertial>
+      <origin xyz="0.10028 0.00052 2e-05" rpy="0 0 0" />
+      <mass value="1.272" />
+      <inertia ixx="0.0014412" iyy="0.00139978" izz="0.00135335" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.1172037 0.01719688 -4.636028e-05" rpy="1.569959 0.0202352 -4.699277e-05" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j6_0.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.698 0.698 0.698 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.1132379 -2.178901e-05 -8.233391e-06" rpy="-0.000270172 -0.0005829735 -0.000206554" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/fanuc_crx5ia/meshes/j6_1.obj" />
+      </geometry>
+      <material name="mat2">
+        <color rgba="0.102 0.102 0.102 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="J1" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.49066" upper="3.49066" effort="100" velocity="2" />
+    <parent link="base_link" />
+    <child link="J1_link" />
+    <origin xyz="0 0 0.185" rpy="0 0 0" />
+  </joint>
+  <joint name="J2" type="revolute">
+    <axis xyz="0 1 0" />
+    <limit lower="-3.13985" upper="3.13985" effort="100" velocity="2" />
+    <parent link="J1_link" />
+    <child link="J2_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="J3" type="revolute">
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.18682" upper="4.32842" effort="100" velocity="2" />
+    <parent link="J2_link" />
+    <child link="J3_link" />
+    <origin xyz="0 0 0.41" rpy="0 0 0" />
+  </joint>
+  <joint name="J4" type="revolute">
+    <axis xyz="-1 0 0" />
+    <limit lower="-3.31613" upper="3.31613" effort="100" velocity="2" />
+    <parent link="J3_link" />
+    <child link="J4_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="J5" type="revolute">
+    <axis xyz="0 -1 0" />
+    <limit lower="-3.13985" upper="3.13985" effort="100" velocity="2" />
+    <parent link="J4_link" />
+    <child link="J5_link" />
+    <origin xyz="0.43 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="J6" type="revolute">
+    <axis xyz="-1 0 0" />
+    <limit lower="-3.92699" upper="3.92699" effort="100" velocity="2" />
+    <parent link="J5_link" />
+    <child link="J6_link" />
+    <origin xyz="0 -0.13 0" rpy="0 0 0" />
+  </joint>
+<link name="g_base">
+    <inertial>
+      <origin xyz="7.77116e-05 8.42713e-05 0.0311656" rpy="0 0 0" />
+      <mass value="0.777441" />
+      <inertia ixx="0.000260285" iyy="0.000225381" izz="0.000152708" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-7.771157e-05 -8.427132e-05 0.04196563" rpy="-0.01335899 -0.002736357 -1.564192" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/base.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0001131925 -0.0004415163 0.005789429" rpy="1.707289 1.568211 1.779604" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/base_coupling.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-9.916264e-12 1.427633e-11 0.09737303" rpy="-3.141582 -1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/c-a01-85-open.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_driver">
+    <inertial>
+      <origin xyz="-0.0175297 0.00165308 -0.00469625" rpy="0 0 0" />
+      <mass value="0.00899563" />
+      <inertia ixx="1.72352e-06" iyy="1.60906e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01752974 0.001653076 -0.004696253" rpy="-1.571173 -0.0005289555 -1.688815" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/driver.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_coupler">
+    <inertial>
+      <origin xyz="0.00367747 0.01986 0.0055" rpy="0 0 0" />
+      <mass value="0.0140974" />
+      <inertia ixx="4.16206e-06" iyy="3.52216e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.003677466 0.01986 0.005500003" rpy="-1.570796 0 -0.2532217" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/coupler.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_spring_link">
+    <inertial>
+      <origin xyz="-0.0183 -0.0205732 0.01205" rpy="0 0 0" />
+      <mass value="0.0221642" />
+      <inertia ixx="8.96853e-06" iyy="6.71733e-06" izz="2.63931e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01829995 -0.02057319 0.01205" rpy="1.570796 2.220446e-16 -0.7266945" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/spring_link.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_follower">
+    <inertial>
+      <origin xyz="-0.00852976 -0.0014822 -0.00910001" rpy="0 0 0" />
+      <mass value="0.0125222" />
+      <inertia ixx="2.67415e-06" iyy="2.4559e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.008529763 -0.001482198 -0.00910001" rpy="1.570797 -9.799661e-07 2.075119" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/follower.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0009870422 0.02183357 -0.009100006" rpy="-1.570796 3.382649e-06 -0.2320785" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/tongue.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_pad">
+    <inertial>
+      <origin xyz="0.043258 0 0.129375" rpy="0 0 0" />
+      <mass value="0.0035" />
+      <inertia ixx="1e-06" iyy="1e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+  </link>
+  <link name="g_right_driver">
+    <inertial>
+      <origin xyz="-0.0175297 0.00165308 -0.00469625" rpy="0 0 0" />
+      <mass value="0.00899563" />
+      <inertia ixx="1.72352e-06" iyy="1.60906e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01752974 0.001653076 -0.004696253" rpy="-1.571173 -0.0005289555 -1.688815" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/driver.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_coupler">
+    <inertial>
+      <origin xyz="0.00367747 0.01986 0.0055" rpy="0 0 0" />
+      <mass value="0.0140974" />
+      <inertia ixx="4.16206e-06" iyy="3.52216e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.003677466 0.01986 0.005500003" rpy="-1.570796 0 -0.2532217" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/coupler.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_spring_link">
+    <inertial>
+      <origin xyz="-0.0183 -0.0205732 0.01205" rpy="0 0 0" />
+      <mass value="0.0221642" />
+      <inertia ixx="8.96853e-06" iyy="6.71733e-06" izz="2.63931e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01829995 -0.02057319 0.01205" rpy="1.570796 2.220446e-16 -0.7266945" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/spring_link.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_follower">
+    <inertial>
+      <origin xyz="-0.00852976 -0.0014822 -0.00910001" rpy="0 0 0" />
+      <mass value="0.0125222" />
+      <inertia ixx="2.67415e-06" iyy="2.4559e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.0009870422 0.02183357 -0.009100006" rpy="-1.570796 3.382649e-06 -0.2320785" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/tongue.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0.58 0.58 0.58 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.008529763 -0.001482198 -0.00910001" rpy="1.570797 -9.799661e-07 2.075119" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/robotiq_2f85/meshes/follower.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.149 0.149 0.149 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_pad">
+    <inertial>
+      <origin xyz="0.043258 0 0.129375" rpy="0 0 0" />
+      <mass value="0.0035" />
+      <inertia ixx="1e-06" iyy="1e-06" izz="1e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+  </link>
+  <joint name="g_left_driver_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_left_driver" />
+    <origin xyz="-0.0306011 0.00475 0.0657045" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="g_left_coupler_fixed" type="fixed">
+    <parent link="g_left_driver" />
+    <child link="g_left_coupler" />
+    <origin xyz="-0.0314249 0.00453223 -0.0102" rpy="0 0 3.141593" />
+  </joint>
+  <joint name="g_left_spring_link_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.296706" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_left_spring_link" />
+    <origin xyz="-0.0127 -0.012 0.07222" rpy="-1.570796 0 0" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999961" offset="8.48158e-05" />
+  </joint>
+  <joint name="g_left_follower" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.872664" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_left_spring_link" />
+    <child link="g_left_follower" />
+    <origin xyz="-0.0382079 -0.0425003 0.00295" rpy="-3.141593 0 3.80462e-05" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999846" offset="0.000147861" />
+  </joint>
+  <joint name="g_left_pad_fixed" type="fixed">
+    <parent link="g_left_follower" />
+    <child link="g_left_pad" />
+    <origin xyz="-0.0377897 -0.103916 -0.0091" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="g_right_driver_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="0" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_right_driver" />
+    <origin xyz="0.0306011 -0.00475 0.0657045" rpy="-1.570796 0 3.141593" />
+    <mimic joint="g_left_driver_joint" multiplier="1" offset="0" />
+  </joint>
+  <joint name="g_right_coupler_fixed" type="fixed">
+    <parent link="g_right_driver" />
+    <child link="g_right_coupler" />
+    <origin xyz="-0.0314249 0.00453223 -0.0102" rpy="0 0 3.141593" />
+  </joint>
+  <joint name="g_right_spring_link_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.296706" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_base" />
+    <child link="g_right_spring_link" />
+    <origin xyz="0.0127 0.012 0.07222" rpy="-1.570796 0 3.141593" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999949" offset="8.47569e-05" />
+  </joint>
+  <joint name="g_right_follower_joint" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-0.872664" upper="0.9" effort="100" velocity="2" />
+    <parent link="g_right_spring_link" />
+    <child link="g_right_follower" />
+    <origin xyz="-0.0382079 -0.0425003 0.00295" rpy="-3.141593 0 0" />
+    <mimic joint="g_left_driver_joint" multiplier="0.999835" offset="0.000145747" />
+  </joint>
+  <joint name="g_right_pad_fixed" type="fixed">
+    <parent link="g_right_follower" />
+    <child link="g_right_pad" />
+    <origin xyz="-0.0377897 -0.103916 -0.0091" rpy="-1.570796 0 0" />
+  </joint>
+<joint name="gripper_mount" type="fixed"><parent link="J6_link" /><child link="g_base" /><origin xyz="0.145 -0 -0" rpy="1.57484 1.56989 1.57484" /></joint><link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="g_base" /><child link="tcp_frame" /><origin xyz="-0.0694635 6.23682e-05 0.103513" rpy="-1.92259e-09 -4.24264e-06 8.15687e-15" /></joint></robot>

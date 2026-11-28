@@ -1,0 +1,287 @@
+<robot name="trossen_wxai">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.00014175 -5.228e-05 0.0317518" rpy="0 0 0" />
+      <mass value="0.459699" />
+      <inertia ixx="0.000448963" iyy="0.000416701" izz="0.000213926" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0008164455 1.202081e-06 0.02641182" rpy="1.158158 -0.0001947803 1.570805" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/base_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_1">
+    <inertial>
+      <origin xyz="-0.00011075 0.00171176 0.0204459" rpy="0 0 0" />
+      <mass value="0.152704" />
+      <inertia ixx="0.000203432" iyy="0.000173907" izz="8.3521e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.004182229 0.00103864 0.02441773" rpy="1.576101 0.7769525 -0.003567444" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/link_1.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_2">
+    <inertial>
+      <origin xyz="-0.131215 -0.00292583 0.00021345" rpy="0 0 0" />
+      <mass value="1.15316" />
+      <inertia ixx="0.0179449" iyy="0.0173612" izz="0.00102628" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.1298402 1.684715e-06 0.0008066011" rpy="-0.03336519 -1.560789 -3.10819" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/link_2.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_3">
+    <inertial>
+      <origin xyz="0.180836 -0.0009409 0.0555494" rpy="0 0 0" />
+      <mass value="0.686666" />
+      <inertia ixx="0.00566898" iyy="0.00547578" izz="0.00059316" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.1387683 0.002235391 0.04815529" rpy="0.7238978 -1.34703 2.370786" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/link_3.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_4">
+    <inertial>
+      <origin xyz="0.0579784 0.00027145 0.0588445" rpy="0 0 0" />
+      <mass value="0.457899" />
+      <inertia ixx="0.000670827" iyy="0.000661455" izz="0.000288648" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.04939402 0.0007494714 0.05310358" rpy="0.03516574 0.7409855 0.0005391907" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/link_4.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_5">
+    <inertial>
+      <origin xyz="0.00412447 -1.138e-05 -0.0428318" rpy="0 0 0" />
+      <mass value="0.366939" />
+      <inertia ixx="0.000320622" iyy="0.00026751" izz="0.000189108" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.002166251 1.759404e-07 -0.04290604" rpy="0.332367 1.117729e-06 1.570793" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/link_5.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="link_6">
+    <inertial>
+      <origin xyz="0.0457277 -7.26e-06 1.402e-05" rpy="0 0 0" />
+      <mass value="0.554693" />
+      <inertia ixx="0.001086" iyy="0.000824291" izz="0.000487589" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.04913 3.035511e-09 1.770176e-08" rpy="3.141593 -1.570778 -1.570796" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/link_6.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="camera_mount_d405">
+    <inertial>
+      <origin xyz="0.0302338 0.00679835 0.0500669" rpy="0 0 0" />
+      <mass value="0.0451801" />
+      <inertia ixx="3.52003e-05" iyy="2.55005e-05" izz="1.80592e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.03466842 0.004514538 0.05160461" rpy="2.169954 0.4302272 0.1464614" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/camera_mount_d405.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="camera_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.072" />
+      <inertia ixx="2.117e-05" iyy="1.3758e-05" izz="1.3758e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.007330072 -0.008941597 6.79951e-06" rpy="-1.581604 0.0002197374 0.002728887" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/d405.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="carriage_right">
+    <inertial>
+      <origin xyz="-0.00889602 0.00403514 0.00457901" rpy="0 0 0" />
+      <mass value="0.0503631" />
+      <inertia ixx="1.77614e-05" iyy="1.40157e-05" izz="5.27289e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01696901 0.03337569 0.01334994" rpy="1.481602 0.0003451945 0.0007496305" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/carriage_right.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="gripper_right">
+    <inertial>
+      <origin xyz="0.0189399 0.00901216 -0.00215461" rpy="0 0 0" />
+      <mass value="0.0309079" />
+      <inertia ixx="1.60975e-05" iyy="1.18601e-05" izz="6.44247e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.0215081 0.008709254 -0.00230001" rpy="1.599677 -0.01980492 1.957457" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/gripper_right.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="carriage_left">
+    <inertial>
+      <origin xyz="-0.00889602 -0.00403515 -0.00457908" rpy="0 0 0" />
+      <mass value="0.0503631" />
+      <inertia ixx="1.77614e-05" iyy="1.40157e-05" izz="5.27289e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.01696901 -0.03337569 -0.01334994" rpy="1.481602 -0.0003451945 -0.0007496305" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/carriage_left.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="gripper_left">
+    <inertial>
+      <origin xyz="0.0189399 -0.00901223 -0.00215453" rpy="0 0 0" />
+      <mass value="0.0309079" />
+      <inertia ixx="1.60975e-05" iyy="1.18601e-05" izz="6.44247e-06" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.02150798 -0.008709335 -0.002300078" rpy="1.599713 0.01981513 1.184138" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/trossen_wxai/meshes/gripper_left.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="joint_0" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.05433" upper="3.05433" effort="100" velocity="2" />
+    <parent link="base_link" />
+    <child link="link_1" />
+    <origin xyz="0 0 0.05725" rpy="0 0 0" />
+  </joint>
+  <joint name="joint_1" type="revolute">
+    <axis xyz="0 1 0" />
+    <limit lower="0" upper="3.14159" effort="100" velocity="2" />
+    <parent link="link_1" />
+    <child link="link_2" />
+    <origin xyz="0.02 0 0.04625" rpy="0 0 0" />
+  </joint>
+  <joint name="joint_2" type="revolute">
+    <axis xyz="0 -1 0" />
+    <limit lower="0" upper="2.35619" effort="100" velocity="2" />
+    <parent link="link_2" />
+    <child link="link_3" />
+    <origin xyz="-0.264 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="joint_3" type="revolute">
+    <axis xyz="0 -1 0" />
+    <limit lower="-1.5708" upper="1.5708" effort="100" velocity="2" />
+    <parent link="link_3" />
+    <child link="link_4" />
+    <origin xyz="0.245 0 0.06" rpy="0 0 0" />
+  </joint>
+  <joint name="joint_4" type="revolute">
+    <axis xyz="0 0 -1" />
+    <limit lower="-1.5708" upper="1.5708" effort="100" velocity="2" />
+    <parent link="link_4" />
+    <child link="link_5" />
+    <origin xyz="0.06775 0 0.0455" rpy="0 0 0" />
+  </joint>
+  <joint name="joint_5" type="revolute">
+    <axis xyz="1 0 0" />
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="2" />
+    <parent link="link_5" />
+    <child link="link_6" />
+    <origin xyz="0.02895 0 -0.0455" rpy="0 0 0" />
+  </joint>
+  <joint name="camera_mount_d405_fixed" type="fixed">
+    <parent link="link_6" />
+    <child link="camera_mount_d405" />
+    <origin xyz="0.012 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="camera_link_fixed" type="fixed">
+    <parent link="camera_mount_d405" />
+    <child link="camera_link" />
+    <origin xyz="0.04665 0.009 0.054272" rpy="0 0.3490654 0" />
+  </joint>
+  <joint name="right_carriage_joint" type="prismatic">
+    <axis xyz="0 -1 0" />
+    <limit lower="-0.01" upper="0.045" effort="100" velocity="2" />
+    <parent link="link_6" />
+    <child link="carriage_right" />
+    <origin xyz="0.0865 -0.023 0" rpy="0 0 0" />
+  </joint>
+  <joint name="gripper_right_fixed" type="fixed">
+    <parent link="carriage_right" />
+    <child link="gripper_right" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="left_carriage_joint" type="prismatic">
+    <axis xyz="0 1 0" />
+    <limit lower="-0.01" upper="0.045" effort="100" velocity="2" />
+    <parent link="link_6" />
+    <child link="carriage_left" />
+    <origin xyz="0.0865 0.023 0" rpy="0 0 0" />
+    <mimic joint="right_carriage_joint" multiplier="1" offset="0" />
+  </joint>
+  <joint name="gripper_left_fixed" type="fixed">
+    <parent link="carriage_left" />
+    <child link="gripper_left" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+<link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="link_6" /><child link="tcp_frame" /><origin xyz="0.140211 -0.00246773 -0.00023114" rpy="1.5708 0 1.5708" /></joint></robot>

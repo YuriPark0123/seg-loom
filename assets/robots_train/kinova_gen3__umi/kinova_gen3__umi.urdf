@@ -1,0 +1,314 @@
+<robot name="kinova_gen3">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.000648 -0.000166 0.084487" rpy="0 0 0" />
+      <mass value="1.697" />
+      <inertia ixx="0.00462407" iyy="0.00449437" izz="0.00207755" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.002147883 -0.0007742599 0.08523241" rpy="0.03549654 -0.02500583 1.570219" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/base_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="shoulder_link">
+    <inertial>
+      <origin xyz="-2.3e-05 -0.010364 -0.07336" rpy="0 0 0" />
+      <mass value="1.3773" />
+      <inertia ixx="0.00488868" iyy="0.00457" izz="0.00135132" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-1.956008e-06 -0.009678188 -0.08764767" rpy="-8.728947e-05 0.1200499 1.570656" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/shoulder_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="half_arm_1_link">
+    <inertial>
+      <origin xyz="-4.4e-05 -0.09958 -0.013278" rpy="0 0 0" />
+      <mass value="1.1636" />
+      <inertia ixx="0.0113017" iyy="0.011088" izz="0.00102532" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="6.608573e-06 -0.09745946 -0.01729154" rpy="-0.003692471 -1.461129 1.57453" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/half_arm_1_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="half_arm_2_link">
+    <inertial>
+      <origin xyz="-4.4e-05 -0.006641 -0.117892" rpy="0 0 0" />
+      <mass value="1.1636" />
+      <inertia ixx="0.0111633" iyy="0.010932" izz="0.00100671" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="4.848872e-06 -0.01063879 -0.1335545" rpy="3.825609e-05 0.06657283 1.571083" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/half_arm_2_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="forearm_link">
+    <inertial>
+      <origin xyz="-1.8e-05 -0.075478 -0.015006" rpy="0 0 0" />
+      <mass value="0.9302" />
+      <inertia ixx="0.00834839" iyy="0.008147" izz="0.000598606" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-6.882813e-07 -0.07861767 -0.01945913" rpy="-0.00141336 -1.462973 1.572221" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/forearm_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="spherical_wrist_1_link">
+    <inertial>
+      <origin xyz="1e-06 -0.009432 -0.063883" rpy="0 0 0" />
+      <mass value="0.6781" />
+      <inertia ixx="0.00165901" iyy="0.001596" izz="0.000346988" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="6.095731e-07 -0.01224549 -0.07415962" rpy="-8.683604e-06 0.229836 1.570652" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/spherical_wrist_1_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="spherical_wrist_2_link">
+    <inertial>
+      <origin xyz="1e-06 -0.045483 -0.00965" rpy="0 0 0" />
+      <mass value="0.6781" />
+      <inertia ixx="0.00170087" iyy="0.001641" izz="0.00035013" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-4.911732e-07 -0.0431273 -0.01233118" rpy="-1.329264e-06 -1.278434 1.570796" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/spherical_wrist_2_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="bracelet_link">
+    <inertial>
+      <origin xyz="0.000281 0.011402 -0.029798" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="0.000657336" iyy="0.000587019" izz="0.000320645" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="2.66826e-06 -0.014812 -0.03729876" rpy="-3.139715 -1.271047 -1.572387" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/kinova_gen3/meshes/bracelet_with_vision_link.obj" />
+      </geometry>
+      <material name="mat0">
+        <color rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="joint_1" type="continuous">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="2" />
+    <parent link="base_link" />
+    <child link="shoulder_link" />
+    <origin xyz="0 0 0.15643" rpy="3.141593 0 0" />
+  </joint>
+  <joint name="joint_2" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-2.24" upper="2.24" effort="100" velocity="2" />
+    <parent link="shoulder_link" />
+    <child link="half_arm_1_link" />
+    <origin xyz="0 0.005375 -0.12838" rpy="1.570796 0 0" />
+  </joint>
+  <joint name="joint_3" type="continuous">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="2" />
+    <parent link="half_arm_1_link" />
+    <child link="half_arm_2_link" />
+    <origin xyz="0 -0.21038 -0.006375" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="joint_4" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-2.57" upper="2.57" effort="100" velocity="2" />
+    <parent link="half_arm_2_link" />
+    <child link="forearm_link" />
+    <origin xyz="0 0.006375 -0.21038" rpy="1.570796 0 0" />
+  </joint>
+  <joint name="joint_5" type="continuous">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="2" />
+    <parent link="forearm_link" />
+    <child link="spherical_wrist_1_link" />
+    <origin xyz="0 -0.20843 -0.006375" rpy="-1.570796 0 0" />
+  </joint>
+  <joint name="joint_6" type="revolute">
+    <axis xyz="0 0 1" />
+    <limit lower="-2.09" upper="2.09" effort="100" velocity="2" />
+    <parent link="spherical_wrist_1_link" />
+    <child link="spherical_wrist_2_link" />
+    <origin xyz="0 0.00017505 -0.10593" rpy="1.570796 0 0" />
+  </joint>
+  <joint name="joint_7" type="continuous">
+    <axis xyz="0 0 1" />
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="2" />
+    <parent link="spherical_wrist_2_link" />
+    <child link="bracelet_link" />
+    <origin xyz="0 -0.10593 -0.00017505" rpy="-1.570796 0 0" />
+  </joint>
+<link name="g_body1">
+    <inertial>
+      <origin xyz="0.001596798 0.003504282 0.02287167" rpy="0 0 0" />
+      <mass value="1.56013" />
+      <inertia ixx="0.00553071" iyy="0.00409211" izz="0.00272421" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0 -0.002 0.062" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_0.obj" />
+      </geometry>
+      <material name="g_mat0">
+        <color rgba="0.6 0.6 0.6 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.069 -0.057 0.04" rpy="0 1.190152 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_1.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.069 -0.057 0.04" rpy="0 -1.190152 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_2.obj" />
+      </geometry>
+      <material name="g_mat1">
+        <color rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.0002903696 0.009971137 0.02497243" rpy="0.1124452 -1.473184 1.483" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/base_link.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.01829678 -0.07888115 -0.003825782" rpy="0.8735072 1.478333 -2.197912" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/gopro.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_left_finger_holder">
+    <inertial>
+      <origin xyz="-0.0613355 0.104073 -0.0013157" rpy="0 0 0" />
+      <mass value="0.080081" />
+      <inertia ixx="0.000104597" iyy="0.000102992" izz="1.90532e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.051 0.063 0.006" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_16.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.06440684 0.08112334 -3.970886e-05" rpy="1.233061 -0.3781388 0.2840046" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/left_finger_holder.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="-0.05643616 0.124442 -0.003" rpy="1.714303 1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/left_finger.obj" />
+      </geometry>
+      <material name="g_mat4">
+        <color rgba="0.92 0.68 0.24 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="g_right_finger_holder">
+    <inertial>
+      <origin xyz="0.0613353 0.104073 -0.00131574" rpy="0 0 0" />
+      <mass value="0.080081" />
+      <inertia ixx="0.000104597" iyy="0.000102992" izz="1.90532e-05" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+    <visual>
+      <origin xyz="0.051 0.063 0.006" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/prim_27.obj" />
+      </geometry>
+      <material name="g_mat3">
+        <color rgba="0.15 0.15 0.15 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.06440684 0.08112334 -3.970884e-05" rpy="1.233061 0.3781388 -0.2840046" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/right_finger_holder.obj" />
+      </geometry>
+      <material name="g_mat2">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin xyz="0.05643616 0.124442 -0.003" rpy="1.714303 -1.570796 0" />
+      <geometry>
+        <mesh filename="package://extra/menagerie_urdf/umi_gripper/meshes/right_finger.obj" />
+      </geometry>
+      <material name="g_mat4">
+        <color rgba="0.92 0.68 0.24 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="g_left_finger_joint" type="prismatic">
+    <axis xyz="1 0 0" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="g_body1" />
+    <child link="g_left_finger_holder" />
+    <origin xyz="0 0 0" rpy="1.570796 0 0" />
+    <mimic joint="g_right_finger_joint" multiplier="1" offset="-2.50102e-08" />
+  </joint>
+  <joint name="g_right_finger_joint" type="prismatic">
+    <axis xyz="-1 0 0" />
+    <limit lower="0" upper="0.05" effort="100" velocity="2" />
+    <parent link="g_body1" />
+    <child link="g_right_finger_holder" />
+    <origin xyz="0 0 0" rpy="1.570796 0 0" />
+  </joint>
+<joint name="gripper_mount" type="fixed"><parent link="bracelet_link" /><child link="g_body1" /><origin xyz="-0 4.09988e-24 -0.0644251" rpy="3.13057 2.65513e-06 1.5708" /></joint><link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="g_body1" /><child link="tcp_frame" /><origin xyz="0.0480692 0.00114678 0.173243" rpy="0.0110227 2.64583e-06 2.91652e-08" /></joint></robot>

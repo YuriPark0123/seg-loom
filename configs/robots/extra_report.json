@@ -805,5 +805,1421 @@
   "workspace": 1.0,
   "reach_scale": 1.0,
   "wrist_robot_frac": 0.0528125
+ },
+ "arx_l5": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "BSD-3-Clause",
+  "source": "menagerie_urdf/arx_l5/arx_l5.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "joint8"
+  ],
+  "reach": 0.862,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.4939096166930008,
+  "rest_rot_err_deg": 61.20283329667181,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.17213541666666668
+ },
+ "unitree_z1": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "BSD-3-Clause",
+  "source": "menagerie_urdf/unitree_z1/unitree_z1.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "jointGripper"
+  ],
+  "reach": 0.872,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.1999953593638988,
+  "rest_rot_err_deg": 58.28671368009345,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.12052083333333333
+ },
+ "kinova_gen3": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "BSD-3-Clause",
+  "source": "menagerie_urdf/kinova_gen3/kinova_gen3.urdf",
+  "xacro_args": null,
+  "n_arm": 7,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6",
+   "joint_7"
+  ],
+  "gripper": null,
+  "reach": 0.983,
+  "rest_err_mm": 0.14809010017280627,
+  "rest_rot_err_deg": 0.04677295684788475,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.12119791666666667
+ },
+ "fanuc_crx5ia": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "Apache-2.0",
+  "source": "menagerie_urdf/fanuc_crx5ia/fanuc_crx5ia.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "J1",
+   "J2",
+   "J3",
+   "J4",
+   "J5",
+   "J6"
+  ],
+  "gripper": null,
+  "reach": 1.059,
+  "rest_err_mm": 0.47361436281639113,
+  "rest_rot_err_deg": 0.06500784200070173,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.21432291666666667
+ },
+ "trossen_wxai": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "BSD-3-Clause",
+  "source": "menagerie_urdf/trossen_wxai/trossen_wxai.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint_0",
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5"
+  ],
+  "gripper": [
+   "right_carriage_joint"
+  ],
+  "reach": 0.8,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.3743304688466502,
+  "rest_rot_err_deg": 57.76720781164471,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.25125
+ },
+ "seeed_devarm": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "MIT",
+  "source": "menagerie_urdf/seeed_devarm/seeed_devarm.urdf",
+  "xacro_args": null,
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "joint_right"
+  ],
+  "reach": 0.771,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 2.0599038319231284,
+  "rest_rot_err_deg": 85.37012818259188,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16557291666666665
+ },
+ "google_robot": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "Apache-2.0",
+  "source": "menagerie_urdf/google_robot/google_robot.urdf",
+  "xacro_args": null,
+  "n_arm": 7,
+  "arm": [
+   "joint_torso",
+   "joint_shoulder",
+   "joint_bicep",
+   "joint_elbow",
+   "joint_forearm",
+   "joint_wrist",
+   "joint_gripper"
+  ],
+  "gripper": [
+   "joint_finger_right",
+   "joint_finger_left"
+  ],
+  "reach": 1.19,
+  "grip_width_open_close": [
+   0.09430654214014339,
+   0.0
+  ],
+  "rest_err_mm": 0.4898978931525233,
+  "rest_rot_err_deg": 0.08330787096686387,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15963541666666667
+ },
+ "rizon4s": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie",
+  "license": "Apache-2.0",
+  "source": "menagerie_urdf/rizon4s/rizon4s.urdf",
+  "xacro_args": null,
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": null,
+  "reach": 1.017,
+  "rest_err_mm": 0.338133702971451,
+  "rest_rot_err_deg": 0.09378082224041293,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 0.85,
+  "wrist_robot_frac": 0.20604166666666668
+ },
+ "fanuc_m710ic70__robotiq": {
+  "ok": true,
+  "repo": "robot-descriptions/fanuc_m710ic_description + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "fanuc_m710ic_description/urdf/m710ic70.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "fanuc_m710ic70",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 2.38,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.056903632398344436,
+  "rest_rot_err_deg": 0.10831252887902804,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15458333333333332
+ },
+ "fanuc_m710ic70__umi": {
+  "ok": true,
+  "repo": "robot-descriptions/fanuc_m710ic_description + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "fanuc_m710ic_description/urdf/m710ic70.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "fanuc_m710ic70",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 2.433,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.09565503708531992,
+  "rest_rot_err_deg": 0.028384538959786945,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "fanuc_lrmate200ic__robotiq": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "fanuc/fanuc_lrmate200ic_support/urdf/lrmate200ic.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {},
+  "arm_of": "fanuc_lrmate200ic",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.928,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.2739986532444498,
+  "rest_rot_err_deg": 0.018151545494387373,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.03166666666666667
+ },
+ "fanuc_lrmate200ic__umi": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "fanuc/fanuc_lrmate200ic_support/urdf/lrmate200ic.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {},
+  "arm_of": "fanuc_lrmate200ic",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 0.98,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.3150813421732339,
+  "rest_rot_err_deg": 0.10636009064963584,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.1628125
+ },
+ "fanuc_m10ia__robotiq": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "fanuc/fanuc_m10ia_support/urdf/m10ia.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {},
+  "arm_of": "fanuc_m10ia",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.724,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.07795708316268059,
+  "rest_rot_err_deg": 0.12679059247447422,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15010416666666668
+ },
+ "fanuc_m10ia__umi": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "fanuc/fanuc_m10ia_support/urdf/m10ia.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {},
+  "arm_of": "fanuc_m10ia",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.776,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.1097842532753221,
+  "rest_rot_err_deg": 0.026088490071549716,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "fanuc_cr7ia__robotiq": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "fanuc/fanuc_cr7ia_support/urdf/cr7ia.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {},
+  "arm_of": "fanuc_cr7ia",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.907,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.02454534345099607,
+  "rest_rot_err_deg": 0.015164247940671465,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.03703125
+ },
+ "fanuc_cr7ia__umi": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "fanuc/fanuc_cr7ia_support/urdf/cr7ia.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {},
+  "arm_of": "fanuc_cr7ia",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 0.959,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.13647654194644807,
+  "rest_rot_err_deg": 0.13363424985797806,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.1646875
+ },
+ "fanuc_crx10ial__robotiq": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "fanuc/fanuc_crx10ia_support/urdf/crx10ial.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {},
+  "arm_of": "fanuc_crx10ial",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.477,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.22978173641063263,
+  "rest_rot_err_deg": 0.03973386932956347,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15010416666666668
+ },
+ "fanuc_crx10ial__umi": {
+  "ok": true,
+  "repo": "ros-industrial/fanuc + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "fanuc/fanuc_crx10ia_support/urdf/crx10ial.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {},
+  "arm_of": "fanuc_crx10ial",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.53,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.19827528959015636,
+  "rest_rot_err_deg": 0.1067930180276596,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "fanuc_crx5ia__robotiq": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "Apache-2.0 + BSD-2-Clause",
+  "source": "menagerie_urdf/fanuc_crx5ia/fanuc_crx5ia.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "fanuc_crx5ia",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "J1",
+   "J2",
+   "J3",
+   "J4",
+   "J5",
+   "J6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.167,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.559621340762498,
+  "rest_rot_err_deg": 0.06655521003494179,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15010416666666668
+ },
+ "fanuc_crx5ia__umi": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "Apache-2.0 + MIT",
+  "source": "menagerie_urdf/fanuc_crx5ia/fanuc_crx5ia.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "fanuc_crx5ia",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "J1",
+   "J2",
+   "J3",
+   "J4",
+   "J5",
+   "J6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.043,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.5574825290305743,
+  "rest_rot_err_deg": 0.10198222591357346,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 0.85,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "kinova_gen2__robotiq": {
+  "ok": true,
+  "repo": "Gepetto/example-robot-data + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "example-robot-data/robots/kinova_description/robots/kinova.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "kinova_gen2",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "j2s6s200_joint_1",
+   "j2s6s200_joint_2",
+   "j2s6s200_joint_3",
+   "j2s6s200_joint_4",
+   "j2s6s200_joint_5",
+   "j2s6s200_joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.158,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 3.1395881011924662,
+  "rest_rot_err_deg": 0.25639468261726284,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15010416666666668
+ },
+ "kinova_gen2__umi": {
+  "ok": true,
+  "repo": "Gepetto/example-robot-data + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "example-robot-data/robots/kinova_description/robots/kinova.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "kinova_gen2",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "j2s6s200_joint_1",
+   "j2s6s200_joint_2",
+   "j2s6s200_joint_3",
+   "j2s6s200_joint_4",
+   "j2s6s200_joint_5",
+   "j2s6s200_joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.219,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 4.93161427444144,
+  "rest_rot_err_deg": 11.715184036098607,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16302083333333334
+ },
+ "kinova_gen3__robotiq": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "menagerie_urdf/kinova_gen3/kinova_gen3.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "kinova_gen3",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6",
+   "joint_7"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.094,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.45508633377425106,
+  "rest_rot_err_deg": 0.047734801352718646,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.030416666666666668
+ },
+ "kinova_gen3__umi": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "menagerie_urdf/kinova_gen3/kinova_gen3.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "kinova_gen3",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6",
+   "joint_7"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.152,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.5265222005640525,
+  "rest_rot_err_deg": 0.07717920896159958,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "xarm5__robotiq": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2 + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {
+   "dof": "5",
+   "add_gripper": "false"
+  },
+  "arm_of": "xarm5",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 5,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.844,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.8407145752793334,
+  "rest_rot_err_deg": 1.8179573743982456,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15645833333333334
+ },
+ "xarm5__umi": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2 + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {
+   "dof": "5",
+   "add_gripper": "false"
+  },
+  "arm_of": "xarm5",
+  "gripper_of": "umi_gripper",
+  "n_arm": 5,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 0.896,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.9470897069122662,
+  "rest_rot_err_deg": 2.1913491352154435,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "lite6__robotiq": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2 + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {
+   "dof": "6",
+   "robot_type": "lite",
+   "add_gripper": "true"
+  },
+  "arm_of": "lite6",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.671,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.8608437076827526,
+  "rest_rot_err_deg": 0.14224232171711174,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.03666666666666667
+ },
+ "lite6__umi": {
+  "ok": true,
+  "repo": "xArm-Developer/xarm_ros2 + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "xarm_ros2/xarm_description/urdf/xarm_device.urdf.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {
+   "dof": "6",
+   "robot_type": "lite",
+   "add_gripper": "true"
+  },
+  "arm_of": "lite6",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 0.729,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.9451529607127022,
+  "rest_rot_err_deg": 39.92986113991468,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.18588541666666666
+ },
+ "omy_3m__robotiq": {
+  "ok": true,
+  "repo": "ROBOTIS-GIT/open_manipulator + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "Apache-2.0 + BSD-2-Clause",
+  "source": "open_manipulator/open_manipulator_description/urdf/omy_3m/omy_3m.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "omy_3m",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.864,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.0926230068180371,
+  "rest_rot_err_deg": 0.060697600518351616,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 0.85,
+  "wrist_robot_frac": 0.031875
+ },
+ "omy_3m__umi": {
+  "ok": true,
+  "repo": "ROBOTIS-GIT/open_manipulator + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "Apache-2.0 + MIT",
+  "source": "open_manipulator/open_manipulator_description/urdf/omy_3m/omy_3m.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "omy_3m",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.077,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 1.022092156721632,
+  "rest_rot_err_deg": 34.56009457163092,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "iiwa7__robotiq": {
+  "ok": true,
+  "repo": "facebookresearch/differentiable-robot-model + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "MIT + BSD-2-Clause",
+  "source": "differentiable-robot-model/diff_robot_data/kuka_iiwa/urdf/iiwa7.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "iiwa7",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "iiwa_joint_1",
+   "iiwa_joint_2",
+   "iiwa_joint_3",
+   "iiwa_joint_4",
+   "iiwa_joint_5",
+   "iiwa_joint_6",
+   "iiwa_joint_7"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.201,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.363948516666708,
+  "rest_rot_err_deg": 0.06006339168217688,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15322916666666667
+ },
+ "iiwa7__umi": {
+  "ok": true,
+  "repo": "facebookresearch/differentiable-robot-model + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "MIT + MIT",
+  "source": "differentiable-robot-model/diff_robot_data/kuka_iiwa/urdf/iiwa7.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "iiwa7",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "iiwa_joint_1",
+   "iiwa_joint_2",
+   "iiwa_joint_3",
+   "iiwa_joint_4",
+   "iiwa_joint_5",
+   "iiwa_joint_6",
+   "iiwa_joint_7"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.257,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.31644438753451454,
+  "rest_rot_err_deg": 0.08508532192869331,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "iiwa14__robotiq": {
+  "ok": true,
+  "repo": "RobotLocomotion/drake + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "drake/manipulation/models/iiwa_description/urdf/iiwa14_no_collision.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "iiwa14",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "iiwa_joint_1",
+   "iiwa_joint_2",
+   "iiwa_joint_3",
+   "iiwa_joint_4",
+   "iiwa_joint_5",
+   "iiwa_joint_6",
+   "iiwa_joint_7"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.204,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.3258390667744568,
+  "rest_rot_err_deg": 0.05552303761133236,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.1571875
+ },
+ "iiwa14__umi": {
+  "ok": true,
+  "repo": "RobotLocomotion/drake + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "drake/manipulation/models/iiwa_description/urdf/iiwa14_no_collision.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "iiwa14",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "iiwa_joint_1",
+   "iiwa_joint_2",
+   "iiwa_joint_3",
+   "iiwa_joint_4",
+   "iiwa_joint_5",
+   "iiwa_joint_6",
+   "iiwa_joint_7"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.261,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.3184865225536495,
+  "rest_rot_err_deg": 0.07920640563080113,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "rizon4__robotiq": {
+  "ok": true,
+  "repo": "flexivrobotics/flexiv_description + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "Apache-2.0 + BSD-2-Clause",
+  "source": "flexiv_description/urdf/flexiv.urdf.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {
+   "robot_type": "Rizon4"
+  },
+  "arm_of": "rizon4",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.925,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.8617264171744294,
+  "rest_rot_err_deg": 0.035595986537820104,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 0.73,
+  "wrist_robot_frac": 0.16317708333333333
+ },
+ "rizon4__umi": {
+  "ok": true,
+  "repo": "flexivrobotics/flexiv_description + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "Apache-2.0 + MIT",
+  "source": "flexiv_description/urdf/flexiv.urdf.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {
+   "robot_type": "Rizon4"
+  },
+  "arm_of": "rizon4",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.325,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.6291716937079493,
+  "rest_rot_err_deg": 0.053202844472548555,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "rizon10__robotiq": {
+  "ok": true,
+  "repo": "flexivrobotics/flexiv_description + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "Apache-2.0 + BSD-2-Clause",
+  "source": "flexiv_description/urdf/flexiv.urdf.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {
+   "robot_type": "Rizon10"
+  },
+  "arm_of": "rizon10",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.379,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.4958492075273477,
+  "rest_rot_err_deg": 0.10938794294809716,
+  "reason": "",
+  "workspace": 0.8333333333333334,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15171875
+ },
+ "rizon10__umi": {
+  "ok": true,
+  "repo": "flexivrobotics/flexiv_description + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "Apache-2.0 + MIT",
+  "source": "flexiv_description/urdf/flexiv.urdf.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {
+   "robot_type": "Rizon10"
+  },
+  "arm_of": "rizon10",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.438,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.5460067781505609,
+  "rest_rot_err_deg": 0.05236128620925258,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.06098958333333333
+ },
+ "rizon4s__robotiq": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "Apache-2.0 + BSD-2-Clause",
+  "source": "menagerie_urdf/rizon4s/rizon4s.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "rizon4s",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.109,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.8345488490341517,
+  "rest_rot_err_deg": 0.05563717964432232,
+  "reason": "",
+  "workspace": 0.75,
+  "reach_scale": 0.85,
+  "wrist_robot_frac": 0.15302083333333333
+ },
+ "rizon4s__umi": {
+  "ok": true,
+  "repo": "google-deepmind/mujoco_menagerie + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "Apache-2.0 + MIT",
+  "source": "menagerie_urdf/rizon4s/rizon4s.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "rizon4s",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "joint1",
+   "joint2",
+   "joint3",
+   "joint4",
+   "joint5",
+   "joint6",
+   "joint7"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.366,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.5036984617340158,
+  "rest_rot_err_deg": 0.046649808793961134,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "sawyer__robotiq": {
+  "ok": true,
+  "repo": "RethinkRobotics/sawyer_robot + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "Apache-2.0 + BSD-2-Clause",
+  "source": "sawyer_robot/sawyer_description/urdf/sawyer.urdf.xacro + menagerie_urdf/robotiq_2f85",
+  "xacro_args": {
+   "electric_gripper": "false"
+  },
+  "arm_of": "sawyer",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 7,
+  "arm": [
+   "right_j0",
+   "right_j1",
+   "right_j2",
+   "right_j3",
+   "right_j4",
+   "right_j5",
+   "right_j6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 1.397,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.4298743294129697,
+  "rest_rot_err_deg": 0.05020404733638598,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.15010416666666668
+ },
+ "sawyer__umi": {
+  "ok": true,
+  "repo": "RethinkRobotics/sawyer_robot + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "Apache-2.0 + MIT",
+  "source": "sawyer_robot/sawyer_description/urdf/sawyer.urdf.xacro + menagerie_urdf/umi_gripper",
+  "xacro_args": {
+   "electric_gripper": "false"
+  },
+  "arm_of": "sawyer",
+  "gripper_of": "umi_gripper",
+  "n_arm": 7,
+  "arm": [
+   "right_j0",
+   "right_j1",
+   "right_j2",
+   "right_j3",
+   "right_j4",
+   "right_j5",
+   "right_j6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 1.452,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.4615155677377377,
+  "rest_rot_err_deg": 0.04844201577274835,
+  "reason": "",
+  "workspace": 0.9166666666666666,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.16255208333333335
+ },
+ "edo__robotiq": {
+  "ok": true,
+  "repo": "ianathompson/eDO_description + google-deepmind/mujoco_menagerie (robotiq_2f85)",
+  "license": "BSD-3-Clause + BSD-2-Clause",
+  "source": "edo/robots/edo_sim.urdf + menagerie_urdf/robotiq_2f85",
+  "xacro_args": null,
+  "arm_of": "edo",
+  "gripper_of": "robotiq_2f85",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_left_driver_joint"
+  ],
+  "reach": 0.916,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.7131431514965907,
+  "rest_rot_err_deg": 0.04768198835915423,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.114375
+ },
+ "edo__umi": {
+  "ok": true,
+  "repo": "ianathompson/eDO_description + google-deepmind/mujoco_menagerie (umi_gripper)",
+  "license": "BSD-3-Clause + MIT",
+  "source": "edo/robots/edo_sim.urdf + menagerie_urdf/umi_gripper",
+  "xacro_args": null,
+  "arm_of": "edo",
+  "gripper_of": "umi_gripper",
+  "n_arm": 6,
+  "arm": [
+   "joint_1",
+   "joint_2",
+   "joint_3",
+   "joint_4",
+   "joint_5",
+   "joint_6"
+  ],
+  "gripper": [
+   "g_right_finger_joint"
+  ],
+  "reach": 0.97,
+  "grip_width_open_close": [
+   0.0,
+   0.0
+  ],
+  "rest_err_mm": 0.5393196392397165,
+  "rest_rot_err_deg": 17.707155841342583,
+  "reason": "",
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.17609375
  }
 }

@@ -1,0 +1,49 @@
+name: rizon4s__umi
+urdf: assets/robots_train/rizon4s__umi/rizon4s__umi.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+- joint6
+- joint7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0185
+- -0.593
+- 0.2356
+- 0.9548
+- -0.1309
+- -0.0361
+- -1.3599
+reach: 1.366
+rot_weight: 0.5
+asset_dir: assets/robots_train/rizon4s__umi/mj
+wrist_cam:
+  side_axis:
+  - 1
+  - 0
+  - 0
+  pos:
+  - 0.08
+  - 0.0
+  - -0.2118
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_right_finger_joint
+  open:
+  - 0.05
+  close:
+  - 0.0

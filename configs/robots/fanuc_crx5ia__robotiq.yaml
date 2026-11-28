@@ -1,0 +1,47 @@
+name: fanuc_crx5ia__robotiq
+urdf: assets/robots_train/fanuc_crx5ia__robotiq/fanuc_crx5ia__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- J1
+- J2
+- J3
+- J4
+- J5
+- J6
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.2555
+- 0.164
+- 0.1837
+- 0.0002
+- -1.5894
+- -0.2544
+reach: 1.167
+rot_weight: 0.5
+asset_dir: assets/robots_train/fanuc_crx5ia__robotiq/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - -1
+  - 0
+  pos:
+  - 0.0
+  - -0.08
+  - -0.1567
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0

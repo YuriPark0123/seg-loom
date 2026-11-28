@@ -1,0 +1,45 @@
+name: xarm5__robotiq
+urdf: assets/robots_train/xarm5__robotiq/xarm5__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint1
+- joint2
+- joint3
+- joint4
+- joint5
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.0059
+- -0.4108
+- -0.6507
+- 1.0397
+- -1.5427
+reach: 0.844
+rot_weight: 0.1
+asset_dir: assets/robots_train/xarm5__robotiq/mj
+wrist_cam:
+  side_axis:
+  - 0
+  - -1
+  - 0
+  pos:
+  - 0.0
+  - -0.08
+  - -0.1567
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0

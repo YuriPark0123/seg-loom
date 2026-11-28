@@ -37,6 +37,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def robot_job(args):
     name, kind, seed, out, modes, T, level, clutter = args[:8]
     inst, recolor = (args[8], args[9]) if len(args) > 8 else (None, 0.0)
+    len_frac = args[10] if len(args) > 10 else 0.10
     from shadow.datagen import EpisodeGen, robot_render_geoms, sample_robot_extras, save_episode
     from shadow.mj_world import Layout
     from shadow.procgen import generate_robot
@@ -60,7 +61,7 @@ def robot_job(args):
         rdir = os.path.join(out, "robots", spec.name)
         layout = Layout(spec)
         if not os.path.exists(os.path.join(rdir, "extras.json")):
-            rec = export_robot(spec, rdir, rng, level=level)
+            rec = export_robot(spec, rdir, rng, level=level, len_frac=len_frac)
             extras = sample_robot_extras(spec, layout, rng, recolor=recolor)
             json.dump(rec, open(os.path.join(rdir, "perturb.json"), "w"), indent=1)
             json.dump(extras, open(os.path.join(rdir, "extras.json"), "w"), indent=1)
@@ -136,6 +137,9 @@ def main():
     ap.add_argument("--modes", nargs="+", default=["motion:10", "task:10"], help="mode:episodes_per_robot")
     ap.add_argument("--T", type=int, default=60, help="frames per motion/ref episode (task length is scripted)")
     ap.add_argument("--level", type=float, default=1.0, help="URDF error level (0 = exact URDF)")
+    ap.add_argument("--len-frac", type=float, default=0.10,
+                    help="approx URDF link-length error: per joint offset scaled by 1+e, e~N(0,f/2) clipped to +-f "
+                         "(0.10 = sets made before 2026-11-28; 0.01 = manufacturer URDF, mm-level)")
     ap.add_argument("--clutter", type=float, default=0.0, help="probability of a cluttered scene per episode")
     ap.add_argument("--instances", type=int, nargs=2, default=None, metavar=("START", "END"),
                     help="real robots: generate instances START..END-1 of each (own approx URDF, extras, colours)")
@@ -172,11 +176,13 @@ def main():
     os.makedirs(os.path.join(out, "episodes"), exist_ok=True)
     modes = [(m.split(":")[0], int(m.split(":")[1])) for m in a.modes]
     if a.instances:
-        jobs = [(r, "real", a.seed + 10_000_000 + i + 100_000 * k, out, modes, a.T, a.level, a.clutter, k, a.recolor)
+        jobs = [(r, "real", a.seed + 10_000_000 + i + 100_000 * k, out, modes, a.T, a.level, a.clutter, k, a.recolor, a.len_frac)
                 for k in range(*a.instances) for i, r in enumerate(a.robots)]
     else:
-        jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level, a.clutter) for i, r in enumerate(a.robots)]
-    jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level, a.clutter) for i in range(a.procgen)]
+        jobs = [(r, "real", a.seed + 10_000_000 + i, out, modes, a.T, a.level, a.clutter, None, 0.0, a.len_frac)
+                for i, r in enumerate(a.robots)]
+    jobs += [(f"pg{a.seed + i:07d}", "procgen", a.seed + i, out, modes, a.T, a.level, a.clutter, None, 0.0, a.len_frac)
+             for i in range(a.procgen)]
     if a.robot_range:
         jobs = jobs[a.robot_range[0]:a.robot_range[1]]
     cfg = os.path.join(out, "config.json") if not a.robot_range else \

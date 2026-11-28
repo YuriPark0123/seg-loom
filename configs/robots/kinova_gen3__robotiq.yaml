@@ -1,0 +1,49 @@
+name: kinova_gen3__robotiq
+urdf: assets/robots_train/kinova_gen3__robotiq/kinova_gen3__robotiq.urdf
+package_dirs:
+  extra: assets/src/extra
+arm_joints:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+- joint_7
+ee_body: tcp_frame
+tcp_offset:
+- 0
+- 0
+- 0
+rest_q:
+- 0.6644
+- 0.8421
+- 1.6566
+- -1.3428
+- 0.8423
+- -1.6585
+- 0.8918
+reach: 1.094
+rot_weight: 0.5
+asset_dir: assets/robots_train/kinova_gen3__robotiq/mj
+wrist_cam:
+  side_axis:
+  - -1
+  - 0
+  - 0
+  pos:
+  - -0.08
+  - 0.0
+  - -0.1567
+  look_at:
+  - 0
+  - 0
+  - 0.28
+  fovy: 75
+gripper:
+  joints:
+  - g_left_driver_joint
+  open:
+  - 0.9
+  close:
+  - 0.0
