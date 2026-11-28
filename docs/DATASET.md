@@ -239,3 +239,10 @@ task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실�
 - `eval_real2/i000`: 전체를 다시 만들었다.
 - `train_real2`: 별도 저장소 `yrpark/seg-loom-real2`에 처음부터 다시 만든다. 수정 전 v2 데이터는 쓰지 않는다.
 - `grip_cmd`(1 = open)는 고친 config를 따른다. 수정 전 데이터에서 위 open/close가 뒤바뀐 로봇의 `grip_cmd`는 의미가 반대였다.
+
+## 10. 링크 길이 오차 상한 1cm (2026-11-28 15시부터)
+
+근사 URDF의 링크 길이 오차를 비율(`--len-frac`)로 뽑은 뒤 **관절 원점마다 절대값 1cm를 넘지 않도록 자른다**(`--len-max-m 0.01`, `gen_train_chunks.sh`의 기본값 `LENMAX=0.01`). 난수 뽑기 횟수는 같으므로 같은 시드에서 다른 무작위 값(영점, 형상, 색 등)은 그대로이고 길이 오차 크기만 바뀐다. `perturb.json`에 `len_max_m`이 기록된다.
+
+- 적용: `eval_real2`, `train_real2` (이번 재생성부터).
+- 미적용(상한 없음, `len_frac` 0.10 = 최대 10%): `train`, `train_clutter`, `eval`, `ref`, `eval_real`, `train_real`. 링크 0.3m면 최대 3cm까지 틀릴 수 있다.

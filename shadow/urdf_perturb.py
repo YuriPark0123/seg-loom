@@ -2,6 +2,7 @@
 
 Perturbations (each recorded so the error is known for evaluation):
   length   : every joint origin translation scaled by (1 + e), |e| <= len_frac      (CAD vs real)
+             len_max_m: also |e| * |origin| <= len_max_m (absolute cap, e.g. 0.01 = 1 cm)
   zero     : origin rotated about the joint axis by d, |d| <= zero_deg            (encoder zero offset)
   shape    : primitive sizes scaled / cylinder<->box swapped; meshes replaced by their bounding box
   drop     : visuals of some links removed (e.g. fingers missing in the URDF)
@@ -57,11 +58,11 @@ def _mesh_box(mesh_el, out_dir):
 
 def perturb_urdf(true_root: ET.Element, out_dir: str, rng: np.random.Generator, level=1.0,
                  len_frac=0.10, zero_deg=5.0, shape_frac=0.15, p_mesh_box=0.3, p_swap=0.2, p_drop=0.1,
-                 protect=()):
+                 protect=(), len_max_m=None):
     """true_root: parsed URDF whose mesh filenames are relative to out_dir (see localize_meshes).
     Writes out_dir/approx.urdf, returns the record of applied errors."""
     root = copy.deepcopy(true_root)
-    rec = dict(length={}, zero_deg={}, shape={}, dropped=[], level=level, len_frac=len_frac)
+    rec = dict(length={}, zero_deg={}, shape={}, dropped=[], level=level, len_frac=len_frac, len_max_m=len_max_m)
     for j in root.findall("joint"):
         o = j.find("origin")
         if o is None:
@@ -69,6 +70,9 @@ def perturb_urdf(true_root: ET.Element, out_dir: str, rng: np.random.Generator, 
         xyz, rpy = _vec(o.get("xyz")), _vec(o.get("rpy"))
         if np.linalg.norm(xyz) > 1e-6:
             e = float(np.clip(rng.normal(0, len_frac / 2), -len_frac, len_frac) * level)
+            if len_max_m is not None:                      # same rng draw; only the size is capped
+                cap = len_max_m / np.linalg.norm(xyz)
+                e = float(np.clip(e, -cap, cap))
             xyz = xyz * (1 + e)
             rec["length"][j.get("name")] = e
         if j.get("type") in ("revolute", "continuous") and j.find("mimic") is None:
@@ -125,7 +129,7 @@ def perturb_urdf(true_root: ET.Element, out_dir: str, rng: np.random.Generator, 
     return rec
 
 
-def export_robot(spec, out_dir: str, rng: np.random.Generator, level=1.0, len_frac=0.10):
+def export_robot(spec, out_dir: str, rng: np.random.Generator, level=1.0, len_frac=0.10, len_max_m=None):
     """Self-contained robot folder for the dataset: true.urdf + approx.urdf + meshes + record."""
     os.makedirs(out_dir, exist_ok=True)
     root = ET.parse(spec.urdf).getroot()
@@ -137,5 +141,5 @@ def export_robot(spec, out_dir: str, rng: np.random.Generator, level=1.0, len_fr
     links = root.findall("link")
     if links:
         protect.add(links[0].get("name"))
-    rec = perturb_urdf(root, out_dir, rng, level=level, protect=protect, len_frac=len_frac)
+    rec = perturb_urdf(root, out_dir, rng, level=level, protect=protect, len_frac=len_frac, len_max_m=len_max_m)
     return rec
