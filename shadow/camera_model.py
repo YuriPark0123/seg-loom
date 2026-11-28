@@ -143,7 +143,7 @@ class CameraModel:
                            (self.cx + 0.5) * s - 0.5, (self.cy + 0.5) * s - 0.5, self.kind, self.dist.copy())
 
 
-def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", "fisheye")) -> CameraModel:
+def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", "fisheye"), allow_fisheye=True) -> CameraModel:
     """Sample a plausible real camera: resolution, FOV, principal-point offset, lens distortion.
 
     Every pixel has a valid ray (fixed 2026-11-28; the random draws are the same as before, only the derived values
@@ -158,6 +158,14 @@ def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", 
         fov = rng.uniform(100, 160)                             # diagonal; UMI GoPro 155, RealSense T265 ~163
         dist = np.r_[rng.normal(0, 0.03), rng.normal(0, 0.02), rng.normal(0, 0.01), rng.normal(0, 0.005), 0]
         fx = None
+        if not allow_fisheye:
+            # third-person cameras get common lenses only: a brown lens drawn from a sub-generator seeded by the
+            # fisheye draws, so the main stream (scene, trajectories, ...) stays the same as with allow_fisheye
+            sub = np.random.default_rng(np.frombuffer(np.r_[fov, dist[:4]].tobytes(), np.uint32))
+            kind, fov = "brown", sub.uniform(45, 100)
+            fx = (W / 2) / np.tan(np.deg2rad(fov / 2))
+            k1 = sub.uniform(-0.35, 0.15)
+            dist = np.array([k1, sub.uniform(-0.1, 0.15) * (abs(k1) > 0.1), sub.normal(0, 0.002), sub.normal(0, 0.002), 0.0])
     else:
         fov = rng.uniform(45, 100)                              # horizontal
         fx = (W / 2) / np.tan(np.deg2rad(fov / 2))

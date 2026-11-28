@@ -474,7 +474,8 @@ class EpisodeGen:
         rng = self.rng
         models, tracks, modes = {}, {}, {}
         for c in CAMS:
-            cam = random_camera(rng)
+            # fisheye only on the wrist (UMI-style GoPro); top/front cameras in robot datasets are ordinary lenses
+            cam = random_camera(rng, allow_fisheye=(c == "wrist"))
             models[c] = cam.scaled(self.out_w / cam.width)
         for c in ("top", "front"):
             mode = cam_mode or str(rng.choice(["static", "static", "drift", "shake", "jump"]))
