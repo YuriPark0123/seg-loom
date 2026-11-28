@@ -51,7 +51,8 @@ class Ctl:
         self.train_cfg = None       # (simple, clutter, stage name, final?, real)
         self.evals = []             # (stage, Popen, json path)
         self.remote = {}            # folder -> remote file count
-        self.remote_files = {}      # folder -> remote file paths
+        self.remote_files = {}      # folder -> remote file paths (relative to --local)
+        self.src = {}               # folder -> (repo, folder in that repo)
         self.unpack_fail = {}
         self.last_poll = 0.0
         self.crashes = 0
@@ -73,19 +74,28 @@ class Ctl:
     # ------------------------------------------------------------------ HF / download
     def poll(self):
         from huggingface_hub import HfApi
-        try:
-            fs = HfApi().list_repo_files(REPO, repo_type="dataset")
-        except Exception as e:                                   # network / rate limit: try next tick
-            self.log(f"poll failed: {e}"); return
-        cnt = {}
-        for f in fs:
-            m = re.match(r"^(train[a-z_]*/[ri]\d{3,4})/", f)
-            if m:
-                cnt[m.group(1)] = cnt.get(m.group(1), 0) + 1
-        done = {k for k in cnt if f"{k}/manifest.jsonl" in fs}
+        # main repo: train*/rNNNN|iNNN at the top; --real-repo (e.g. yrpark/seg-loom-real2): iNNN at its root, kept
+        # locally under --real-prefix (train_real2/i000). self.remote_files holds paths relative to --local.
+        srcs = [(self.a.repo, "", r"^(train[a-z_0-9]*/[ri]\d{3,4})/")]
+        if self.a.real_repo:
+            srcs.append((self.a.real_repo, self.a.real_prefix, r"^([ri]\d{3,4})/"))
+        cnt, files = {}, {}
+        for repo, pre, pat in srcs:
+            try:
+                fs = HfApi().list_repo_files(repo, repo_type="dataset")
+            except Exception as e:                               # network / rate limit: try next tick
+                self.log(f"poll {repo} failed: {e}"); return
+            for f in fs:
+                m = re.match(pat, f)
+                if m:
+                    k = pre + m.group(1)
+                    cnt[k] = cnt.get(k, 0) + 1
+                    files.setdefault(k, []).append(pre + f)
+                    self.src[k] = (repo, m.group(1))
+        done = {k for k in cnt if f"{k}/manifest.jsonl" in files[k]}
         new = sorted(done - set(self.remote))
         self.remote = {k: cnt[k] for k in done}
-        self.remote_files = {k: [f for f in fs if f.startswith(k + "/")] for k in done}
+        self.remote_files = {k: files[k] for k in done}
         if new:
             self.log(f"HF complete folders: {sorted(done)} (new: {new})")
 
@@ -169,8 +179,10 @@ class Ctl:
             self.start_download(todo[0])
 
     def start_download(self, folder):
-        cmd = [os.path.join(os.path.dirname(sys.executable), "hf"), "download", REPO, "--repo-type", "dataset",
-               "--include", f"{folder}/*", "--local-dir", self.a.local, "--max-workers", "16"]
+        repo, rf = self.src.get(folder, (self.a.repo, folder))
+        ldir = os.path.join(self.a.local, folder[: len(folder) - len(rf)])   # = --local unless remapped
+        cmd = [os.path.join(os.path.dirname(sys.executable), "hf"), "download", repo, "--repo-type", "dataset",
+               "--include", f"{rf}/*", "--local-dir", ldir, "--max-workers", "16"]
         logf = open(os.path.join(self.a.out, "download.log"), "a")
         self.dl = (folder, subprocess.Popen(cmd, stdout=logf, stderr=subprocess.STDOUT))
         self.log(f"download {folder} started ({self.n_local(folder)}/{self.remote.get(folder)} files local)")
@@ -352,6 +364,10 @@ def main():
     ap.add_argument("--batch", type=int, default=24)
     ap.add_argument("--workers", type=int, default=48)
     ap.add_argument("--real-folders", type=int, default=0, help="> 0: fine-tune mode, number of real-robot folders")
+    ap.add_argument("--repo", default=REPO, help="HF dataset repo of the base (and train_real) folders")
+    ap.add_argument("--real-repo", default=None,
+                    help="extra HF dataset repo whose root iNNN folders are real-robot folders (yrpark/seg-loom-real2); "
+                         "stored locally under --real-prefix, e.g. --real-prefix train_real2/")
     ap.add_argument("--real-prefix", default="train_real/")
     ap.add_argument("--real-frac", type=float, default=0.35)
     ap.add_argument("--init", default=None, help="checkpoint to start from (fine-tune mode)")
