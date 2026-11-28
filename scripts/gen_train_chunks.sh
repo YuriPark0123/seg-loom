@@ -8,6 +8,8 @@
 #   MODES="motion:10 task:10"   LENFRAC=0.10 (approx-URDF link-length error, see gen_dataset.py --len-frac)
 #   LENMAX=0.01 (absolute cap on that error in metres, 1 cm; LENMAX=none: no cap = sets made before 2026-11-28 15:00)
 #   REPO=yrpark/seg-loom (HF dataset repo; created public if missing)
+#   REPLACE=1: after the verified upload, delete remote entries of the folder that this upload does not have
+#     (old loose-file folders train/r0000..r0600, a larger old shard count)
 #   FIX="robot_a robot_b": re-make only these robots in already uploaded chunks (download, drop, regenerate, re-upload)
 # Uploaded per chunk:  manifest.jsonl, config.json, errors.log, robots.tar (robots/ + procgen/),
 #                      episodes_000.tar ... (500 episode folders each, uncompressed; members are <ep>/{meta.json,arrays.npz,frames.npz})
@@ -81,7 +83,16 @@ api.upload_folder(repo_id=repo, repo_type="dataset", folder_path=up, path_in_rep
 remote = {i.path[len(pre) + 1:]: i.size for i in api.list_repo_tree(repo, path_in_repo=pre, repo_type="dataset")}
 bad = [f for f, sz in local.items() if remote.get(f) != sz]
 print(f"local {len(local)} remote {len(remote)} missing_or_size_mismatch {len(bad)} {bad[:5]}")
-sys.exit(1 if bad else 0)
+if bad:
+    sys.exit(1)
+if os.environ.get("REPLACE") == "1":
+    from huggingface_hub import CommitOperationDelete
+    top = list(api.list_repo_tree(repo, path_in_repo=pre, repo_type="dataset"))
+    stale = [i for i in top if i.path[len(pre) + 1:] not in local]
+    if stale:
+        ops = [CommitOperationDelete(path_in_repo=i.path + ("/" if not hasattr(i, "size") else ""), is_folder=not hasattr(i, "size")) for i in stale]
+        api.create_commit(repo, repo_type="dataset", operations=ops, commit_message=f"{pre}: remove entries replaced by the new upload")
+    print(f"replace: removed {len(stale)} stale entries {[i.path[len(pre) + 1:] for i in stale][:6]}")
 PY
   rm -rf "$out"/episodes "$out"/procgen "$out"/robots "$up"
   echo "=== chunk $c done $(date); kept $out/{manifest.jsonl,errors.log,config.json}"
