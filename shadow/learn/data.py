@@ -85,6 +85,7 @@ class SegLoomFrames(Dataset):
         # deterministic: the hypothesis noise / correspondence sampling of item idx depends only on (seed, idx), so
         # every evaluation of every checkpoint sees exactly the same perturbations
         self.hyp, self.seed, self._bank, self._rng, self.det = hypothesis, seed, None, None, deterministic
+        self._T_init = None
         self.pad_hw = pad_hw or (int(round(320 * scale)), int(round(320 * scale)))
         self.episodes = []                         # (root, episode, robot, T)
         for r in roots:
@@ -132,6 +133,15 @@ class SegLoomFrames(Dataset):
         if self.scale != 1:
             im = cv2.resize(im, (hw[1], hw[0]), interpolation=cv2.INTER_AREA if kind == "jpg" else cv2.INTER_NEAREST)
         return im
+
+    def item_with_init(self, idx, T_init):
+        """Item idx with the hypothesis rendered from camera poses T_init (C, 4, 4) base<-cam instead of a random
+        perturbation of the true cameras (None: as __getitem__). For sequential / tracking evaluation."""
+        self._T_init = T_init
+        try:
+            return self[idx]
+        finally:
+            self._T_init = None
 
     def __getitem__(self, idx):
         i, t = self.items[idx]
@@ -206,6 +216,8 @@ class SegLoomFrames(Dataset):
         sig = np.array([h.get("trans_m", 0.03) * (h.get("wrist_trans_scale", 0.25) if c == "wrist" else 1) for c in CAMS])
         tr = torch.from_numpy(self._rng.normal(0, 1, (C, 3)) * sig[:, None] * mag).float()
         T_noisy = out["T_base_cam"] @ make_T(so3_exp(w), tr)
+        if self._T_init is not None:                            # sequential eval: hypothesis camera given by the caller
+            T_noisy = self._T_init.to(T_noisy.dtype)
         Tcb = inv_T(T_noisy)
         pc = transform(Tcb, pw.expand(C, -1, -1))
         nc = nw.expand(C, -1, -1) @ Tcb[:, :3, :3].transpose(-1, -2)
