@@ -190,7 +190,8 @@ def main():
         jobs = jobs[a.robot_range[0]:a.robot_range[1]]
     cfg = os.path.join(out, "config.json") if not a.robot_range else \
         os.path.join(out, f"config_{a.robot_range[0]}_{a.robot_range[1]}.json")
-    json.dump(dict(args=vars(a), started=time.ctime()), open(cfg, "w"), indent=1)
+    from shadow.camera_model import CAMERA_MODEL_VERSION
+    json.dump(dict(args=vars(a), started=time.ctime(), camera_model=CAMERA_MODEL_VERSION), open(cfg, "w"), indent=1)
     mpath = os.path.join(out, "manifest.jsonl")
     listed = {json.loads(l)["episode"] for l in open(mpath)} if os.path.exists(mpath) else set()
     t0, n_ep, n_err = time.time(), 0, 0

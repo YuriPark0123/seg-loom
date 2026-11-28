@@ -20,6 +20,12 @@ import numpy as np
 
 CV_TO_MJ = np.diag([1.0, -1.0, -1.0])
 
+# Recorded in every generated split's config.json ("camera_model"). 1 = before 2026-11-28 (no field):
+# pinhole-style fisheye focal, cv2 undistort, fisheye on any camera (see shadow/camera_model_v1.py on B200);
+# 2 = exact unproject, Kannala-Brandt fisheye with diagonal FOV 100-160 deg on the wrist only, brown corner
+# pull-in -8..+10 %, cube-map faces 92.8 deg (commit 46d7d38).
+CAMERA_MODEL_VERSION = 2
+
 
 @dataclass
 class CameraModel:
