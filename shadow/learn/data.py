@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import random
 from collections import OrderedDict
 
@@ -43,6 +44,40 @@ def scale_model(m: dict, s: float) -> dict:
         return dict(m)
     return dict(m, width=int(round(m["width"] * s)), height=int(round(m["height"] * s)), fx=m["fx"] * s, fy=m["fy"] * s,
                 cx=(m["cx"] + 0.5) * s - 0.5, cy=(m["cy"] + 0.5) * s - 0.5)
+
+
+CAMERA_V2_SINCE = time.strptime("2026-11-28 15:41", "%Y-%m-%d %H:%M")   # 3090 commit 59dcde1 (new camera models)
+
+
+def camera_v1(root) -> bool:
+    """True if `root` was generated with the old camera models: config.json "camera_model" < 2 if present, else its
+    "started" time before CAMERA_V2_SINCE (no config.json: old)."""
+    p = os.path.join(root, "config.json")
+    if not os.path.exists(p):
+        return True
+    cfg = json.load(open(p))
+    if "camera_model" in cfg:
+        return int(cfg["camera_model"]) < 2
+    try:
+        return time.strptime(cfg["started"], "%a %b %d %H:%M:%S %Y") < CAMERA_V2_SINCE
+    except (KeyError, ValueError):
+        return True
+
+
+def noisy_model(m: dict, rng, level=1.0) -> dict:
+    """A lens as a ChArUco calibration would report it (scripts/charuco_calib.py, results/charuco/README.md): focal
+    x (1 + N(0, 0.4 %)) shared + N(0, 0.1 %) per axis, principal point N(0, f tan 0.3 deg) px, distortion coefficients
+    + N(0, 2 % |k| + 0.001). level scales all of it (0 = the true lens)."""
+    if level <= 0:
+        return dict(m)
+    g = rng.normal(0, 0.004 * level)
+    fx = m["fx"] * (1 + g + rng.normal(0, 0.001 * level))
+    fy = m["fy"] * (1 + g + rng.normal(0, 0.001 * level))
+    pp = np.tan(np.deg2rad(0.3)) * level
+    d = np.asarray(m["dist"], float)
+    d = d + rng.normal(0, 1, d.shape) * (0.02 * np.abs(d) + 0.001) * level
+    return dict(m, fx=fx, fy=fy, cx=m["cx"] + rng.normal(0, pp * m["fx"]), cy=m["cy"] + rng.normal(0, pp * m["fy"]),
+                dist=d.tolist())
 
 
 class _LRU(OrderedDict):
@@ -79,7 +114,13 @@ class SegLoomFrames(Dataset):
         """hypothesis: if given, every item also carries a render of the APPROX URDF at q_enc through a perturbed
         camera pose, computed on the CPU in the loader worker (keeps the shared GPU free):
             dict(rot_deg=3.0, trans_m=0.03, wrist_trans_scale=0.25, spacing=0.003, r_max=3)
-        adds hyp_lab (C, H, W) uint8, hyp_dep (C, H, W) float32, T_noisy (C, 4, 4)."""
+        adds hyp_lab (C, H, W) uint8, hyp_dep (C, H, W) float32, T_noisy (C, 4, 4).
+          target="approx" (default): flow target = approx point (approx FK at q_enc) seen by the true camera
+                 (self-consistent with the approx URDF, so it hides the joint-zero / length errors)
+          target="surface": where that link point really is (TRUE FK at q_true, same link-local point), kept only
+                 where the true visible-label map shows that link (scripts/diag_pose_dq.py)
+          lens_noise=L: ray map, hypothesis render and cam_K / cam_dist use a calibrated-like lens (noisy_model,
+                 fixed per episode and camera); cam_K_true / cam_dist_true keep the true lens (flow target)."""
         roots = [roots] if isinstance(roots, str) else list(roots)
         self.scale, self.max_joints, self.with_rgb = scale, max_joints, with_rgb
         # deterministic: the hypothesis noise / correspondence sampling of item idx depends only on (seed, idx), so
@@ -88,6 +129,7 @@ class SegLoomFrames(Dataset):
         self._T_init = None
         self.pad_hw = pad_hw or (int(round(320 * scale)), int(round(320 * scale)))
         self.episodes = []                         # (root, episode, robot, T)
+        self.v1 = {r: camera_v1(r) for r in roots}
         for r in roots:
             for line in open(os.path.join(r, "manifest.jsonl")):
                 e = json.loads(line)
@@ -122,7 +164,10 @@ class SegLoomFrames(Dataset):
 
     def _fold(self, i, c, m):
         def f():
-            from shadow.camera_model import CameraModel
+            if self.v1[self.episodes[i][0]]:
+                from shadow.camera_model_v1 import CameraModel
+            else:
+                from shadow.camera_model import CameraModel
             return CameraModel(m["width"], m["height"], m["fx"], m["fy"], m["cx"], m["cy"], m["kind"],
                                np.asarray(m["dist"], float)).fold_radius()
         return self._ray.get_or((i, c, "fold"), f)
@@ -151,9 +196,13 @@ class SegLoomFrames(Dataset):
         out = dict(rgb=torch.zeros(C, 3, Hp, Wp, dtype=torch.uint8), am_r=torch.zeros(C, Hp, Wp, dtype=torch.uint8),
                    vis=torch.zeros(C, Hp, Wp, dtype=torch.uint8), valid=torch.zeros(C, Hp, Wp, dtype=torch.bool),
                    ray=torch.zeros(C, 3, Hp, Wp, dtype=torch.float16))
-        K, dist, kind, size, Tbc, s2d = [], [], [], [], [], []
+        K, dist, kind, size, Tbc, s2d, Kt, dt_ = [], [], [], [], [], [], [], []
         for ci, c in enumerate(CAMS):
-            m = scale_model(meta["cameras"][c]["model"], self.scale)
+            m_true = scale_model(meta["cameras"][c]["model"], self.scale)
+            ln = (self.hyp or {}).get("lens_noise", 0.0)
+            m = noisy_model(m_true, np.random.default_rng([self.seed, 99, i, ci]), ln) if ln else m_true
+            Kt.append([m_true["fx"], m_true["fy"], m_true["cx"], m_true["cy"]])
+            dt_.append((list(m_true["dist"]) + [0] * 5)[:5])
             h, w = m["height"], m["width"]
             assert h <= Hp and w <= Wp, f"image {h}x{w} larger than pad {Hp}x{Wp}"
             if self.with_rgb:
@@ -161,7 +210,8 @@ class SegLoomFrames(Dataset):
             out["am_r"][ci, :h, :w] = torch.from_numpy(self._img(S, f"{c}_am_r", t, "png", (h, w)))
             out["vis"][ci, :h, :w] = torch.from_numpy(self._img(S, f"{c}_vis", t, "png", (h, w)))
             out["valid"][ci, :h, :w] = True
-            ray = self._ray.get_or((i, c), lambda: torch.from_numpy(ray_map_np(m)).permute(2, 0, 1).half())
+            v1 = self.v1[self.episodes[i][0]]
+            ray = self._ray.get_or((i, c), lambda: torch.from_numpy(ray_map_np(m, v1)).permute(2, 0, 1).half())
             out["ray"][ci, :, :h, :w] = ray
             K.append([m["fx"], m["fy"], m["cx"], m["cy"]])
             dist.append((list(m["dist"]) + [0] * 5)[:5])
@@ -175,7 +225,7 @@ class SegLoomFrames(Dataset):
             pc = (A["skel3d"][t] - T[:3, 3]) @ T[:3, :3]
             z = pc[:, 2]
             r = np.linalg.norm(pc[:, :2], axis=1) / np.where(z > 1e-6, z, 1.0)
-            sk[:, 2] *= (z > 1e-6) & (r < self._fold(i, c, m))
+            sk[:, 2] *= (z > 1e-6) & (r < self._fold(i, c, m_true))
             s2d.append(sk)
         J = self.max_joints
         nq = A["q_enc"].shape[1]
@@ -183,6 +233,7 @@ class SegLoomFrames(Dataset):
         qe[:nq] = torch.from_numpy(A["q_enc"][t]); qt[:nq] = torch.from_numpy(A["q_true"][t]); qm[:nq] = True
         out.update(cam_K=torch.tensor(K, dtype=torch.float32), cam_dist=torch.tensor(dist, dtype=torch.float32),
                    cam_kind=torch.tensor(kind), cam_size=torch.tensor(size),
+                   cam_K_true=torch.tensor(Kt, dtype=torch.float32), cam_dist_true=torch.tensor(dt_, dtype=torch.float32),
                    T_base_cam=torch.from_numpy(np.stack(Tbc)).float(), skel2d=torch.from_numpy(np.stack(s2d)).float(),
                    skel3d=torch.from_numpy(A["skel3d"][t]).float(), q_enc=qe, q_true=qt, q_mask=qm,
                    n_bodies=len(meta["robot_bodies"]), robot_bodies=meta["robot_bodies"],
@@ -208,8 +259,14 @@ class SegLoomFrames(Dataset):
         C = len(CAMS)
         src = "true" if h.get("use_true") else "approx"        # use_true: oracle URDF + q_true (debug / upper bound)
         q = torch.from_numpy(A["q_true" if src == "true" else "q_enc"][t]).float()[None]
-        Tl = R[f"kin_{src}"].fk(q, q_names(meta, q.shape[1]))[:, R[f"body_idx_{src}"]]
+        names = q_names(meta, q.shape[1])
+        Tl = R[f"kin_{src}"].fk(q, names)[:, R[f"body_idx_{src}"]]
         pw, nw = world_points(Tl, R[f"pts_{src}"], R[f"link_{src}"], R[f"nrm_{src}"])
+        pw_tgt = None
+        if h.get("target", "approx") == "surface" and src == "approx":
+            qt = torch.from_numpy(A["q_true"][t]).float()[None]
+            Tlt = R["kin_true"].fk(qt, names)[:, R["body_idx_true"]]
+            pw_tgt = world_points(Tlt, R["pts_approx"], R["link_approx"])
         # per-view noise magnitude ~ U(lo, hi) x sigma, so the refiner also sees small residuals (later iterations)
         mag = self._rng.uniform(*h.get("mag_range", (1.0, 1.0)), (C, 1))
         w = torch.from_numpy(self._rng.normal(0, np.deg2rad(h.get("rot_deg", 3.0)), (C, 3)) * mag).float()
@@ -228,10 +285,11 @@ class SegLoomFrames(Dataset):
         lab = lab * out["valid"]
         res = dict(hyp_lab=lab, hyp_dep=dep * out["valid"], T_noisy=T_noisy)
         if h.get("corr", 0):
-            res.update(self._correspondences(pw, pc, nc, dep, out, cams, h["corr"]))
+            res.update(self._correspondences(pw, pc, nc, dep, out, cams, h["corr"], pw_tgt=pw_tgt,
+                                             P=R[f"pts_{src}"], L=R[f"link_{src}"]))
         return res
 
-    def _correspondences(self, pw, pc, nc, dep, out, cams, M):
+    def _correspondences(self, pw, pc, nc, dep, out, cams, M, pw_tgt=None, P=None, L=None):
         """M hypothesis-visible robot points per view: base-frame X, pixel in the hypothesis (noisy camera) and in
         the true camera. Their difference is the 2D displacement the refiner predicts; the pose then follows from
         the 2D-3D matches (Gauss-Newton), so the network never regresses a 6-DoF pose directly."""
@@ -245,9 +303,17 @@ class SegLoomFrames(Dataset):
         ui, vi = ui.clamp(0, Wp - 1), vi.clamp(0, Hp - 1)
         zbuf = dep[torch.arange(C)[:, None], vi, ui]
         vis = inside & ((nc * pc).sum(-1) < 0) & (zbuf > 0) & ((pc[..., 2] - zbuf).abs() < 0.01 + 0.02 * zbuf)
-        uvt, okt = project(transform(inv_T(out["T_base_cam"]), pw.expand(C, -1, -1)), cams)
+        cams_t = dict(cams, K=out["cam_K_true"], dist=out["cam_dist_true"])     # the image comes from the TRUE lens
+        tgt = pw if pw_tgt is None else pw_tgt
+        uvt, okt = project(transform(inv_T(out["T_base_cam"]), tgt.expand(C, -1, -1)), cams_t)
         vis = vis & okt
+        if pw_tgt is not None:                        # the true image must show that link at the target pixel
+            ut, vt = uvt[..., 0].round().long(), uvt[..., 1].round().long()
+            int_ = (ut >= 0) & (vt >= 0) & (ut < cams["size"][:, None, 0]) & (vt < cams["size"][:, None, 1])
+            lab = out["vis"][torch.arange(C)[:, None], vt.clamp(0, Hp - 1), ut.clamp(0, Wp - 1)].long()
+            vis = vis & int_ & (lab == (L + 1)[None])
         X = torch.zeros(C, M, 3); UH = torch.zeros(C, M, 2); UT = torch.zeros(C, M, 2); W = torch.zeros(C, M)
+        PL = torch.zeros(C, M, 3); LL = torch.zeros(C, M, dtype=torch.long)
         for c in range(C):
             idx = torch.nonzero(vis[c])[:, 0]
             if len(idx) == 0:
@@ -255,7 +321,11 @@ class SegLoomFrames(Dataset):
             sel = idx[torch.from_numpy(self._rng.choice(len(idx), min(M, len(idx)), replace=False))]
             n = len(sel)
             X[c, :n] = pw[0, sel]; UH[c, :n] = uvh[c, sel]; UT[c, :n] = uvt[c, sel]; W[c, :n] = 1
-        return dict(corr_X=X, corr_uvh=UH, corr_uvt=UT, corr_w=W)
+            if P is not None:
+                PL[c, :n] = P[sel]; LL[c, :n] = L[sel]
+        # corr_P / corr_L: link-local point and link (robot_bodies order) of each match, for solves that move the
+        # links (camera + joint zero offsets, register.solve_pose_dq)
+        return dict(corr_X=X, corr_uvh=UH, corr_uvt=UT, corr_w=W, corr_P=PL, corr_L=LL)
 
 
 def collate(batch):

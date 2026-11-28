@@ -122,6 +122,8 @@ def prepare(b, dev):
     tgt = dict(am=((am >= 1) & (am <= nbv)).float(), vis=((vs >= 1) & (vs <= nbv)).float(), valid=f("valid").float(),
                hm=hm, T_gt=f("T_base_cam"), T_noisy=f("T_noisy"),
                X=f("corr_X"), uvh=f("corr_uvh"), uvt=f("corr_uvt"), w=f("corr_w"),
+               P=f("corr_P") if "corr_P" in b else None, L=f("corr_L") if "corr_L" in b else None,
+               q_enc=b["q_enc"].to(dev).repeat_interleave(C, 0),
                cams=dict(K=f("cam_K"), dist=f("cam_dist"), kind=f("cam_kind"), size=f("cam_size")))
     return x, tgt
 
@@ -263,6 +265,11 @@ def main():
     ap.add_argument("--spacing", type=float, default=0.003, help="approx-URDF point spacing for the hypothesis render")
     ap.add_argument("--r-max", type=int, default=3)
     ap.add_argument("--corr", type=int, default=192, help="correspondences per view")
+    ap.add_argument("--flow-target", choices=("approx", "surface"), default="approx",
+                    help="approx: approx point seen by the true camera (old); surface: where the link point really is "
+                         "(true FK) - needs a camera + joint-offset solve (register.solve_pose_dq)")
+    ap.add_argument("--lens-noise", type=float, default=0.0,
+                    help="1 = ChArUco-calibration-like lens error in ray map / hypothesis / solve (data.noisy_model)")
     ap.add_argument("--hyp-true", action="store_true", help="hypothesis from the TRUE urdf + q_true (oracle check)")
     ap.add_argument("--seg-w", type=float, default=1.0)
     ap.add_argument("--flow-w", type=float, default=0.1, help="weight of the L1 displacement loss (pixels)")
@@ -296,7 +303,8 @@ def main():
         train_robots = [r for r in train_robots if r not in val_pg]
         val_robots, val_root = val_pg + list(REAL), a.data[0]
 
-    hyp = dict(rot_deg=a.rot_deg, trans_m=a.trans_m, spacing=a.spacing, r_max=a.r_max, use_true=a.hyp_true, corr=a.corr)
+    hyp = dict(rot_deg=a.rot_deg, trans_m=a.trans_m, spacing=a.spacing, r_max=a.r_max, use_true=a.hyp_true, corr=a.corr,
+               target=a.flow_target, lens_noise=a.lens_noise)
     hyp_tr = dict(hyp, mag_range=(a.mag_lo, 1.5))
     srcs = [SegLoomFrames(a.data, robots=train_robots, scale=a.scale, seed=a.seed, hypothesis=hyp_tr)]
     weights = [1.0]

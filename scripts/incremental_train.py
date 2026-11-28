@@ -229,6 +229,7 @@ class Ctl:
             cmd.append("--resume")
         elif self.a.init:
             cmd += ["--init", self.a.init]
+        cmd += self.a.train_args.split()
         env = dict(os.environ, CUDA_DEVICE_ORDER="PCI_BUS_ID", CUDA_VISIBLE_DEVICES=str(self.a.gpu))
         logf = open(os.path.join(self.a.out, "train.log"), "a")
         logf.write(f"\n===== {now()} {stage}: {' '.join(cmd)}\n"); logf.flush()
@@ -371,6 +372,7 @@ def main():
     ap.add_argument("--real-prefix", default="train_real/")
     ap.add_argument("--real-frac", type=float, default=0.35)
     ap.add_argument("--init", default=None, help="checkpoint to start from (fine-tune mode)")
+    ap.add_argument("--train-args", default="", help="extra train_stage1.py arguments, e.g. '--flow-target surface --lens-noise 1'")
     ap.add_argument("--poll-min", type=float, default=10)
     ap.add_argument("--interim-hours", type=float, default=6)
     ap.add_argument("--final-hours", type=float, default=4)
