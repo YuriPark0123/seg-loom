@@ -44,6 +44,6 @@ gripper:
   joints:
   - g_right_finger_joint
   open:
-  - 0.05
-  close:
   - 0.0
+  close:
+  - 0.05

@@ -19,6 +19,29 @@ import cv2
 import mujoco
 import numpy as np
 
+def apply_joint_couplings(m, d, explicit=()):
+    """Set follower joints of joint equalities (URDF mimic -> <equality joint>) from their leaders:
+    q1 - q1_0 = c0 + c1 (q2 - q2_0) + c2 (..)^2 + ...  Kinematic-only code (no mj_step) never enforces
+    the constraint, so without this mimic fingers stay at 0. Joints named in `explicit` are left as set."""
+    eqs = getattr(m, "_couplings", None)
+    if eqs is None:
+        eqs = []
+        for e in range(m.neq):
+            if m.eq_type[e] == mujoco.mjtEq.mjEQ_JOINT and m.eq_obj2id[e] >= 0:
+                j1, j2 = m.eq_obj1id[e], m.eq_obj2id[e]
+                eqs.append((m.joint(j1).name, m.jnt_qposadr[j1], m.jnt_qposadr[j2], m.eq_data[e][:5].copy()))
+        try:
+            m._couplings = eqs
+        except AttributeError:
+            pass
+    for _ in range(3):                       # a few passes: follower of a follower
+        for n1, a1, a2, c in eqs:
+            if n1 in explicit:
+                continue
+            x = d.qpos[a2] - m.qpos0[a2]
+            d.qpos[a1] = m.qpos0[a1] + c[0] + c[1] * x + c[2] * x ** 2 + c[3] * x ** 3 + c[4] * x ** 4
+
+
 # OpenCV camera (x right, y down, z forward) <-> MuJoCo camera (x right, y up, -z forward)
 CV_TO_MJ = np.diag([1.0, -1.0, -1.0])
 
@@ -180,6 +203,7 @@ class RobotKinematics:
         for n, v in joints.items():
             if n in self._jadr:
                 self.data.qpos[self._jadr[n]] = v
+        apply_joint_couplings(self.model, self.data, joints)
         mujoco.mj_kinematics(self.model, self.data)
 
     def joints_from_mj(self, model, data):

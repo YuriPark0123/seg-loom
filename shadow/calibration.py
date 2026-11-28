@@ -19,7 +19,7 @@ import cv2
 import mujoco
 import numpy as np
 
-from .kinematic_mask import Camera, RobotKinematics, make_T
+from .kinematic_mask import Camera, RobotKinematics, apply_joint_couplings, make_T
 
 
 def checkerboard_body(name, pos, quat, cols=8, rows=6, square=0.02, margin=0.015, thick=0.003):
@@ -85,6 +85,7 @@ class RealWorldCalibScene:
         for n, v in js.items():
             if n in self._jadr:
                 self.data.qpos[self._jadr[n]] = v
+        apply_joint_couplings(self.model, self.data, js)
         mujoco.mj_forward(self.model, self.data)
 
     def image(self, cam_name):

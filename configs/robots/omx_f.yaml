@@ -40,6 +40,6 @@ gripper:
   joints:
   - gripper_joint_1
   open:
-  - 6.283185307179586
+  - 1.0
   close:
-  - -6.283185307179586
+  - 0.0

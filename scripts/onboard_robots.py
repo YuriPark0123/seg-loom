@@ -232,6 +232,10 @@ def fix_urdf(root, src_dir, repo_dir, pk):
                     it.set(k, "1e-5")
 
 
+# URDF gripper limits that are not the real stroke
+GRIP_RANGE = {"omx_f": ([1.0], [0.0])}   # URDF says +-2pi; moveit srdf: close 0, open 1
+
+
 def derive(name, urdf_text, pk, rng, src_dir, repo_dir):
     from shadow.urdf_robot import RobotSpec, urdf_to_mjcf
     import mujoco
@@ -335,7 +339,8 @@ def derive(name, urdf_text, pk, rng, src_dir, repo_dir):
     # chain length (zero pose): first arm joint anchor -> ... -> tcp
     anchors = [da.xanchor[m.joint(j).id] for j in arm] + [pf + Rf @ tcp]
     chain = float(sum(np.linalg.norm(np.diff(np.array(anchors), axis=0), axis=1)))
-    # gripper open / close from limits (mimic joints follow their driver automatically in MuJoCo)
+    # gripper open / close from limits (finalize swaps them if 'open' is the narrow end); mimic joints are
+    # equality constraints in MuJoCo, kinematic code sets them via kinematic_mask.apply_joint_couplings
     gj = [j for j in grip if movable(j)]
     gripper = None
     if gj:
@@ -345,6 +350,8 @@ def derive(name, urdf_text, pk, rng, src_dir, repo_dir):
             l, h = (float(lim.get("lower", 0)), float(lim.get("upper", 0))) if lim is not None else (0.0, 0.0)
             lo.append(l); hi.append(h)
         gripper = dict(joints=[j.get("name") for j in gj], open=hi, close=lo)
+        if name in GRIP_RANGE:
+            gripper["open"], gripper["close"] = GRIP_RANGE[name]
     spec = dict(name=name, urdf=os.path.relpath(path, ROOT), package_dirs=pkgs, arm_joints=arm,
                 ee_body="tcp_frame", tcp_offset=[0, 0, 0], rest_q=[0.0] * len(arm), reach=round(0.95 * chain, 3),
                 rot_weight=0.5 if len(arm) >= 6 else 0.1, asset_dir=os.path.relpath(os.path.join(d, "mj"), ROOT),
@@ -365,7 +372,7 @@ def finalize(spec, rng):
     S = RobotSpec.load(p)
     info = {}
     if S.gripper:
-        al, w = gripper_width_table(S, Layout(S))
+        al, w = gripper_width_table(S, Layout(S), raw=True)          # absolute: the relative table is >= 0
         info["grip_width_open_close"] = [float(w[-1]), float(w[0])]
         if w[0] > w[-1] + 1e-3:                                   # 'open' was the narrow end -> swap
             spec["gripper"]["open"], spec["gripper"]["close"] = spec["gripper"]["close"], spec["gripper"]["open"]

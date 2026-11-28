@@ -14,6 +14,7 @@ import mujoco
 import numpy as np
 
 from .calibration import checkerboard_body
+from .kinematic_mask import apply_joint_couplings
 from .urdf_robot import RobotSpec, urdf_to_mjcf
 
 CAMS = ["top", "front", "wrist"]
@@ -246,6 +247,7 @@ class World:
         for n, v in js.items():
             if n in self.jadr:
                 self.data.qpos[self.jadr[n]] = v
+        apply_joint_couplings(self.model, self.data, set(self.spec.arm_joints) | set(self.spec.gripper_joints or []))
         mujoco.mj_forward(self.model, self.data)
 
     def encoders(self, names=None):

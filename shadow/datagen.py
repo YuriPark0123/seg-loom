@@ -28,7 +28,7 @@ from scipy.spatial.transform import Rotation
 from . import clutter as CL
 from .camera_model import CV_TO_MJ, CameraModel, ModelRenderer, random_camera
 from .ik import IKSolver
-from .kinematic_mask import RobotKinematics
+from .kinematic_mask import RobotKinematics, apply_joint_couplings
 from .mj_world import Layout, _s, build_scene_xml, look_at_quat, twin_xml
 from .skeleton import skeleton_3d
 from .urdf_robot import RobotSpec
@@ -296,6 +296,7 @@ class DataWorld:
         self.tcp = m.site("tcp").id
         self.joint_ids = [j for j in range(m.njnt) if m.body_rootid[m.jnt_bodyid[j]] == mount]
         self.renderers = {}
+        self._driven = set(self.spec.arm_joints) | set(self.spec.gripper_joints or [])
         mujoco.mj_forward(m, self.data)
 
     # ---- state
@@ -305,6 +306,7 @@ class DataWorld:
             d.qpos[self.jadr[n]] = v
         for n, v in zip(self.spec.gripper_joints, q_grip):
             d.qpos[self.jadr[n]] = v
+        apply_joint_couplings(self.model, d, self._driven)
         mujoco.mj_kinematics(self.model, d)
 
     def set_obj(self, k, pos, quat):
@@ -389,20 +391,47 @@ class Actuator:
 
 
 # =============================================================================== generator
-def gripper_width_table(spec: RobotSpec, layout: Layout, n=21):
-    """Fingertip distance (relative to closed) as a function of the open fraction."""
+def _is_under(m, b, root):
+    while b > 0:
+        if b == root:
+            return True
+        b = m.body_parentid[b]
+    return False
+
+
+def gripper_width_table(spec: RobotSpec, layout: Layout, n=21, raw=False):
+    """Fingertip distance (relative to closed) as a function of the open fraction.
+    raw=True: absolute distances, unsigned/unclamped (to check that 'open' is the wide end)."""
     if not spec.gripper:
         return np.linspace(0, 1, n), np.zeros(n)
     kin = RobotKinematics(xml=twin_xml(spec, layout), base_body="robot_mount")
     kin.set_joints(dict(zip(spec.arm_joints, spec.rest_q)))
     o, c = np.array(spec.gripper["open"]), np.array(spec.gripper["close"])
     al, w = np.linspace(0, 1, n), []
+    m = kin.model
+    follow = {m.joint(m.eq_obj1id[e]).name for e in range(m.neq)
+              if m.eq_type[e] == mujoco.mjtEq.mjEQ_JOINT and m.eq_obj2id[e] >= 0}
+    if follow:
+        # coupled (mimic) fingers: the commanded joints alone do not give two fingertips; use the largest
+        # distance between geoms moved by any gripper joint (leaders + followers)
+        mov = {m.jnt_bodyid[m.joint(j).id] for j in list(spec.gripper_joints) + sorted(follow)}
+        geoms = [g for g in range(m.ngeom) if any(_is_under(m, m.geom_bodyid[g], b) for b in mov)]
+        for a in al:
+            kin.set_joints(dict(zip(spec.gripper_joints, c + a * (o - c))))
+            X = kin.data.geom_xpos[geoms]
+            w.append(float(np.max(np.linalg.norm(X[:, None] - X[None], axis=-1))) if len(geoms) > 1 else 0.0)
+        if raw:
+            return al, np.array(w)
+        w = np.array(w); w = w - w[0]
+        return al, np.maximum.accumulate(np.abs(w))
     for a in al:
         kin.set_joints(dict(zip(spec.gripper_joints, c + a * (o - c))))
         _, P, _ = skeleton_3d(kin, base_body="robot_mount", arm_joints=spec.arm_joints, ee_body=spec.ee_body,
                               tcp_site="tcp", finger_joints=spec.gripper_joints)
         tips = P[-len(spec.gripper_joints):]
         w.append(np.linalg.norm(tips[0] - tips[-1]) if len(tips) > 1 else 0.0)
+    if raw:
+        return al, np.array(w)
     w = np.array(w); w = w - w[0]
     return al, np.maximum.accumulate(np.abs(w))
 
