@@ -85,9 +85,13 @@ def in_image(uv: torch.Tensor, valid: torch.Tensor, cams: dict):
     return valid & (uv[..., 0] >= 0) & (uv[..., 0] < W) & (uv[..., 1] >= 0) & (uv[..., 1] < H)
 
 
-def ray_map_np(model: dict) -> np.ndarray:
-    """(H, W, 3) unit ray per pixel (uses the dataset's own CameraModel, i.e. OpenCV undistortion)."""
-    from shadow.camera_model import CameraModel
+def ray_map_np(model: dict, v1: bool = False) -> np.ndarray:
+    """(H, W, 3) unit ray per pixel from the dataset's own CameraModel. v1: data generated before 2026-11-28 15:41
+    (shadow/camera_model_v1.py, the code those images were made with)."""
+    if v1:
+        from shadow.camera_model_v1 import CameraModel
+    else:
+        from shadow.camera_model import CameraModel
     cm = CameraModel(model["width"], model["height"], model["fx"], model["fy"], model["cx"], model["cy"],
                      model["kind"], np.asarray(model["dist"], float))
     return cm.ray_map().astype(np.float32)

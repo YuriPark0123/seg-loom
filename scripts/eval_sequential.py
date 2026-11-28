@@ -11,6 +11,9 @@ new episode. Methods:
   track_mem     track + memory for the pose: the camera is solved jointly from the matches of the last --window
                 frames (in the anchor frame: base for top/front, end effector for the wrist camera, so that
                 rigidly mounted cameras are constant), reset when the current frame disagrees (jump detection).
+  track_dq      track_mem for all cameras at once + the approx URDF's joint zero offsets dq (one per arm joint, the
+                same for the whole episode; register.solve_pose_dq): the wrist anchor moves with q + dq too. Meant
+                for --flow-target surface models (their matches show where the links really are).
 
 Segmentation comes from the single-frame network in all three (no recurrent model yet): its curve only moves through
 the hypothesis it is given. Reported per eval set, method and camera-motion type (meta cameras.<cam>.motion:
@@ -42,10 +45,10 @@ from shadow.learn.data import SegLoomFrames, collate, q_names  # noqa: E402
 from shadow.learn.fk import URDFKinematics  # noqa: E402
 from shadow.learn.geometry import inv_T, make_T, rot_angle, so3_exp, transform  # noqa: E402
 from shadow.learn.camera import project  # noqa: E402
-from shadow.learn.register import solve_pose  # noqa: E402
+from shadow.learn.register import solve_pose, solve_pose_dq  # noqa: E402
 from train_stage1 import CAMS, POSE_PRIOR, PRIOR_PX, Stage1Net, is_real, prepare, sample_flow  # noqa: E402
 
-METHODS = ("independent", "track", "track_mem")
+METHODS = ("independent", "track", "track_mem", "track_dq")
 _DS = None
 RESETS = [0, 0]                                       # resets, window solves (diagnostics)
 
@@ -77,6 +80,27 @@ class Episode:
         F = kin.fk(q, q_names(meta, q.shape[1]))[:, li]                                             # (T, 4, 4)
         eye = torch.eye(4, dtype=torch.float64).expand(self.T, 4, 4)
         self.anchor = torch.stack([eye if c != "wrist" else F for c in CAMS], 1)                     # (T, C, 4, 4)
+        self.kin, self.names, self.ee = kin, q_names(meta, q.shape[1]), li
+        self.bidx = [kin.links.index(b) for b in meta["robot_bodies"]]
+        # dq of the FIRST arm joint (vertical base axis) is fixed at 0: from images it is indistinguishable from all
+        # top/front cameras turning about that axis (3090 note 2026-11-28); control only needs the robot's own frame
+        self.dqmask = torch.tensor([float(n in meta["arm_joints"][1:]) for n in self.names], dtype=torch.float64)
+        pj = os.path.join(root, "robots", robot, "perturb.json")
+        zd = json.load(open(pj)).get("zero_deg", {}) if os.path.exists(pj) else {}
+        self.dq_gt = torch.tensor([-np.deg2rad(zd.get(n, 0.0)) for n in self.names], dtype=torch.float64)
+        # the robot's believed base frame: the true one turned about joint 1's axis by its zero offset (approx(q) =
+        # true(q + zero)); errors vs T_bel @ T_gt leave out that unobservable component (checked with oracle matches)
+        from shadow.learn.fk import rpy_to_R
+        j = kin.joints[kin.joint_index[meta["arm_joints"][0]]]
+        Tp = kin.fk(torch.zeros(1, q.shape[1], dtype=torch.float64), self.names)[0, kin.links.index(j.parent)]
+        Tj = Tp @ make_T(rpy_to_R(torch.tensor(j.rpy, dtype=torch.float64))[None], torch.tensor(j.xyz, dtype=torch.float64)[None])[0]
+        ax = Tj[:3, :3] @ torch.tensor(j.axis / np.linalg.norm(j.axis), dtype=torch.float64)
+        th = -float(self.dq_gt[self.names.index(j.name)]) if j.name in self.names else 0.0
+        Rb = so3_exp((ax * th)[None])[0]
+        self.T_bel = torch.eye(4, dtype=torch.float64)
+        self.T_bel[:3, :3], self.T_bel[:3, 3] = Rb, Tj[:3, 3] - Rb @ Tj[:3, 3]
+        self.kin_true = URDFKinematics.from_file(os.path.join(root, "robots", robot, "true.urdf"))
+        self.bidx_true = [self.kin_true.links.index(b) for b in meta["robot_bodies"]]
         # jump frame per camera: the largest consecutive pose change, if clearly a discontinuity
         self.jump = []
         for ci in range(len(CAMS)):
@@ -111,6 +135,102 @@ def solve_window(mem, X, uv, w, cams, T_init, A_t, window, reset_px):
     return A_t @ Ta
 
 
+def reproj_surface(grp, act, tg, b, T_out, dqs, dev):
+    """Median px between where the robot's own model (approx URDF at q_enc + dq estimate) puts each match point through
+    the estimated camera and where that link point really is in the image (true FK, true camera, true lens). The
+    control-relevant alignment; blind to the joint-1 / camera ambiguity. NaN for views without matches."""
+    C = len(CAMS)
+    out = torch.full((T_out.shape[0],), float("nan"))
+    for n, k in enumerate(act):
+        e = grp[k]
+        nq = len(e.names)
+        dq = dqs[k].dq.cpu() if dqs is not None else torch.zeros(nq, dtype=torch.float64)
+        qe = b["q_enc"][n, :nq].double()[None]
+        qt = b["q_true"][n, :nq].double()[None]
+        Ta = e.kin.fk(qe + dq[None], e.names)[0][e.bidx]
+        Tt = e.kin_true.fk(qt, e.names)[0][e.bidx_true]
+        for ci in range(C):
+            v = n * C + ci
+            w = tg["w"][v].cpu() > 0
+            if w.sum() < 6:
+                continue
+            P, L = tg["P"][v].cpu().double(), tg["L"][v].cpu()
+            Xa = (Ta[L][:, :3, :3] @ P[..., None])[..., 0] + Ta[L][:, :3, 3]
+            Xt = (Tt[L][:, :3, :3] @ P[..., None])[..., 0] + Tt[L][:, :3, 3]
+            cn = {kk: vv[v:v + 1].cpu().double() if vv.is_floating_point() else vv[v:v + 1].cpu() for kk, vv in tg["cams"].items()}
+            ct = dict(cn, K=b["cam_K_true"][n, ci:ci + 1].double(), dist=b["cam_dist_true"][n, ci:ci + 1].double())
+            pa, oka = project(transform(inv_T(T_out[v:v + 1].cpu()), Xa[None]), cn)
+            pt, okt = project(transform(inv_T(tg["T_gt"][v:v + 1].cpu().double()), Xt[None]), ct)
+            m = w & oka[0] & okt[0]
+            if m.sum() >= 6:
+                out[v] = (pa[0] - pt[0]).norm(dim=-1)[m].median()
+    return out
+
+
+class DqState:
+    """track_dq memory of one episode: window entries per view, current anchor<-camera estimates and dq."""
+
+    def __init__(self, e, dev):
+        self.e, self.dev = e, dev
+        self.mem = []                                 # (t, cam, P, L, q, uv, w, cams)
+        self.Ta = [None] * len(CAMS)
+        self.dq = torch.zeros(len(e.names), dtype=torch.float64, device=dev)
+
+    def anchor(self, ci, q):
+        if CAMS[ci] != "wrist":
+            return torch.eye(4, dtype=torch.float64, device=self.dev)
+        return self.e.kin.fk((q + self.dq)[None], self.e.names)[0, self.e.ee].to(self.dev)
+
+    def step(self, t, views, window, reset_px):
+        """views: list of (ci, P, L, q, uv, w, cams, T_hyp base<-cam). Returns {ci: base<-cam estimate}."""
+        RESETS[1] += 1
+        for ci, P, L, q, uv, w, cams, T_hyp in views:
+            if self.Ta[ci] is None:
+                self.Ta[ci] = inv_T(self.anchor(ci, q)[None])[0] @ T_hyp
+            self.mem.append((t, ci, P, L, q, uv, w, cams))
+        self.mem = [m for m in self.mem if m[0] > t - window]
+        out = self._solve()
+        # jump detection per camera: does the current view agree with the window solution?
+        for ci, P, L, q, uv, w, cams, T_hyp in views:
+            n = [k for k, m in enumerate(self.mem) if m[0] == t and m[1] == ci][0]
+            if sum(1 for m in self.mem if m[1] == ci) < 2:
+                continue
+            r = self._resid(n, out[n])
+            if r is not None and r > reset_px:
+                RESETS[0] += 1
+                self.mem = [m for m in self.mem if m[1] != ci or m[0] == t]
+                self.Ta[ci] = inv_T(self.anchor(ci, q)[None])[0] @ T_hyp
+                out = self._solve()
+        res = {}
+        for k, m in enumerate(self.mem):
+            if m[0] == t:
+                res[m[1]] = out[k]
+        return res
+
+    def _solve(self):
+        cs = sorted({m[1] for m in self.mem})
+        idx = {c: k for k, c in enumerate(cs)}
+        st = lambda j: torch.stack([m[j] for m in self.mem])
+        cams = {k: torch.stack([m[7][k] for m in self.mem]) for k in self.mem[0][7]}
+        Ta, dq, Tv = solve_pose_dq(torch.stack([self.Ta[c] for c in cs]), st(2), st(3), st(4), self.e.kin, self.e.names,
+                                   self.e.bidx, st(5), st(6), cams, torch.tensor([idx[m[1]] for m in self.mem]),
+                                   [self.e.ee if CAMS[c] == "wrist" else None for c in cs], self.e.dqmask.to(self.dev),
+                                   dq0=self.dq, iters=8, prior_sigma=POSE_PRIOR, prior_px=PRIOR_PX)
+        if torch.isfinite(Ta).all() and torch.isfinite(dq).all():
+            for k, c in enumerate(cs):
+                self.Ta[c] = Ta[k]
+            self.dq = dq
+        return Tv
+
+    def _resid(self, n, T):
+        t, ci, P, L, q, uv, w, cams = self.mem[n]
+        Tl = self.e.kin.fk((q + self.dq)[None], self.e.names)[0][self.e.bidx].to(self.dev)
+        X = (Tl[L][:, :3, :3] @ P[..., None])[..., 0] + Tl[L][:, :3, 3]
+        p, ok = project(transform(inv_T(T)[None], X[None]), {k: v[None] for k, v in cams.items()})
+        r = (p[0] - uv).norm(dim=-1)[(w > 0) & ok[0]]
+        return float(r.median()) if r.numel() >= 6 else None
+
+
 @torch.no_grad()
 def run_set(net, ds, eps, method, pool, dev, a):
     """Returns records: per (episode, cam, t) dict."""
@@ -119,6 +239,7 @@ def run_set(net, ds, eps, method, pool, dev, a):
         grp = eps[g0:g0 + a.group]
         est = [None] * len(grp)                       # (C, 4, 4) last estimate
         mems = [[[] for _ in CAMS] for _ in grp]
+        dqs = [DqState(e, dev) for e in grp] if method == "track_dq" else None
         for t in range(max(e.T for e in grp)):
             act = [k for k, e in enumerate(grp) if t < e.T]
             jobs, base = [], {}
@@ -160,6 +281,22 @@ def run_set(net, ds, eps, method, pool, dev, a):
                                                 cams, base[k][ci].to(dev) if k in base else tg["T_noisy"][v].double(),
                                                 e.anchor[t, ci].to(dev), a.window,
                                                 a.reset_px)
+            if method == "track_dq":
+                for n, k in enumerate(act):
+                    e = grp[k]
+                    vs = []
+                    for ci in range(C):
+                        v = n * C + ci
+                        if tg["w"][v].sum() < 6:
+                            continue
+                        cams = {kk: vv[v].double() for kk, vv in tg["cams"].items()}
+                        nq = len(e.names)
+                        vs.append((ci, tg["P"][v].double(), tg["L"][v], tg["q_enc"][v, :nq].double(), uv[v].double(),
+                                   tg["w"][v].double(), cams,
+                                   base[k][ci].to(dev) if k in base else tg["T_noisy"][v].double()))
+                    if vs:
+                        for ci, T in dqs[k].step(t, vs, a.dq_window, a.reset_px).items():
+                            T_out[n * C + ci] = T
             bad = ~torch.isfinite(T_out).all(-1).all(-1)
             T_out[bad] = tg["T_noisy"][bad].double()
             vb = tg["valid"].bool()
@@ -170,6 +307,10 @@ def run_set(net, ds, eps, method, pool, dev, a):
             Tgt = tg["T_gt"].double()
             rot = torch.rad2deg(rot_angle(T_out[:, :3, :3], Tgt[:, :3, :3])).cpu()
             tr = ((T_out[:, :3, 3] - Tgt[:, :3, 3]).norm(dim=-1) * 100).cpu()
+            Tb = torch.stack([grp[k].T_bel for k in act]).to(dev).repeat_interleave(C, 0) @ Tgt
+            rot_b = torch.rad2deg(rot_angle(T_out[:, :3, :3], Tb[:, :3, :3])).cpu()
+            tr_b = ((T_out[:, :3, 3] - Tb[:, :3, 3]).norm(dim=-1) * 100).cpu()
+            rp = reproj_surface(grp, act, tg, b, T_out, dqs, dev)
             rot0 = torch.rad2deg(rot_angle(tg["T_noisy"][:, :3, :3].double(), Tgt[:, :3, :3])).cpu()
             for n, k in enumerate(act):
                 e = grp[k]
@@ -180,9 +321,13 @@ def run_set(net, ds, eps, method, pool, dev, a):
                                      motion=e.motion[ci], t=t, T=e.T, cum=float(e.cum_motion[t]), jump=e.jump[ci],
                                      ia=int(ia[v]), ua=int(ua[v]), iv=int(iv[v]), uv=int(uvv[v]),
                                      rot=float(rot[v]), tr=float(tr[v]), rot_init=float(rot0[v]),
+                                     rot_b=float(rot_b[v]), tr_b=float(tr_b[v]), rp=float(rp[v]),
                                      has=bool(tg["w"][v].sum() >= 6)))
+                    if dqs is not None:
+                        d = (dqs[k].dq.cpu() - e.dq_gt)[e.dqmask > 0]
+                        recs[-1]["dq_err"] = float(torch.rad2deg(d.abs()).median())
         print(f"    {method}: {min(g0 + a.group, len(eps))}/{len(eps)} episodes"
-              + (f", window resets {RESETS[0]}/{RESETS[1]}" if method == "track_mem" else ""), flush=True)
+              + (f", window resets {RESETS[0]}/{RESETS[1]}" if method in ("track_mem", "track_dq") else ""), flush=True)
     return recs
 
 
@@ -196,7 +341,7 @@ def pooled(rs, i="ia", u="ua"):
 
 
 def med(rs, k):
-    v = [r[k] for r in rs if r["has"]]
+    v = [r[k] for r in rs if r["has"] and k in r and r[k] == r[k]]
     return float(np.median(v)) if v else float("nan")
 
 
@@ -207,7 +352,7 @@ def summarize(recs):
     ts = sorted(by_t)
     last = [r for r in recs if r["t"] == r["T"] - 1]
     curve = {k: [pooled(by_t[t], *k2) for t in ts] for k, k2 in (("iou_amodal", ("ia", "ua")), ("iou_visible", ("iv", "uv")))}
-    curve |= {k: [med(by_t[t], k) for t in ts] for k in ("rot", "tr")}
+    curve |= {k: [med(by_t[t], k) for t in ts] for k in ("rot", "tr", "rot_b", "tr_b", "rp")}
     out = dict(n_views=len({(r["ep"], r["cam"]) for r in recs}), t=ts, curve=curve)
     for k, (i, u) in (("iou_amodal", ("ia", "ua")), ("iou_visible", ("iv", "uv"))):
         at = {f"@{t}": pooled(by_t[t], i, u) for t in (0, 5, 10, 20) if t in by_t}
@@ -217,7 +362,7 @@ def summarize(recs):
         fin = at["@last"]
         at["t95"] = next((t for t, v in zip(ts, c) if v >= 0.95 * fin), None) if fin == fin else None
         out[k] = at
-    for k in ("rot", "tr"):
+    for k in ("rot", "tr", "rot_b", "tr_b", "rp"):
         at = {f"@{t}": med(by_t[t], k) for t in (0, 5, 10, 20) if t in by_t}
         at["@last"] = med(last, k)
         at["gain"] = at["@last"] - at["@0"]
@@ -230,6 +375,9 @@ def summarize(recs):
             cb.append(dict(lo=lo, hi=hi, n=len(rs), iou_amodal=pooled(rs), iou_visible=pooled(rs, "iv", "uv"),
                            rot=med(rs, "rot"), tr=med(rs, "tr")))
     out["by_cum_motion"] = cb
+    dqe = [r["dq_err"] for r in last if "dq_err" in r]
+    if dqe:
+        out["dq_err_deg_last"] = float(np.median(dqe))                # track_dq: |dq - dq_gt| at the last frame
     still = [r for r in recs if r["t"] >= 1 and r["cum"] < 0.01]
     eps_still = {(r["ep"], r["cam"]) for r in still}
     first = [r for r in recs if r["t"] == 0 and (r["ep"], r["cam"]) in eps_still]
@@ -287,7 +435,7 @@ def plot(summ, path, set_name):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(2, 3, figsize=(16, 8.5))
-    cols = {"independent": "#4C72B0", "track": "#DD8452", "track_mem": "#55A868"}
+    cols = {"independent": "#4C72B0", "track": "#DD8452", "track_mem": "#55A868", "track_dq": "#C44E52"}
     for m, S in summ.items():
         for gi, (g, ls) in enumerate((("all", "-"), ("jump", "--"))):
             if g not in S:
@@ -323,9 +471,11 @@ def main():
     ap.add_argument("--episodes", type=int, default=0, help="episodes per set (0 = all), evenly spread")
     ap.add_argument("--group", type=int, default=32, help="episodes played in lockstep")
     ap.add_argument("--window", type=int, default=60)
+    ap.add_argument("--dq-window", type=int, default=20, help="track_dq window (frames, all cameras)")
     ap.add_argument("--reset-px", type=float, default=6.0)
     ap.add_argument("--dither", type=float, default=0.0, help="track*: hypothesis = estimate + this x the training "
                     "perturbation (3 deg, 3 cm), fresh every frame")
+    ap.add_argument("--lens-noise", type=float, default=None, help="lens error level (default: as trained)")
     ap.add_argument("--workers", type=int, default=32)
     ap.add_argument("--out", required=True, help="output prefix (writes <out>_<set>.json/.png, <out>.md)")
     a = ap.parse_args()
@@ -335,7 +485,8 @@ def main():
     ta = s["args"]
     net = Stage1Net(pretrained=False).to(dev).eval()
     net.load_state_dict(s["net"])
-    hyp = dict(rot_deg=ta["rot_deg"], trans_m=ta["trans_m"], spacing=ta["spacing"], r_max=ta["r_max"], corr=ta["corr"])
+    hyp = dict(rot_deg=ta["rot_deg"], trans_m=ta["trans_m"], spacing=ta["spacing"], r_max=ta["r_max"], corr=ta["corr"],
+               target=ta.get("flow_target", "approx"), lens_noise=ta.get("lens_noise", 0.0) if a.lens_noise is None else a.lens_noise)
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     md = [f"# Sequential evaluation: `{os.path.basename(a.ckpt)}` (step {s['step']})", "",
           f"methods: {a.methods}; window {a.window}, reset {a.reset_px} px; prior {POSE_PRIOR} x {PRIOR_PX} px", ""]
@@ -359,14 +510,23 @@ def main():
                   open(f"{a.out}_{name}.json", "w"))
         plot(summ, f"{a.out}_{name}.png", name)
         md += [f"## {name} ({roots}, {len(eps)} episodes, {(time.time() - t0) / 60:.1f} min)", "",
-               "| method | group | views | IoU@0 | @5 | @10 | @20 | @last | gain | t95 | rot@0 | rot@last | trans@0 | trans@last |",
-               "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+               "| method | group | views | IoU@0 | @5 | @10 | @20 | @last | gain | t95 | rot@0 | rot@last | trans@0 | trans@last "
+               "| rot*@last | trans*@last | reproj px @0 | @last |",
+               "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
         for m, S in summ.items():
             for g, r in S.items():
                 i_ = r["iou_amodal"]
                 md.append(f"| {m} | {g} | {r['n_views']} | {fmt(i_['@0'])} | {fmt(i_.get('@5'))} | {fmt(i_.get('@10'))} | "
                           f"{fmt(i_.get('@20'))} | {fmt(i_['@last'])} | {fmt(i_['gain'])} | {i_['t95']} | "
-                          f"{fmt(r['rot']['@0'], 2)} | {fmt(r['rot']['@last'], 2)} | {fmt(r['tr']['@0'], 2)} | {fmt(r['tr']['@last'], 2)} |")
+                          f"{fmt(r['rot']['@0'], 2)} | {fmt(r['rot']['@last'], 2)} | {fmt(r['tr']['@0'], 2)} | {fmt(r['tr']['@last'], 2)} | "
+                          f"{fmt(r['rot_b']['@last'], 2)} | {fmt(r['tr_b']['@last'], 2)} | {fmt(r['rp']['@0'], 2)} | {fmt(r['rp']['@last'], 2)} |")
+        md += ["", "rot* / trans*: vs the robot's believed base frame (true base turned by joint 1's zero offset, which "
+               "images cannot tell from the cameras turning); reproj px: robot model (approx URDF at q_enc + dq) through "
+               "the estimated camera vs where the link points really are (true FK / camera / lens)."]
+        for m, S in summ.items():
+            if "dq_err_deg_last" in S.get("all", {}):
+                md.append(f"\n{m}: joint zero offset error at the last frame |dq - dq_gt| median "
+                          f"{S['all']['dq_err_deg_last']:.2f} deg (per arm joint)")
         md += ["", "Still prefix (robot not moved yet, t >= 1) vs frame 0 of the same views:", "",
                "| method | n | IoU t0 | IoU still | rot t0 | rot still | trans t0 | trans still |", "|---|---|---|---|---|---|---|---|"]
         for m, S in summ.items():

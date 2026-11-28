@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--prior-px", type=float, default=None, help="pose-prior weight (default: train_stage1.PRIOR_PX)")
     ap.add_argument("--stride", type=int, default=20)
     ap.add_argument("--batch", type=int, default=24)
+    ap.add_argument("--lens-noise", type=float, default=None, help="lens error level (default: as trained)")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--out", default=None)
     ap.add_argument("--device", default="cuda")
@@ -41,7 +42,8 @@ def main():
     ta = s["args"]
     net = Stage1Net(pretrained=False).to(a.device)
     net.load_state_dict(s["net"])
-    hyp = dict(rot_deg=ta["rot_deg"], trans_m=ta["trans_m"], spacing=ta["spacing"], r_max=ta["r_max"], corr=ta["corr"])
+    hyp = dict(rot_deg=ta["rot_deg"], trans_m=ta["trans_m"], spacing=ta["spacing"], r_max=ta["r_max"], corr=ta["corr"],
+               target=ta.get("flow_target", "approx"), lens_noise=ta.get("lens_noise", 0.0) if a.lens_noise is None else a.lens_noise)
     ds = SegLoomFrames(a.data, scale=ta["scale"], hypothesis=hyp, seed=20261126, deterministic=True)
     sub = Subset(ds, list(range(0, len(ds), a.stride)))
     dl = DataLoader(sub, a.batch, shuffle=False, num_workers=a.workers, collate_fn=collate)
