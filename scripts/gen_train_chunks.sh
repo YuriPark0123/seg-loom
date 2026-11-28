@@ -80,7 +80,7 @@ api.create_repo(repo, repo_type="dataset", exist_ok=True)
 local = {f: os.path.getsize(os.path.join(up, f)) for f in os.listdir(up)}
 api.upload_folder(repo_id=repo, repo_type="dataset", folder_path=up, path_in_repo=pre,
                   commit_message=f"{pre}: {os.environ.get('DESC', 'procgen seeds ' + tag[1:] + '+200')}, clutter {clutter}, tar shards (code {rev})")
-remote = {i.path[len(pre) + 1:]: i.size for i in api.list_repo_tree(repo, path_in_repo=pre, repo_type="dataset")}
+remote = {i.path[len(pre) + 1:]: getattr(i, "size", None) for i in api.list_repo_tree(repo, path_in_repo=pre, repo_type="dataset")}
 bad = [f for f, sz in local.items() if remote.get(f) != sz]
 print(f"local {len(local)} remote {len(remote)} missing_or_size_mismatch {len(bad)} {bad[:5]}")
 if bad:
