@@ -148,14 +148,14 @@ def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", 
 
     Every pixel has a valid ray (fixed 2026-11-28; the random draws are the same as before, only the derived values
     changed): fisheye = Kannala-Brandt lens whose DIAGONAL field of view is the sampled one (<= 170 deg, so the
-    farthest corner ray stays below 90 deg, which cv2.fisheye can represent; the old pinhole-style tan() formula
+    farthest corner ray stays well below 90 deg, which cv2.fisheye can represent; the old pinhole-style tan() formula
     made these lenses up to ~290 deg wide and the outer ring of the image showed rays clamped at 90 deg); brown =
     k1, k2 shrunk until the radial polynomial is still increasing at the farthest corner (strong barrel values
     folded back inside the image, so the corners had no ray)."""
     W, H = [(640, 480), (848, 480), (1280, 720), (1920, 1080), (640, 640), (1280, 960)][rng.integers(6)]
     kind = kinds[rng.integers(len(kinds))]
     if kind == "fisheye":
-        fov = min(rng.uniform(100, 175), 170.0)                 # diagonal
+        fov = rng.uniform(100, 160)                             # diagonal; UMI GoPro 155, RealSense T265 ~163
         dist = np.r_[rng.normal(0, 0.03), rng.normal(0, 0.02), rng.normal(0, 0.01), rng.normal(0, 0.005), 0]
         fx = None
     else:
@@ -163,7 +163,7 @@ def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", 
         fx = (W / 2) / np.tan(np.deg2rad(fov / 2))
         dist = np.zeros(5)
         if kind == "brown":
-            k1 = rng.uniform(-0.35, 0.15)
+            k1 = rng.uniform(-0.35, 0.15)                       # then limited by the corner pull-in below
             dist = np.array([k1, rng.uniform(-0.1, 0.15) * (abs(k1) > 0.1), rng.normal(0, 0.002), rng.normal(0, 0.002),
                              0.0])
     fy_ratio = rng.uniform(0.995, 1.005)
@@ -184,7 +184,10 @@ def random_camera(rng: np.random.Generator, kinds=("pinhole", "brown", "brown", 
             slope = 1 + 3 * dist[0] * r ** 2 + 5 * dist[1] * r ** 4
             reach = np.nonzero(m >= rc)[0]
             upto = reach[0] + 1 if len(reach) else len(r)
-            if len(reach) and slope[:upto].min() >= 0.3:
+            # corner pull-in vs a distortion-free lens of the same f, within what common cameras have (ZED +5.6 %,
+            # D405 -1.7 %, C920 -6.5..-2 %, Azure Kinect -3.7 %): -8 % (pincushion) .. +10 % (barrel)
+            pull = 1 - rc / r[reach[0]] if len(reach) else 1.0
+            if len(reach) and slope[:upto].min() >= 0.3 and -0.08 <= pull <= 0.10:
                 break
             dist[:2] *= 0.9
     return CameraModel(W, H, fx, fx * fy_ratio, cx, cy, kind, dist)
