@@ -1,0 +1,94 @@
+[1/60] piper top: before 2.00/1.96  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.63/2.95  surface/camK 2.10/2.09  surface/camK+dq_gt 0.39/1.56  surface/camK+dq 0.52/1.50  dq_err_deg(joint solve) 0.20/0.00  dq_gt_deg 1.62/0.00
+[2/60] panda top: before 4.23/7.07  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.79/7.27  surface/camK 5.60/6.99  surface/camK+dq_gt 0.13/3.67  surface/camK+dq 1.37/3.94  dq_err_deg(joint solve) 0.80/0.00  dq_gt_deg 1.65/0.00
+[3/60] ur7e front: before 4.36/4.10  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.88/13.66  surface/camK 5.58/11.05  surface/camK+dq_gt 0.67/2.71  surface/camK+dq 0.37/2.14  dq_err_deg(joint solve) 0.45/0.00  dq_gt_deg 1.50/0.00
+[4/60] panda top: before 7.82/4.37  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.84/13.62  surface/camK 4.43/11.03  surface/camK+dq_gt 0.40/4.83  surface/camK+dq 0.31/3.93  dq_err_deg(joint solve) 0.26/0.00  dq_gt_deg 1.65/0.00
+[5/60] panda top: before 3.18/6.33  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.07/10.00  surface/camK 3.92/7.91  surface/camK+dq_gt 0.89/3.80  surface/camK+dq 1.07/3.44  dq_err_deg(joint solve) 0.91/0.00  dq_gt_deg 1.65/0.00
+[6/60] so101 top: before 7.00/5.11  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.06/0.96  surface/camK 3.72/1.00  surface/camK+dq_gt 2.55/1.94  surface/camK+dq 1.55/1.01  dq_err_deg(joint solve) 1.23/0.00  dq_gt_deg 0.92/0.00
+[7/60] so101 top: before 5.08/4.86  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.11/1.30  surface/camK 4.22/1.20  surface/camK+dq_gt 1.94/1.18  surface/camK+dq 1.04/0.80  dq_err_deg(joint solve) 0.92/0.00  dq_gt_deg 0.92/0.00
+[8/60] ur7e top: before 7.30/4.64  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.99/6.93  surface/camK 5.07/6.46  surface/camK+dq_gt 0.19/2.21  surface/camK+dq 0.84/2.31  dq_err_deg(joint solve) 0.31/0.00  dq_gt_deg 1.50/0.00
+[9/60] piper top: before 5.76/3.92  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.38/2.62  surface/camK 1.53/4.05  surface/camK+dq_gt 0.75/3.03  surface/camK+dq 0.11/1.82  dq_err_deg(joint solve) 0.55/0.00  dq_gt_deg 1.62/0.00
+[10/60] ur7e top: before 2.51/4.80  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.72/6.14  surface/camK 4.59/6.70  surface/camK+dq_gt 0.19/2.83  surface/camK+dq 0.35/2.69  dq_err_deg(joint solve) 0.17/0.00  dq_gt_deg 1.50/0.00
+[11/60] panda top: before 2.91/6.59  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.60/10.87  surface/camK 5.13/9.63  surface/camK+dq_gt 0.41/5.70  surface/camK+dq 0.80/4.89  dq_err_deg(joint solve) 0.75/0.00  dq_gt_deg 1.65/0.00
+[12/60] piper top: before 3.34/7.15  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.80/8.33  surface/camK 1.85/6.24  surface/camK+dq_gt 0.40/4.91  surface/camK+dq 0.56/5.68  dq_err_deg(joint solve) 0.25/0.00  dq_gt_deg 1.62/0.00
+[13/60] so101 top: before 5.88/8.33  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.01/1.16  surface/camK 4.20/1.35  surface/camK+dq_gt 1.49/1.59  surface/camK+dq 0.94/1.59  dq_err_deg(joint solve) 0.95/0.00  dq_gt_deg 0.92/0.00
+[14/60] piper front: before 2.44/3.98  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.03/4.52  surface/camK 2.10/3.57  surface/camK+dq_gt 0.79/1.90  surface/camK+dq 1.59/2.25  dq_err_deg(joint solve) 0.83/0.00  dq_gt_deg 1.62/0.00
+[15/60] piper top: before 4.60/5.46  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.28/2.11  surface/camK 1.36/2.88  surface/camK+dq_gt 0.23/2.91  surface/camK+dq 0.35/2.69  dq_err_deg(joint solve) 0.21/0.00  dq_gt_deg 1.62/0.00
+[16/60] pg0100005 top: before 3.68/6.80  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.37/8.35  surface/camK 3.59/7.72  surface/camK+dq_gt 0.64/5.78  surface/camK+dq 0.96/4.99  dq_err_deg(joint solve) 0.58/0.00  dq_gt_deg 1.74/0.00
+[17/60] pg0100010 top: before 3.58/4.85  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.17/4.87  surface/camK 5.11/4.74  surface/camK+dq_gt 0.52/1.49  surface/camK+dq 0.96/1.43  dq_err_deg(joint solve) 0.36/0.00  dq_gt_deg 3.39/0.00
+[18/60] pg0100000 top: before 8.34/6.38  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.29/4.25  surface/camK 4.00/4.51  surface/camK+dq_gt 0.11/0.27  surface/camK+dq 0.11/0.16  dq_err_deg(joint solve) 0.04/0.00  dq_gt_deg 3.09/0.00
+[19/60] pg0100010 top: before 4.86/4.67  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.92/11.38  surface/camK 4.31/7.35  surface/camK+dq_gt 0.39/3.75  surface/camK+dq 0.92/4.13  dq_err_deg(joint solve) 0.53/0.00  dq_gt_deg 3.39/0.00
+[20/60] pg0100048 front: before 3.81/4.34  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.67/6.81  surface/camK 4.07/7.41  surface/camK+dq_gt 0.40/4.53  surface/camK+dq 2.75/5.28  dq_err_deg(joint solve) 0.80/0.00  dq_gt_deg 1.75/0.00
+[21/60] pg0100029 top: before 4.52/8.89  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.44/5.11  surface/camK 3.16/4.95  surface/camK+dq_gt 1.19/1.78  surface/camK+dq 1.47/2.51  dq_err_deg(joint solve) 0.44/0.00  dq_gt_deg 1.85/0.00
+[22/60] pg0100037 top: before 1.87/5.17  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.91/4.57  surface/camK 3.61/4.05  surface/camK+dq_gt 0.11/1.12  surface/camK+dq 0.78/1.22  dq_err_deg(joint solve) 0.54/0.00  dq_gt_deg 3.01/0.00
+[23/60] pg0100022 top: before 3.95/5.66  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.52/3.05  surface/camK 5.07/4.10  surface/camK+dq_gt 0.13/0.59  surface/camK+dq 0.40/0.67  dq_err_deg(joint solve) 0.08/0.00  dq_gt_deg 3.39/0.00
+[24/60] pg0100022 top: before 3.53/5.38  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.04/5.66  surface/camK 5.02/4.82  surface/camK+dq_gt 0.15/0.81  surface/camK+dq 0.23/0.96  dq_err_deg(joint solve) 0.15/0.00  dq_gt_deg 3.39/0.00
+[25/60] pg0100003 top: before 6.38/4.67  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.47/6.77  surface/camK 4.86/8.21  surface/camK+dq_gt 1.12/2.88  surface/camK+dq 1.64/3.14  dq_err_deg(joint solve) 1.10/0.00  dq_gt_deg 2.84/0.00
+[26/60] pg0100037 top: before 3.79/3.43  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 7.11/5.91  surface/camK 4.09/3.52  surface/camK+dq_gt 0.20/1.55  surface/camK+dq 0.72/1.25  dq_err_deg(joint solve) 0.18/0.00  dq_gt_deg 3.01/0.00
+[27/60] pg0100000 front: before 2.03/3.02  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.28/2.91  surface/camK 4.52/8.34  surface/camK+dq_gt 0.17/0.78  surface/camK+dq 0.63/1.48  dq_err_deg(joint solve) 0.21/0.00  dq_gt_deg 3.09/0.00
+[28/60] pg0100017 front: before 5.21/2.34  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 8.45/33.08  surface/camK 4.98/15.53  surface/camK+dq_gt 2.59/13.68  surface/camK+dq 0.51/2.11  dq_err_deg(joint solve) 2.03/0.00  dq_gt_deg 2.62/0.00
+[29/60] pg0100034 front: before 4.91/3.98  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.13/9.12  surface/camK 4.00/9.83  surface/camK+dq_gt 0.15/5.69  surface/camK+dq 3.66/9.19  dq_err_deg(joint solve) 2.07/0.00  dq_gt_deg 2.74/0.00
+[30/60] pg0100002 top: before 12.00/3.00  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.64/4.23  surface/camK 3.25/2.95  surface/camK+dq_gt 0.19/1.90  surface/camK+dq 0.32/1.98  dq_err_deg(joint solve) 0.35/0.00  dq_gt_deg 1.14/0.00
+[31/60] pg0100030 front: before 5.13/7.72  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.87/5.76  surface/camK 2.03/6.52  surface/camK+dq_gt 1.02/5.69  surface/camK+dq 3.12/7.69  dq_err_deg(joint solve) 1.31/0.00  dq_gt_deg 1.75/0.00
+[32/60] pg0100008 top: before 6.87/5.51  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.88/17.59  surface/camK 4.95/10.71  surface/camK+dq_gt 1.34/7.99  surface/camK+dq 5.17/14.03  dq_err_deg(joint solve) 1.37/0.00  dq_gt_deg 3.14/0.00
+[33/60] pg0100012 front: before 1.77/4.77  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.15/2.64  surface/camK 2.03/2.99  surface/camK+dq_gt 1.02/1.32  surface/camK+dq 0.76/1.26  dq_err_deg(joint solve) 0.65/0.00  dq_gt_deg 0.71/0.00
+[34/60] pg0100037 top: before 2.54/3.65  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 7.00/7.86  surface/camK 5.47/4.11  surface/camK+dq_gt 0.12/2.20  surface/camK+dq 1.12/1.86  dq_err_deg(joint solve) 0.31/0.00  dq_gt_deg 3.01/0.00
+[35/60] pg0100040 front: before 8.51/1.70  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.73/7.52  surface/camK 2.27/7.48  surface/camK+dq_gt 0.38/5.92  surface/camK+dq 1.27/6.35  dq_err_deg(joint solve) 0.60/0.00  dq_gt_deg 0.70/0.00
+[36/60] pg0100037 top: before 4.41/3.75  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.97/1.90  surface/camK 6.97/2.66  surface/camK+dq_gt 0.24/0.58  surface/camK+dq 0.55/0.63  dq_err_deg(joint solve) 0.27/0.00  dq_gt_deg 3.01/0.00
+[37/60] pg0100030 top: before 4.81/1.63  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.90/5.03  surface/camK 3.24/6.58  surface/camK+dq_gt 1.34/4.57  surface/camK+dq 0.94/3.84  dq_err_deg(joint solve) 0.52/0.00  dq_gt_deg 1.75/0.00
+[38/60] pg0100020 top: before 5.16/5.32  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.27/4.23  surface/camK 2.94/4.49  surface/camK+dq_gt 0.76/1.83  surface/camK+dq 1.36/2.16  dq_err_deg(joint solve) 2.43/0.00  dq_gt_deg 3.25/0.00
+[39/60] pg0100014 front: before 4.73/2.40  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.26/2.60  surface/camK 1.64/3.29  surface/camK+dq_gt 0.80/2.54  surface/camK+dq 1.12/2.19  dq_err_deg(joint solve) 0.81/0.00  dq_gt_deg 1.59/0.00
+[40/60] pg0100025 front: before 4.24/2.59  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.66/6.55  surface/camK 2.14/5.59  surface/camK+dq_gt 0.30/1.14  surface/camK+dq 0.95/1.89  dq_err_deg(joint solve) 0.56/0.00  dq_gt_deg 2.06/0.00
+[41/60] pg0100028 top: before 4.24/4.31  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.00/13.27  surface/camK 7.45/10.50  surface/camK+dq_gt 0.34/6.17  surface/camK+dq 1.31/6.46  dq_err_deg(joint solve) 0.32/0.00  dq_gt_deg 3.60/0.00
+[42/60] pg0100031 top: before 2.70/2.69  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.69/2.68  surface/camK 1.77/2.40  surface/camK+dq_gt 0.57/1.93  surface/camK+dq 2.09/2.45  dq_err_deg(joint solve) 0.78/0.00  dq_gt_deg 1.35/0.00
+[43/60] pg0100038 front: before 1.67/2.52  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.91/13.22  surface/camK 7.40/17.33  surface/camK+dq_gt 1.07/4.03  surface/camK+dq 1.78/5.44  dq_err_deg(joint solve) 1.15/0.00  dq_gt_deg 3.95/0.00
+[44/60] pg0100044 top: before 3.99/2.54  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.39/5.16  surface/camK 3.73/5.19  surface/camK+dq_gt 1.73/2.16  surface/camK+dq 5.18/6.28  dq_err_deg(joint solve) 2.39/0.00  dq_gt_deg 2.36/0.00
+[45/60] pg0100046 top: before 9.16/6.22  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.78/6.33  surface/camK 2.40/8.57  surface/camK+dq_gt 0.27/2.81  surface/camK+dq 0.25/2.85  dq_err_deg(joint solve) 0.21/0.00  dq_gt_deg 0.66/0.00
+[46/60] pg0100000 front: before 2.80/9.06  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.04/5.76  surface/camK 3.20/9.23  surface/camK+dq_gt 0.43/1.65  surface/camK+dq 0.65/2.19  dq_err_deg(joint solve) 0.26/0.00  dq_gt_deg 3.09/0.00
+[47/60] pg0100000 top: before 5.45/3.33  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 4.39/9.09  surface/camK 4.11/8.55  surface/camK+dq_gt 0.14/0.60  surface/camK+dq 0.40/0.83  dq_err_deg(joint solve) 0.36/0.00  dq_gt_deg 3.09/0.00
+[48/60] pg0100048 top: before 4.00/6.02  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.43/8.99  surface/camK 1.41/7.94  surface/camK+dq_gt 0.71/8.55  surface/camK+dq 0.68/7.25  dq_err_deg(joint solve) 0.58/0.00  dq_gt_deg 1.75/0.00
+[49/60] pg0100015 top: before 2.04/4.06  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.37/13.68  surface/camK 5.99/10.02  surface/camK+dq_gt 0.55/0.72  surface/camK+dq 0.47/0.77  dq_err_deg(joint solve) 0.06/0.00  dq_gt_deg 3.43/0.00
+[50/60] pg0100026 front: before 9.77/9.20  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.91/2.50  surface/camK 1.11/2.11  surface/camK+dq_gt 1.23/1.77  surface/camK+dq 1.49/1.84  dq_err_deg(joint solve) 0.74/0.00  dq_gt_deg 0.23/0.00
+[51/60] pg0100017 front: before 2.40/7.61  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 6.17/15.08  surface/camK 6.29/15.62  surface/camK+dq_gt 1.08/5.09  surface/camK+dq 0.89/3.90  dq_err_deg(joint solve) 1.62/0.00  dq_gt_deg 2.62/0.00
+[52/60] pg0100017 front: before 4.71/4.31  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 8.64/22.09  surface/camK 7.49/15.67  surface/camK+dq_gt 0.51/4.90  surface/camK+dq 2.47/6.77  dq_err_deg(joint solve) 2.12/0.00  dq_gt_deg 2.62/0.00
+[53/60] pg0100016 front: before 6.65/1.66  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.62/13.25  surface/camK 6.21/14.53  surface/camK+dq_gt 0.56/1.61  surface/camK+dq 0.84/2.54  dq_err_deg(joint solve) 1.01/0.00  dq_gt_deg 1.32/0.00
+[54/60] pg0100042 front: before 5.69/6.25  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 0.40/3.43  surface/camK 2.97/30.23  surface/camK+dq_gt 0.11/19.29  surface/camK+dq 1.10/19.05  dq_err_deg(joint solve) 0.79/0.00  dq_gt_deg 2.84/0.00
+[55/60] pg0100048 top: before 1.41/3.62  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.77/5.22  surface/camK 2.28/6.36  surface/camK+dq_gt 0.39/5.13  surface/camK+dq 2.30/5.49  dq_err_deg(joint solve) 0.76/0.00  dq_gt_deg 1.75/0.00
+[56/60] pg0100015 top: before 6.57/4.67  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 5.62/12.07  surface/camK 5.51/10.28  surface/camK+dq_gt 0.07/0.28  surface/camK+dq 0.65/1.31  dq_err_deg(joint solve) 0.22/0.00  dq_gt_deg 3.43/0.00
+[57/60] pg0100006 top: before 8.20/10.18  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.71/14.77  surface/camK 2.52/13.85  surface/camK+dq_gt 0.08/0.58  surface/camK+dq 0.20/0.50  dq_err_deg(joint solve) 0.12/0.00  dq_gt_deg 1.46/0.00
+[58/60] pg0100027 front: before 6.83/1.89  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 1.88/3.02  surface/camK 1.68/4.33  surface/camK+dq_gt 0.55/2.41  surface/camK+dq 1.12/2.31  dq_err_deg(joint solve) 0.42/0.00  dq_gt_deg 1.98/0.00
+[59/60] pg0100039 top: before 6.97/2.38  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 3.09/5.02  surface/camK 2.53/4.10  surface/camK+dq_gt 0.60/1.11  surface/camK+dq 0.68/1.66  dq_err_deg(joint solve) 0.39/0.00  dq_gt_deg 1.58/0.00
+[60/60] pg0100012 top: before 5.44/4.91  uvt/cam1 0.03/0.00  uvt/camK 0.03/0.00  surface/cam1 2.21/1.97  surface/camK 1.46/1.46  surface/camK+dq_gt 0.12/0.76  surface/camK+dq 0.14/0.76  dq_err_deg(joint solve) 0.17/0.00  dq_gt_deg 0.71/0.00
+
+== all
+  before                     rot  4.56 deg  trans  4.67 cm  (n=60)
+  uvt/cam1                   rot  0.03 deg  trans  0.00 cm  (n=60)
+  uvt/camK                   rot  0.03 deg  trans  0.00 cm  (n=60)
+  surface/cam1               rot  4.06 deg  trans  5.83 cm  (n=60)
+  surface/camK               rot  3.96 deg  trans  6.49 cm  (n=60)
+  surface/camK+dq_gt         rot  0.42 deg  trans  2.21 cm  (n=60)
+  surface/camK+dq            rot  0.91 deg  trans  2.28 cm  (n=60)
+  dq_err_deg(joint solve)    rot  0.55 deg  trans  0.00 cm  (n=60)
+  dq_gt_deg                  rot  1.75 deg  trans  0.00 cm  (n=60)
+
+== real
+  before                     rot  4.36 deg  trans  4.86 cm  (n=15)
+  uvt/cam1                   rot  0.03 deg  trans  0.00 cm  (n=15)
+  uvt/camK                   rot  0.03 deg  trans  0.00 cm  (n=15)
+  surface/cam1               rot  4.07 deg  trans  6.14 cm  (n=15)
+  surface/camK               rot  4.20 deg  trans  6.24 cm  (n=15)
+  surface/camK+dq_gt         rot  0.41 deg  trans  2.83 cm  (n=15)
+  surface/camK+dq            rot  0.80 deg  trans  2.31 cm  (n=15)
+  dq_err_deg(joint solve)    rot  0.55 deg  trans  0.00 cm  (n=15)
+  dq_gt_deg                  rot  1.62 deg  trans  0.00 cm  (n=15)
+
+== procgen
+  before                     rot  4.71 deg  trans  4.34 cm  (n=45)
+  uvt/cam1                   rot  0.03 deg  trans  0.00 cm  (n=45)
+  uvt/camK                   rot  0.03 deg  trans  0.00 cm  (n=45)
+  surface/cam1               rot  3.71 deg  trans  5.76 cm  (n=45)
+  surface/camK               rot  3.73 deg  trans  6.58 cm  (n=45)
+  surface/camK+dq_gt         rot  0.43 deg  trans  1.93 cm  (n=45)
+  surface/camK+dq            rot  0.94 deg  trans  2.19 cm  (n=45)
+  dq_err_deg(joint solve)    rot  0.54 deg  trans  0.00 cm  (n=45)
+  dq_gt_deg                  rot  2.62 deg  trans  0.00 cm  (n=45)
+DQ_DONE

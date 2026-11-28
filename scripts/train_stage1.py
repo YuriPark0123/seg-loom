@@ -22,6 +22,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 import time
 
@@ -38,7 +39,26 @@ from shadow.learn.camera import project  # noqa: E402
 from shadow.learn.geometry import inv_T, rot_angle, transform  # noqa: E402
 from shadow.learn.register import solve_pose  # noqa: E402
 
-REAL = ("so101", "ur7e", "piper", "panda")   # the eval real robots: never trained on
+REAL = ("so101", "ur7e", "piper", "panda")   # the original eval real robots (data/eval): never trained on
+
+
+def _held_out():
+    """Robots never trained on: REAL + every eval list of configs/robots/extra_splits.yaml (eval, eval_v2, ...)."""
+    import yaml
+    y = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "..", "configs/robots/extra_splits.yaml")))
+    return set(REAL) | {r for k, v in y.items() if k.startswith("eval") for r in (v or [])}
+
+
+HELD_OUT = _held_out()
+
+
+def robot_arm(robot):
+    """pg0100005 -> pg0100005, sawyer_i003 -> sawyer, iiwa7__robotiq_i012 -> iiwa7 (the arm decides the split)."""
+    return re.sub(r"_i\d{3,4}$", "", robot).split("__")[0]
+
+
+def is_held_out(robot):
+    return robot_arm(robot) in HELD_OUT
 
 
 def is_real(robot):
@@ -263,10 +283,10 @@ def main():
         torch.cuda.set_per_process_memory_fraction(a.mem_frac)
     log = open(os.path.join(a.out, "log.jsonl"), "a")
 
-    leak = robots_of(a.data + a.clutter_data + a.real_data) & set(REAL)
+    leak = sorted(r for r in robots_of(a.data + a.clutter_data + a.real_data) if is_held_out(r))
     if leak:
-        print(f"WARNING: eval real robots {sorted(leak)} in the training roots: left out", flush=True)
-    train_robots = sorted(robots_of(a.data + a.clutter_data + a.real_data) - set(REAL))
+        print(f"WARNING: held-out eval robots {leak} in the training roots: left out", flush=True)
+    train_robots = sorted(r for r in robots_of(a.data + a.clutter_data + a.real_data) if not is_held_out(r))
     if a.val_data:
         val_robots, val_root = sorted(robots_of(a.val_data)), a.val_data
         assert not set(val_robots) & set(train_robots), "validation robots overlap the training robots"
