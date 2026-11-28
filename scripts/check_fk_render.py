@@ -28,6 +28,7 @@ from shadow.learn.camera import cams_from_meta, project  # noqa: E402
 from shadow.learn.fk import URDFKinematics  # noqa: E402
 from shadow.learn.geometry import inv_T, pose7_to_T, rot_angle, transform  # noqa: E402
 from shadow.learn.points import point_spacing, points_from_render_geoms, points_from_urdf, splat_labels, world_points  # noqa: E402
+from shadow.learn.data import q_names  # noqa: E402
 
 CAMS = ("top", "front", "wrist")
 
@@ -87,7 +88,7 @@ def check_episode(ep_dir, rc: RobotCache, dev, stats, cull=True, znear=0.0):
 
     # --- FK (true URDF + true joints) vs MuJoCo bodies
     for key, kin, q in (("fk_true", R["kt"], A["q_true"]), ("fk_approx", R["ka"], A["q_enc"])):
-        Tl = kin.fk(q.double(), meta["joint_names"])
+        Tl = kin.fk(q.double(), q_names(meta, q.shape[1]))
         Tl = Tl[:, [kin.links.index(b) for b in bodies]]
         Tl = T_body[:, :1] @ inv_T(Tl[:, :1]) @ Tl                              # express relative to the root body
         pe = (Tl[..., :3, 3] - T_body[..., :3, 3]).norm(dim=-1) * 1000
@@ -96,9 +97,9 @@ def check_episode(ep_dir, rc: RobotCache, dev, stats, cull=True, znear=0.0):
         stats[f"{key}_rot_deg_max"][kind].append(re.max().item())
     root_off = A["body_pose"][0, 0, :3].norm().item() * 1000
     stats["root_body_offset_mm"][kind].append(root_off)
-    T_fk = T_body[:, :1] @ inv_T(R["kt"].fk(A["q_true"].double(), meta["joint_names"])[:, :1]) @ \
-        R["kt"].fk(A["q_true"].double(), meta["joint_names"])[:, [R["kt"].links.index(b) for b in bodies]]
-    T_ap = R["ka"].fk(A["q_enc"].double(), meta["joint_names"])
+    T_fk = T_body[:, :1] @ inv_T(R["kt"].fk(A["q_true"].double(), q_names(meta, A["q_true"].shape[1]))[:, :1]) @ \
+        R["kt"].fk(A["q_true"].double(), q_names(meta, A["q_true"].shape[1]))[:, [R["kt"].links.index(b) for b in bodies]]
+    T_ap = R["ka"].fk(A["q_enc"].double(), q_names(meta, A["q_enc"].shape[1]))
     T_ap = T_body[:, :1] @ inv_T(T_ap[:, :1]) @ T_ap[:, [R["ka"].links.index(b) for b in bodies]]
 
     for c in CAMS:
