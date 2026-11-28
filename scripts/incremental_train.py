@@ -10,6 +10,9 @@ Loop (internal tick 60 s, HF poll every --poll-min minutes):
       stage3.k    each verified cluttered folder (mixed --clutter-frac per batch)
   * at every switch: copy the checkpoint to <out>/stages/, evaluate it on --eval (fixed frames), append to report.md
   * planned total steps: the cosine runs --interim-hours past each switch, --final-hours after the last folder
+  * fine-tune mode (--real-folders N > 0): starts from --init once all simple + cluttered folders and >= 1 real-robot
+    folder (--real-prefix) are in, switches at every new real-robot folder (stage real.k, --real-frac per batch)
+  * a verified folder gets <folder>/.verified (remote file count); a later run (new --out) reuses it without download
 
     CUDA_DEVICE_ORDER=PCI_BUS_ID python scripts/incremental_train.py --gpu 4 --out out/stage1_main
 """
@@ -45,7 +48,7 @@ class Ctl:
         self.log_f = open(os.path.join(a.out, "controller.log"), "a")
         self.dl = None              # (folder, Popen)
         self.train = None           # Popen
-        self.train_cfg = None       # (simple folders, clutter folders, stage name)
+        self.train_cfg = None       # (simple, clutter, stage name, final?, real)
         self.evals = []             # (stage, Popen, json path)
         self.remote = {}            # folder -> remote file count
         self.remote_files = {}      # folder -> remote file paths
@@ -76,7 +79,7 @@ class Ctl:
             self.log(f"poll failed: {e}"); return
         cnt = {}
         for f in fs:
-            m = re.match(r"^(train(?:_clutter)?/r\d{4})/", f)
+            m = re.match(r"^(train[a-z_]*/r\d{4})/", f)
             if m:
                 cnt[m.group(1)] = cnt.get(m.group(1), 0) + 1
         done = {k for k in cnt if f"{k}/manifest.jsonl" in fs}
@@ -150,11 +153,18 @@ class Ctl:
                 self.st["bad"].append(folder); self.report(f"- {now()} **{folder} 검증 실패, 학습에서 제외:** {err}")
             else:
                 self.st["verified"].append(folder)
+                json.dump(dict(files=n, time=now()), open(os.path.join(self.local(folder), ".verified"), "w"))
                 self.log(f"verified {folder} ({n} files)")
             self.save()
             self.dl = None
-        todo = [f for f in sorted(self.remote, key=lambda k: (k.startswith("train_clutter"), k))
+        todo = [f for f in sorted(self.remote, key=lambda k: (k.split("/")[0] != "train", k))
                 if f not in self.st["verified"] and f not in self.st["bad"]]
+        for f in list(todo):                                    # verified by an earlier run, unchanged on HF
+            mk = os.path.join(self.local(f), ".verified")
+            if os.path.exists(mk) and json.load(open(mk)).get("files") == self.remote.get(f):
+                self.st["verified"].append(f); todo.remove(f)
+                self.log(f"verified {f} (earlier run, {self.remote[f]} files)")
+                self.save()
         if todo:
             self.start_download(todo[0])
 
@@ -191,28 +201,33 @@ class Ctl:
         import torch
         return torch.load(ck, map_location="cpu", weights_only=False)["step"]
 
-    def start_train(self, simple, clutter, stage, final):
+    def start_train(self, simple, clutter, stage, final, real=()):
         step = self.current_step()
         hours = self.a.final_hours if final else self.a.interim_hours
         total = int(step + self.it_per_s() * 3600 * hours)
         cmd = [sys.executable, os.path.join(HERE, "train_stage1.py"),
-               "--data", *[self.local(f) for f in simple], "--val-data", self.a.eval, "--out", self.a.out,
+               "--data", *[self.local(f) for f in simple], "--val-data", *self.a.eval, "--out", self.a.out,
                "--steps", str(total), "--batch", str(self.a.batch), "--workers", str(self.a.workers),
                "--ckpt-every", "1000", "--eval-every", "5000", "--eval-batches", "20", "--warmup", "1000"]
         if clutter:
             cmd += ["--clutter-data", *[self.local(f) for f in clutter], "--clutter-frac", str(self.a.clutter_frac)]
+        if real:
+            cmd += ["--real-data", *[self.local(f) for f in real], "--real-frac", str(self.a.real_frac)]
         if step > 0 or os.path.exists(os.path.join(self.a.out, "last.pt")):
             cmd.append("--resume")
+        elif self.a.init:
+            cmd += ["--init", self.a.init]
         env = dict(os.environ, CUDA_DEVICE_ORDER="PCI_BUS_ID", CUDA_VISIBLE_DEVICES=str(self.a.gpu))
         logf = open(os.path.join(self.a.out, "train.log"), "a")
         logf.write(f"\n===== {now()} {stage}: {' '.join(cmd)}\n"); logf.flush()
         self.train = subprocess.Popen(cmd, stdout=logf, stderr=subprocess.STDOUT, env=env, cwd=ROOT)
-        self.train_cfg = (list(simple), list(clutter), stage, final)
+        self.train_cfg = (list(simple), list(clutter), stage, final, list(real))
         self.st["stage"] = stage
-        self.st["stages"].append(dict(stage=stage, start=now(), step=step, simple=simple, clutter=clutter,
+        self.st["stages"].append(dict(stage=stage, start=now(), step=step, simple=simple, clutter=clutter, real=list(real),
                                       planned_total=total, it_s=self.it_per_s()))
         self.save()
-        self.log(f"training {stage} started at step {step}: {len(simple)} simple + {len(clutter)} cluttered folders, "
+        self.log(f"training {stage} started at step {step}: {len(simple)} simple + {len(clutter)} cluttered + "
+                 f"{len(real)} real-robot folders, "
                  f"plan {total} steps ({hours} h at {self.it_per_s():.2f} it/s)")
 
     def snapshot_and_eval(self, label):
@@ -223,7 +238,7 @@ class Ctl:
         js = dst.replace(".pt", "_eval.json")
         env = dict(os.environ, CUDA_DEVICE_ORDER="PCI_BUS_ID", CUDA_VISIBLE_DEVICES=str(self.a.gpu))
         logf = open(os.path.join(self.a.out, "eval.log"), "a")
-        p = subprocess.Popen([sys.executable, os.path.join(HERE, "eval_stage1.py"), dst, "--data", self.a.eval,
+        p = subprocess.Popen([sys.executable, os.path.join(HERE, "eval_stage1.py"), dst, "--data", *self.a.eval,
                               "--out", js, "--workers", "8"], stdout=logf, stderr=subprocess.STDOUT, env=env, cwd=ROOT)
         self.evals.append((label, p, js))
         self.log(f"{label}: checkpoint step {step} -> {dst}, eval started")
@@ -237,36 +252,42 @@ class Ctl:
             if p.returncode != 0 or not os.path.exists(js):
                 self.log(f"eval of {label} failed (exit {p.returncode})"); continue
             r = json.load(open(js)); m = r["metrics"]; d = r.get("data") or {}
-            nf = (len(d.get("simple", [])), len(d.get("clutter", [])))
+            nf = (len(d.get("simple", [])), len(d.get("clutter", [])), len(d.get("real", [])))
             row = lambda g: (f"{m[g]['iou_amodal']:.3f} / {m[g]['iou_visible']:.3f}",
                              f"{m[g]['rot_deg_after']:.2f}", f"{m[g]['trans_cm_after']:.2f}")
             a_, r_ = row("all"), row("real")
-            self.report(f"| {r['eval_time'][5:16]} | {label} | 단순 {nf[0]} / 복잡 {nf[1]} | {r['step']} | {a_[0]} | "
+            self.report(f"| {r['eval_time'][5:16]} | {label} | 단순 {nf[0]} / 복잡 {nf[1]} / 실제 {nf[2]} | {r['step']} | {a_[0]} | "
                         f"{a_[1]} | {a_[2]} | {r_[0]} | {r_[1]} | {r_[2]} |")
             self.log(f"eval {label}: all {a_} real {r_}")
 
     def target(self):
-        """(simple folders, clutter folders, stage name, final?) the training should run on now."""
+        """(simple folders, clutter folders, stage name, final?, real folders) the training should run on now
+        (simple None = not ready to start yet)."""
         v = self.st["verified"]
         simple = sorted(f for f in v if f.startswith("train/"))
         clutter = sorted(f for f in v if f.startswith("train_clutter/"))
         all_simple = len(simple) >= self.a.train_folders
         cur = self.train_cfg
+        if self.a.real_folders > 0:                             # fine-tune: full base data + growing real data
+            real = sorted(f for f in v if f.startswith(self.a.real_prefix))
+            if not (all_simple and len(clutter) >= self.a.clutter_folders and real):
+                return (None, [], "wait", False, []) if cur is None else cur
+            return simple, clutter, f"real.{len(real)}", len(real) >= self.a.real_folders, real
         if cur is None:                                         # first start: whatever simple data is there
-            return simple, [], "stage1", False
-        cs, cc, cname, _ = cur
+            return simple, [], "stage1", False, []
+        cs, cc, cname, _, _ = cur
         if not all_simple:
-            return cs, cc, cname, False                         # stage 1 keeps its data until all simple folders are in
+            return cs, cc, cname, False, []                     # stage 1 keeps its data until all simple folders are in
         if not clutter:
-            return simple, [], "stage2", False
+            return simple, [], "stage2", False, []
         final = all_simple and len(clutter) >= self.a.clutter_folders
-        return simple, clutter, f"stage3.{len(clutter)}", final
+        return simple, clutter, f"stage3.{len(clutter)}", final, []
 
     def tick_train(self):
         if self.train is None:
             if not self.st["verified"] or not self.gpu_free():
                 return
-            s, c, name, final = self.target()
+            s, c, name, final, r = self.target()
             if not s:
                 return
             if self.st["started"] is None:
@@ -274,25 +295,25 @@ class Ctl:
                 self.report("| 시각 | 전환 시점 | 폴더 | step | IoU 가림 포함 / 보이는 부분 (전체) | 회전 ° | 위치 cm | "
                             "IoU (실제 로봇) | 회전 ° | 위치 cm |\n|---|---|---|---|---|---|---|---|---|---|")
                 self.report(f"<!-- {now()} stage1 시작: train 폴더 {len(s)}개 -->")
-            self.start_train(s, c, name, final)
+            self.start_train(s, c, name, final, r)
             return
         rc = self.train.poll()
-        cs, cc, cname, cfinal = self.train_cfg
+        cs, cc, cname, cfinal, cr = self.train_cfg
         if rc is None:
-            s, c, name, final = self.target()
+            s, c, name, final, r = self.target()
             switch = os.path.join(self.a.out, "SWITCH")
-            if (s, c) != (cs, cc) and not os.path.exists(switch):
+            if (s, c, r) != (cs, cc, cr) and not os.path.exists(switch):
                 open(switch, "w").write(f"{now()} -> {name}\n")
                 self.log(f"SWITCH requested: {cname} -> {name} (waits for the next 1000-step checkpoint)")
             return
         if rc == 3:                                             # switched at a checkpoint
             if os.path.exists(os.path.join(self.a.out, "SWITCH")):
                 os.remove(os.path.join(self.a.out, "SWITCH"))
-            s, c, name, final = self.target()
+            s, c, name, final, r = self.target()
             self.snapshot_and_eval(f"{cname}_end")
-            self.report(f"<!-- {now()} 전환 {cname} -> {name}: 단순 {len(s)} / 복잡 {len(c)} 폴더 -->")
+            self.report(f"<!-- {now()} 전환 {cname} -> {name}: 단순 {len(s)} / 복잡 {len(c)} / 실제 로봇 {len(r)} 폴더 -->")
             self.train = None
-            self.start_train(s, c, name, final)
+            self.start_train(s, c, name, final, r)
         elif rc == 0:
             self.log(f"training finished ({cname})")
             self.snapshot_and_eval(f"{cname}_final")
@@ -303,8 +324,7 @@ class Ctl:
             self.log(f"training crashed (exit {rc}), restart {self.crashes}/3 from the last checkpoint")
             self.train = None
             if self.crashes <= 3:
-                s, c, name, final = self.train_cfg[0], self.train_cfg[1], cname, cfinal
-                self.start_train(s, c, name, final)
+                self.start_train(cs, cc, cname, cfinal, cr)
 
     # ------------------------------------------------------------------ main loop
     def run(self):
@@ -325,18 +345,24 @@ def main():
     ap.add_argument("--gpu", type=int, default=4, help="nvidia-smi index of OUR GPU (CUDA_DEVICE_ORDER=PCI_BUS_ID)")
     ap.add_argument("--out", default=os.path.join(ROOT, "out/stage1_main"))
     ap.add_argument("--local", default=os.path.join(ROOT, "data/hf"))
-    ap.add_argument("--eval", default=os.path.join(ROOT, "data/eval"))
+    ap.add_argument("--eval", nargs="+", default=[os.path.join(ROOT, "data/eval")])
     ap.add_argument("--train-folders", type=int, default=10)
     ap.add_argument("--clutter-folders", type=int, default=5)
     ap.add_argument("--clutter-frac", type=float, default=0.5)
     ap.add_argument("--batch", type=int, default=24)
-    ap.add_argument("--workers", type=int, default=32)
+    ap.add_argument("--workers", type=int, default=48)
+    ap.add_argument("--real-folders", type=int, default=0, help="> 0: fine-tune mode, number of real-robot folders")
+    ap.add_argument("--real-prefix", default="train_real/")
+    ap.add_argument("--real-frac", type=float, default=0.35)
+    ap.add_argument("--init", default=None, help="checkpoint to start from (fine-tune mode)")
     ap.add_argument("--poll-min", type=float, default=10)
     ap.add_argument("--interim-hours", type=float, default=6)
     ap.add_argument("--final-hours", type=float, default=4)
     ap.add_argument("--default-its", type=float, default=6.0)
     a = ap.parse_args()
-    a.out, a.local, a.eval = map(os.path.abspath, (a.out, a.local, a.eval))
+    a.out, a.local = map(os.path.abspath, (a.out, a.local))
+    a.eval = [os.path.abspath(e) for e in a.eval]
+    a.init = a.init and os.path.abspath(a.init)
     Ctl(a).run()
 
 

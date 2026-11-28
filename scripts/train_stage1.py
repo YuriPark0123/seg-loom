@@ -38,9 +38,14 @@ from shadow.learn.camera import project  # noqa: E402
 from shadow.learn.geometry import inv_T, rot_angle, transform  # noqa: E402
 from shadow.learn.register import solve_pose  # noqa: E402
 
-REAL = ("so101", "ur7e", "piper", "panda")
+REAL = ("so101", "ur7e", "piper", "panda")   # the eval real robots: never trained on
+
+
+def is_real(robot):
+    return not robot.startswith("pg")              # procgen robots are pg<seed>, everything else is a real robot
 FLOW_UNIT = 8.0          # network outputs displacement / FLOW_UNIT pixels
 POSE_PRIOR = (0.05, 0.03)  # rad, m: Gaussian prior of the pose solve around the initial camera (see register.py)
+PRIOR_PX = 0.3            # prior weight: 1 sigma costs PRIOR_PX^2 x n_matches (was 2.0: far too strong, scripts/diag_pose.py)
 
 
 # ------------------------------------------------------------------------------------------------ model
@@ -133,7 +138,7 @@ def reproj_px(T, t):
 
 
 @torch.no_grad()
-def evaluate(net, dl, dev, max_batches=None, prior=POSE_PRIOR):
+def evaluate(net, dl, dev, max_batches=None, prior=POSE_PRIOR, prior_px=PRIOR_PX):
     """IoU (pixel-pooled) and per-view medians/means of the camera-pose errors after the solve. Groups: all, real,
     procgen, and <group>/<cam>."""
     was = net.training
@@ -148,9 +153,10 @@ def evaluate(net, dl, dev, max_batches=None, prior=POSE_PRIOR):
         seg = seg.float()
         Hp, Wp = x.shape[-2:]
         disp = sample_flow(flow, t["uvh"], Hp, Wp)
-        T_pred, _ = solve_pose(t["T_noisy"], t["X"], t["uvh"] + disp, t["w"], t["cams"], prior_sigma=prior)
+        T_pred, _ = solve_pose(t["T_noisy"], t["X"], t["uvh"] + disp, t["w"], t["cams"], prior_sigma=prior,
+                               prior_px=prior_px)
         vb = t["valid"].bool()
-        groups = ["real" if r in REAL else "procgen" for r in b["robot"] for _ in CAMS]
+        groups = ["real" if is_real(r) else "procgen" for r in b["robot"] for _ in CAMS]
         cams = [c for _ in b["robot"] for c in CAMS]
         ious = {"iou_amodal": iou_sum(seg[:, 0] > 0, t["am"].bool(), vb),
                 "iou_visible": iou_sum(seg[:, 1] > 0, t["vis"].bool(), vb),
@@ -219,7 +225,12 @@ def main():
     ap.add_argument("--data", nargs="+", default=["data/eval"], help="training split roots (simple scenes)")
     ap.add_argument("--clutter-data", nargs="*", default=[], help="cluttered-scene roots, mixed in at --clutter-frac")
     ap.add_argument("--clutter-frac", type=float, default=0.5, help="share of each batch drawn from --clutter-data")
-    ap.add_argument("--val-data", default=None, help="validation split (default: held-out robots of --data[0])")
+    ap.add_argument("--real-data", nargs="*", default=[], help="real-robot (URDF) roots, mixed in at --real-frac")
+    ap.add_argument("--real-frac", type=float, default=0.35, help="share of each batch drawn from --real-data "
+                    "(the rest is split simple:clutter by --clutter-frac)")
+    ap.add_argument("--init", default=None, help="start from this checkpoint's weights (fresh optimizer / schedule; "
+                    "ignored when --resume finds <out>/last.pt)")
+    ap.add_argument("--val-data", nargs="+", default=None, help="validation split (default: held-out robots of --data[0])")
     ap.add_argument("--out", default="out/stage1_smoke")
     ap.add_argument("--steps", type=int, default=3000, help="planned total steps (re-planned on --resume)")
     ap.add_argument("--warmup", type=int, default=1000)
@@ -252,9 +263,12 @@ def main():
         torch.cuda.set_per_process_memory_fraction(a.mem_frac)
     log = open(os.path.join(a.out, "log.jsonl"), "a")
 
-    train_robots = sorted(robots_of(a.data + a.clutter_data) - set(REAL))
+    leak = robots_of(a.data + a.clutter_data + a.real_data) & set(REAL)
+    if leak:
+        print(f"WARNING: eval real robots {sorted(leak)} in the training roots: left out", flush=True)
+    train_robots = sorted(robots_of(a.data + a.clutter_data + a.real_data) - set(REAL))
     if a.val_data:
-        val_robots, val_root = sorted(robots_of([a.val_data])), a.val_data
+        val_robots, val_root = sorted(robots_of(a.val_data)), a.val_data
         assert not set(val_robots) & set(train_robots), "validation robots overlap the training robots"
     else:
         rng = np.random.default_rng(a.seed)
@@ -269,9 +283,13 @@ def main():
     if a.clutter_data:
         srcs.append(SegLoomFrames(a.clutter_data, robots=train_robots, scale=a.scale, seed=a.seed + 1, hypothesis=hyp_tr))
         weights = [1 - a.clutter_frac, a.clutter_frac]
+    if a.real_data:
+        srcs.append(SegLoomFrames(a.real_data, robots=train_robots, scale=a.scale, seed=a.seed + 2, hypothesis=hyp_tr))
+        weights = [w * (1 - a.real_frac) for w in weights] + [a.real_frac]
     ds_tr = ConcatDataset(srcs)
     ds_va = SegLoomFrames(val_root, robots=val_robots, scale=a.scale, hypothesis=hyp, seed=1234, deterministic=True)
     data = dict(simple=a.data, clutter=a.clutter_data, clutter_frac=a.clutter_frac if a.clutter_data else 0.0,
+                real=a.real_data, real_frac=a.real_frac if a.real_data else 0.0, weights=weights,
                 frames=[len(d) for d in srcs], episodes=[len(d.episodes) for d in srcs], robots=len(train_robots))
     print(f"train: {data} | val: {len(val_robots)} robots, {len(ds_va)} frames", flush=True)
 
@@ -290,6 +308,10 @@ def main():
                          total=a.steps)
         print(f"resumed from step {step} ({s.get('time')}), lr {lr_at(step, sched):.2e}, plan total {sched['total']}",
               flush=True)
+    elif a.init:
+        s = torch.load(a.init, map_location=dev, weights_only=False)
+        net.load_state_dict(s["net"])
+        print(f"initialised from {a.init} (step {s['step']}), fresh optimizer and schedule", flush=True)
     log.write(json.dumps(dict(event="start", step=step, time=time.strftime("%Y-%m-%d %H:%M:%S"), data=data,
                               sched=sched, args=vars(a))) + "\n"); log.flush()
 

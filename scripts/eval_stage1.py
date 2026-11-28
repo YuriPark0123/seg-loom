@@ -22,13 +22,14 @@ from torch.utils.data import DataLoader, Subset
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.dirname(__file__))
 from shadow.learn.data import SegLoomFrames, collate  # noqa: E402
-from train_stage1 import Stage1Net, evaluate  # noqa: E402
+from train_stage1 import PRIOR_PX, Stage1Net, evaluate  # noqa: E402
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("ckpt")
-    ap.add_argument("--data", default="data/eval")
+    ap.add_argument("--data", nargs="+", default=["data/eval"])
+    ap.add_argument("--prior-px", type=float, default=None, help="pose-prior weight (default: train_stage1.PRIOR_PX)")
     ap.add_argument("--stride", type=int, default=20)
     ap.add_argument("--batch", type=int, default=24)
     ap.add_argument("--workers", type=int, default=8)
@@ -44,9 +45,10 @@ def main():
     ds = SegLoomFrames(a.data, scale=ta["scale"], hypothesis=hyp, seed=20261126, deterministic=True)
     sub = Subset(ds, list(range(0, len(ds), a.stride)))
     dl = DataLoader(sub, a.batch, shuffle=False, num_workers=a.workers, collate_fn=collate)
-    res = evaluate(net, dl, a.device)
+    ppx = PRIOR_PX if a.prior_px is None else a.prior_px
+    res = evaluate(net, dl, a.device, prior_px=ppx)
     rec = dict(ckpt=os.path.abspath(a.ckpt), step=s["step"], ckpt_time=s.get("time"), data=s.get("data"),
-               eval_data=a.data, frames=len(sub), eval_time=time.strftime("%Y-%m-%d %H:%M:%S"),
+               eval_data=a.data, prior_px=ppx, frames=len(sub), eval_time=time.strftime("%Y-%m-%d %H:%M:%S"),
                minutes=(time.time() - t0) / 60, metrics=res)
     if a.out:
         json.dump(rec, open(a.out, "w"), indent=1)

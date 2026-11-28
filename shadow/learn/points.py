@@ -156,19 +156,27 @@ def splat_labels(p_cam: torch.Tensor, labels: torch.Tensor, cams: dict, H: int, 
     key = (zq << 8) | labels.long()
     big = torch.iinfo(torch.long).max
     buf = torch.full((B * H * W,), big, dtype=torch.long, device=dev)
+    # work on the usable points only (back faces / behind / outside the image dropped once, not per offset)
     u0, v0 = uv[..., 0].round().long(), uv[..., 1].round().long()
     bidx = torch.arange(B, device=dev)[:, None].expand(B, N)
-    R = int(min(r_max, max(0, int(torch.ceil(rad[valid].max()).item()) if valid.any() else 0)))
+    valid = valid & (u0 >= -r_max) & (u0 < W + r_max) & (v0 >= -r_max) & (v0 < H + r_max)
+    uvx, uvy, rad, key, u0, v0, bidx = (x[valid] for x in (uv[..., 0], uv[..., 1], rad, key, u0, v0, bidx))
+    R = int(min(r_max, max(0, int(torch.ceil(rad.max()).item()) if rad.numel() else 0)))
+    r2 = rad * rad
     for dy in range(-R, R + 1):
         for dx in range(-R, R + 1):
-            u, v = u0 + dx, v0 + dy
-            d2 = (uv[..., 0] - u) ** 2 + (uv[..., 1] - v) ** 2
-            ok = valid & (d2 <= rad * rad)
-            ok = ok & (u >= 0) & (u < W) & (v >= 0) & (v < H)
+            # a pixel center at offset (dx, dy) from the rounded point is at least this far from the point itself
+            dmin2 = max(0.0, abs(dx) - 0.5) ** 2 + max(0.0, abs(dy) - 0.5) ** 2
+            sel = r2 >= dmin2
+            if not sel.any():
+                continue
+            ux, uy, rr, kk, bb = uvx[sel], uvy[sel], r2[sel], key[sel], bidx[sel]
+            u, v = u0[sel] + dx, v0[sel] + dy
+            ok = ((ux - u) ** 2 + (uy - v) ** 2 <= rr) & (u >= 0) & (u < W) & (v >= 0) & (v < H)
             if not ok.any():
                 continue
-            flat = (bidx[ok] * H + v[ok]) * W + u[ok]
-            buf.scatter_reduce_(0, flat, key[ok], reduce="amin")
+            flat = (bb[ok] * H + v[ok]) * W + u[ok]
+            buf.scatter_reduce_(0, flat, kk[ok], reduce="amin")
     buf = buf.view(B, H, W)
     hit = buf != big
     lab = torch.where(hit, buf & 255, torch.zeros_like(buf)).to(torch.uint8)
