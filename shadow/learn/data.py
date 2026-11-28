@@ -10,7 +10,7 @@ One item = one time step t of one episode, all three cameras:
   cam_K    (C, 4)  cam_dist (C, 5)  cam_kind (C,)  cam_size (C, 2)   for shadow.learn.camera.project
   T_base_cam (C, 4, 4)            camera pose in the robot base frame (ground truth)
   skel2d   (C, K, 3)  skel3d (K, 3)
-  q_enc, q_true (J,) padded to max_joints, q_mask (J,)    (order: joint_names)
+  q_enc, q_true (J,) padded to max_joints, q_mask (J,)    (order: joint_names = q_names(meta))
   robot (str), robot_bodies, joint_names (lists), episode (str), t (int), split root (str)
 
 Images can be downscaled with `scale` (intrinsics follow CameraModel.scaled). Robot-level data (URDF kinematics,
@@ -59,6 +59,18 @@ class _LRU(OrderedDict):
         if len(self) > self.n:
             self.popitem(last=False)
         return v
+
+
+def q_names(meta, nq):
+    """Names of the q_enc / q_true columns. Older data: meta joint_names (all robot joints, = the q columns). Real
+    robots with passive gripper linkages (xarm, interbotix, ...): joint_names lists every model joint but q holds
+    only arm_joints + gripper_joints; the followers are URDF mimic joints that FK fills from their master."""
+    jn = meta["joint_names"]
+    if len(jn) == nq:
+        return jn
+    qn = list(meta["arm_joints"]) + list(meta["gripper_joints"])
+    assert len(qn) == nq, f"{meta['robot']}: q has {nq} columns, joint_names {len(jn)}, arm+gripper {len(qn)}"
+    return qn
 
 
 class SegLoomFrames(Dataset):
@@ -164,7 +176,7 @@ class SegLoomFrames(Dataset):
                    T_base_cam=torch.from_numpy(np.stack(Tbc)).float(), skel2d=torch.from_numpy(np.stack(s2d)).float(),
                    skel3d=torch.from_numpy(A["skel3d"][t]).float(), q_enc=qe, q_true=qt, q_mask=qm,
                    n_bodies=len(meta["robot_bodies"]), robot_bodies=meta["robot_bodies"],
-                   joint_names=meta["joint_names"], robot=meta["robot"], episode=self.episodes[i][1],
+                   joint_names=q_names(meta, nq), robot=meta["robot"], episode=self.episodes[i][1],
                    root=self.episodes[i][0], t=t)
         if self.hyp is not None:
             if self.det:
@@ -186,7 +198,7 @@ class SegLoomFrames(Dataset):
         C = len(CAMS)
         src = "true" if h.get("use_true") else "approx"        # use_true: oracle URDF + q_true (debug / upper bound)
         q = torch.from_numpy(A["q_true" if src == "true" else "q_enc"][t]).float()[None]
-        Tl = R[f"kin_{src}"].fk(q, meta["joint_names"])[:, R[f"body_idx_{src}"]]
+        Tl = R[f"kin_{src}"].fk(q, q_names(meta, q.shape[1]))[:, R[f"body_idx_{src}"]]
         pw, nw = world_points(Tl, R[f"pts_{src}"], R[f"link_{src}"], R[f"nrm_{src}"])
         # per-view noise magnitude ~ U(lo, hi) x sigma, so the refiner also sees small residuals (later iterations)
         mag = self._rng.uniform(*h.get("mag_range", (1.0, 1.0)), (C, 1))
