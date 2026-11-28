@@ -78,7 +78,7 @@ class Ctl:
         # locally under --real-prefix (train_real2/i000). self.remote_files holds paths relative to --local.
         srcs = [(self.a.repo, "", r"^(train[a-z_0-9]*/[ri]\d{3,4})/")]
         if self.a.real_repo:
-            srcs.append((self.a.real_repo, self.a.real_prefix, r"^([ri]\d{3,4})/"))
+            srcs.append((self.a.real_repo, self.a.real2_prefix, r"^([ri]\d{3,4})/"))
         cnt, files = {}, {}
         for repo, pre, pat in srcs:
             try:
@@ -93,11 +93,41 @@ class Ctl:
                     files.setdefault(k, []).append(pre + f)
                     self.src[k] = (repo, m.group(1))
         done = {k for k in cnt if f"{k}/manifest.jsonl" in files[k]}
+        if self.a.min_camera_model > 1:                       # only re-made data (config.json camera_model >= N)
+            done = {k for k in done if self.camera_model_ok(k)}
         new = sorted(done - set(self.remote))
         self.remote = {k: cnt[k] for k in done}
         self.remote_files = {k: files[k] for k in done}
         if new:
             self.log(f"HF complete folders: {sorted(done)} (new: {new})")
+
+    def camera_model_ok(self, folder):
+        """Remote config.json of `folder` says camera_model >= --min-camera-model (no field: shadow.learn.data rule,
+        i.e. generated after the 2026-11-28 15:41 camera change). Old folders still on HF are skipped (not bad) and
+        re-checked at every poll, so they are picked up once replaced."""
+        if folder in self.st.get("v2_ok", []):
+            return True
+        from huggingface_hub import hf_hub_download
+        repo, rf = self.src.get(folder, (self.a.repo, folder))
+        try:
+            p = hf_hub_download(repo, f"{rf}/config.json", repo_type="dataset",
+                                cache_dir=os.path.join(self.a.out, "cfg_cache"))
+            cfg = json.load(open(p))
+        except Exception as e:
+            self.log(f"config.json of {folder}: {e}"); return False
+        if "camera_model" in cfg:
+            ok = int(cfg["camera_model"]) >= self.a.min_camera_model
+        else:
+            sys.path.insert(0, ROOT)
+            from shadow.learn.data import CAMERA_V2_SINCE
+            try:
+                ok = time.strptime(cfg["started"], "%a %b %d %H:%M:%S %Y") >= CAMERA_V2_SINCE
+            except (KeyError, ValueError):
+                ok = False
+        if ok:
+            self.st.setdefault("v2_ok", []).append(folder); self.save()
+            self.log(f"{folder}: camera_model ok ({cfg.get('camera_model', 'by started ' + str(cfg.get('started')))})")
+        return ok
 
     def local(self, folder):
         return os.path.join(self.a.local, folder)
@@ -197,7 +227,7 @@ class Ctl:
         foreign = [l for l in apps.splitlines() if l.startswith(uuid) and int(l.split(",")[1]) not in mine]
         queue = subprocess.run(["pgrep", "-u", os.environ.get("USER", "guest1"), "-f", "scripts/b200/queue[.]sh"],
                                capture_output=True, text=True).stdout.strip()
-        return not foreign and not queue
+        return (not foreign or self.a.share_gpu) and not queue
 
     def it_per_s(self):
         try:
@@ -282,10 +312,14 @@ class Ctl:
         all_simple = len(simple) >= self.a.train_folders
         cur = self.train_cfg
         if self.a.real_folders > 0:                             # fine-tune: full base data + growing real data
-            real = sorted(f for f in v if f.startswith(self.a.real_prefix))
-            if not (all_simple and len(clutter) >= self.a.clutter_folders and real):
+            # real robots: train_real (main repo) + train_real2 (--real-repo), one source (--real-frac)
+            real = sorted(f for f in v if f.startswith((self.a.real_prefix, self.a.real2_prefix)))
+            ms = self.a.train_folders if self.a.ft_min_simple is None else self.a.ft_min_simple
+            mc = self.a.clutter_folders if self.a.ft_min_clutter is None else self.a.ft_min_clutter
+            if not (len(simple) >= ms and len(clutter) >= mc and real):
                 return (None, [], "wait", False, []) if cur is None else cur
-            return simple, clutter, f"real.{len(real)}", len(real) >= self.a.real_folders, real
+            final = all_simple and len(clutter) >= self.a.clutter_folders and len(real) >= self.a.real_folders
+            return simple, clutter, f"ft.s{len(simple)}c{len(clutter)}r{len(real)}", final, real
         if cur is None:                                         # first start: whatever simple data is there
             return simple, [], "stage1", False, []
         cs, cc, cname, _, _ = cur
@@ -370,6 +404,13 @@ def main():
                     help="extra HF dataset repo whose root iNNN folders are real-robot folders (yrpark/seg-loom-real2); "
                          "stored locally under --real-prefix, e.g. --real-prefix train_real2/")
     ap.add_argument("--real-prefix", default="train_real/")
+    ap.add_argument("--real2-prefix", default="train_real2/", help="local prefix of the --real-repo folders")
+    ap.add_argument("--min-camera-model", type=int, default=1,
+                    help="2: use only folders re-made with the new camera models (config.json camera_model)")
+    ap.add_argument("--ft-min-simple", type=int, default=None, help="fine-tune: start with this many simple folders "
+                    "(default: all --train-folders); more are added as they arrive (stage switch)")
+    ap.add_argument("--ft-min-clutter", type=int, default=None, help="fine-tune: same for clutter (default: all)")
+    ap.add_argument("--share-gpu", action="store_true", help="start even if other processes use the GPU")
     ap.add_argument("--real-frac", type=float, default=0.35)
     ap.add_argument("--init", default=None, help="checkpoint to start from (fine-tune mode)")
     ap.add_argument("--train-args", default="", help="extra train_stage1.py arguments, e.g. '--flow-target surface --lens-noise 1'")
