@@ -79,7 +79,7 @@ class Ctl:
             self.log(f"poll failed: {e}"); return
         cnt = {}
         for f in fs:
-            m = re.match(r"^(train[a-z_]*/r\d{4})/", f)
+            m = re.match(r"^(train[a-z_]*/[ri]\d{3,4})/", f)
             if m:
                 cnt[m.group(1)] = cnt.get(m.group(1), 0) + 1
         done = {k for k in cnt if f"{k}/manifest.jsonl" in fs}
