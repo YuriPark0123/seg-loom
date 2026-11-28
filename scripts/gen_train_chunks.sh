@@ -6,6 +6,7 @@
 #   real robots instead of procedural ones: ROBOTS="xarm6 wx250s ..." K=10 (instances per chunk) RECOLOR=0.5
 #     chunk c = instances [c*K, (c+1)*K) of every robot, folder <SPLIT>/iNNN (NNN = first instance)
 #   MODES="motion:10 task:10"   LENFRAC=0.10 (approx-URDF link-length error, see gen_dataset.py --len-frac)
+#   REPO=yrpark/seg-loom (HF dataset repo; created public if missing)
 #   FIX="robot_a robot_b": re-make only these robots in already uploaded chunks (download, drop, regenerate, re-upload)
 # Uploaded per chunk:  manifest.jsonl, config.json, errors.log, robots.tar (robots/ + procgen/),
 #                      episodes_000.tar ... (500 episode folders each, uncompressed; members are <ep>/{meta.json,arrays.npz,frames.npz})
@@ -14,7 +15,7 @@ set -u
 act() { set +u; conda activate "$1"; set -u; }
 cd "$(dirname "$0")/.."
 C0=${1:-0}; C1=${2:-9}; W=${3:-20}; N=200; SPLIT=${SPLIT:-train}; CLUTTER=${CLUTTER:-0.0}; SHARD=500
-ROBOTS=${ROBOTS:-}; K=${K:-10}; RECOLOR=${RECOLOR:-0.0}; MODES=${MODES:-motion:10 task:10}; LENFRAC=${LENFRAC:-0.10}
+ROBOTS=${ROBOTS:-}; K=${K:-10}; RECOLOR=${RECOLOR:-0.0}; MODES=${MODES:-motion:10 task:10}; LENFRAC=${LENFRAC:-0.10}; export REPO=${REPO:-yrpark/seg-loom}
 source "$(conda info --base)/etc/profile.d/conda.sh"
 for c in $(seq $C0 $C1); do
   if [ -n "$ROBOTS" ]; then
@@ -31,9 +32,9 @@ for c in $(seq $C0 $C1); do
     # (same args => same seeds; finished episodes of the other robots are skipped), then repack + upload as usual
     rm -rf $out data/_dl; act OpenViTac
     python - "$SPLIT/$tag" <<'PY' || { echo "download failed chunk $c"; exit 1; }
-import sys
+import os, sys
 from huggingface_hub import snapshot_download
-snapshot_download("yrpark/seg-loom", repo_type="dataset", allow_patterns=[sys.argv[1] + "/*"], local_dir="data/_dl")
+snapshot_download(os.environ["REPO"], repo_type="dataset", allow_patterns=[sys.argv[1] + "/*"], local_dir="data/_dl")
 PY
     mkdir -p "$(dirname $out)"; mv data/_dl/$SPLIT/$tag $out; rm -rf data/_dl
     for t in $out/*.tar; do { tar xf $t -C $out && rm $t; } || { echo "unpack failed chunk $c"; exit 1; }; done
@@ -71,7 +72,8 @@ PY
 import os, sys
 from huggingface_hub import HfApi
 up, tag, split, clutter, rev = sys.argv[1:6]
-api = HfApi(); repo = "yrpark/seg-loom"; pre = f"{split}/{tag}"
+api = HfApi(); repo = os.environ["REPO"]; pre = f"{split}/{tag}"
+api.create_repo(repo, repo_type="dataset", exist_ok=True)
 local = {f: os.path.getsize(os.path.join(up, f)) for f in os.listdir(up)}
 api.upload_folder(repo_id=repo, repo_type="dataset", folder_path=up, path_in_repo=pre,
                   commit_message=f"{pre}: {os.environ.get('DESC', 'procgen seeds ' + tag[1:] + '+200')}, clutter {clutter}, tar shards (code {rev})")
