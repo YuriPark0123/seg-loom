@@ -244,5 +244,7 @@ task 실패는 모두 "도달 가능한 블럭 배치가 없는" 경우다. 실�
 
 근사 URDF의 링크 길이 오차를 비율(`--len-frac`)로 뽑은 뒤 **관절 원점마다 절대값 1cm를 넘지 않도록 자른다**(`--len-max-m 0.01`, `gen_train_chunks.sh`의 기본값 `LENMAX=0.01`). 난수 뽑기 횟수는 같으므로 같은 시드에서 다른 무작위 값(영점, 형상, 색 등)은 그대로이고 길이 오차 크기만 바뀐다. `perturb.json`에 `len_max_m`이 기록된다.
 
-- 적용: `eval_real2`, `train_real2` (이번 재생성부터).
-- 미적용(상한 없음, `len_frac` 0.10 = 최대 10%): `train`, `train_clutter`, `eval`, `ref`, `eval_real`, `train_real`. 링크 0.3m면 최대 3cm까지 틀릴 수 있다.
+- 모든 세트를 같은 시드로 다시 만들어 HF에서 교체한다(2026-11-28 15:24 시작). 순서: `eval_real2` → `eval` → `ref` → `eval_real` → `train_real` → `train` → `train_clutter` → `train_real2`(별도 저장소 `yrpark/seg-loom-real2`).
+- 에피소드 이름과 구성은 같고, 근사 URDF의 링크 길이 오차만 달라진다(`eval_real2`, `train_real2`, `train_real`은 그리퍼 연동 관절 수정도 함께 들어간다).
+- `train/r0000`~`r0600`은 낱개 파일에서 tar 묶음 형식으로 바뀐다(`REPLACE=1`이 예전 파일을 지운다). `eval`, `ref`는 예전처럼 낱개 파일이다(`scripts/regen_loose.sh`).
+- 교체 전 기존 세트의 링크 길이 오차 분포: 관절 원점 길이는 실제 로봇 중간값 11.9cm(최대 101.6cm, 10cm 이상 59%), 절차적 로봇 중간값 6.1cm(최대 50.7cm, 10cm 이상 27%). 10% 설정에서 1cm를 넘던 원점은 실제 로봇 18%(최대 10.2cm), 절차적 로봇 12%(최대 5.1cm).
