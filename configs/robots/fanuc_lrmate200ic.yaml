@@ -15,26 +15,26 @@ tcp_offset:
 - 0
 - 0
 rest_q:
-- -0.1086
-- 0.8407
-- -0.7485
-- 0.857
-- 2.0944
-- -0.6052
-reach: 0.817
+- -0.0001
+- 0.4912
+- -0.702
+- -0.0017
+- -0.3762
+- 1.5723
+reach: 0.809
 rot_weight: 0.5
 asset_dir: assets/robots_train/fanuc_lrmate200ic/mj
 wrist_cam:
   side_axis:
-  - -1
   - 0
+  - 1
   - 0
   pos:
-  - -0.1307
   - 0.0
-  - -0.0654
+  - 0.1294
+  - -0.0647
   look_at:
   - 0
   - 0
-  - 0.2859
+  - 0.2832
   fovy: 75

@@ -39,13 +39,13 @@
    "joint_6"
   ],
   "gripper": null,
-  "reach": 2.283,
-  "rest_err_mm": 0.33824895086335405,
-  "rest_rot_err_deg": 41.512602672286754,
+  "reach": 2.262,
+  "rest_err_mm": 0.1443559194245339,
+  "rest_rot_err_deg": 0.05261255978697382,
   "reason": "",
   "workspace": 1.0,
   "reach_scale": 1.0,
-  "wrist_robot_frac": 0.093125
+  "wrist_robot_frac": 0.022135416666666668
  },
  "fanuc_lrmate200ic": {
   "ok": true,
@@ -63,13 +63,13 @@
    "joint_6"
   ],
   "gripper": null,
-  "reach": 0.817,
-  "rest_err_mm": 3.2105188764886736,
-  "rest_rot_err_deg": 61.75362317833408,
+  "reach": 0.809,
+  "rest_err_mm": 0.19807005841234882,
+  "rest_rot_err_deg": 0.08609029425726868,
   "reason": "",
   "workspace": 1.0,
   "reach_scale": 1.0,
-  "wrist_robot_frac": 0.20145833333333332
+  "wrist_robot_frac": 0.01390625
  },
  "fanuc_m10ia": {
   "ok": true,
@@ -87,13 +87,13 @@
    "joint_6"
   ],
   "gripper": null,
-  "reach": 1.617,
-  "rest_err_mm": 0.7704253299607996,
-  "rest_rot_err_deg": 0.1861743123901751,
+  "reach": 1.605,
+  "rest_err_mm": 0.26669517297500284,
+  "rest_rot_err_deg": 0.09365256110212714,
   "reason": "",
   "workspace": 1.0,
   "reach_scale": 1.0,
-  "wrist_robot_frac": 0.09208333333333334
+  "wrist_robot_frac": 0.01421875
  },
  "fanuc_cr7ia": {
   "ok": true,
@@ -111,13 +111,13 @@
    "joint_6"
   ],
   "gripper": null,
-  "reach": 0.8,
-  "rest_err_mm": 3.813405450196079,
-  "rest_rot_err_deg": 63.37309469407298,
+  "reach": 0.789,
+  "rest_err_mm": 0.5140845104528237,
+  "rest_rot_err_deg": 0.3710055794486403,
   "reason": "",
-  "workspace": 0.9166666666666666,
+  "workspace": 1.0,
   "reach_scale": 1.0,
-  "wrist_robot_frac": 0.12916666666666668
+  "wrist_robot_frac": 0.04010416666666667
  },
  "fanuc_crx10ial": {
   "ok": true,
@@ -135,13 +135,13 @@
    "joint_6"
   ],
   "gripper": null,
-  "reach": 1.415,
-  "rest_err_mm": 0.8058010735155839,
-  "rest_rot_err_deg": 0.0784114236703252,
+  "reach": 1.359,
+  "rest_err_mm": 0.2595974771324732,
+  "rest_rot_err_deg": 0.06556351180026362,
   "reason": "",
-  "workspace": 0.9166666666666666,
+  "workspace": 1.0,
   "reach_scale": 1.0,
-  "wrist_robot_frac": 0.12234375
+  "wrist_robot_frac": 0.03260416666666666
  },
  "kinova_gen2": {
   "ok": true,
@@ -468,13 +468,13 @@
    "joint5"
   ],
   "gripper": null,
-  "reach": 0.549,
-  "rest_err_mm": 1.304987796436758,
-  "rest_rot_err_deg": 43.014865002783836,
+  "reach": 0.726,
+  "rest_err_mm": 0.39269913115810856,
+  "rest_rot_err_deg": 0.6797460803893948,
   "reason": "",
-  "workspace": 0.75,
-  "reach_scale": 0.73,
-  "wrist_robot_frac": 0.16739583333333333
+  "workspace": 1.0,
+  "reach_scale": 1.0,
+  "wrist_robot_frac": 0.0134375
  },
  "lite6": {
   "ok": true,
@@ -676,13 +676,13 @@
    "right_j6"
   ],
   "gripper": null,
-  "reach": 1.127,
-  "rest_err_mm": 0.4516871215839058,
-  "rest_rot_err_deg": 0.08328466969148529,
+  "reach": 1.09,
+  "rest_err_mm": 0.2617635327160205,
+  "rest_rot_err_deg": 0.05979148274202649,
   "reason": "",
   "workspace": 0.9166666666666666,
   "reach_scale": 0.85,
-  "wrist_robot_frac": 0.10625
+  "wrist_robot_frac": 0.013072916666666667
  },
  "px150": {
   "ok": true,

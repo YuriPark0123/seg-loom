@@ -15,24 +15,24 @@ tcp_offset:
 - 0
 rest_q:
 - 0.0
-- 0.5975
-- -0.8855
-- 2.6789
-- -0.0
-reach: 0.549
+- -0.0803
+- -0.5104
+- 0.5788
+- 0.0
+reach: 0.726
 rot_weight: 0.1
 asset_dir: assets/robots_train/xarm5/mj
 wrist_cam:
   side_axis:
-  - 1
   - 0
+  - -1
   - 0
   pos:
-  - 0.0878
   - 0.0
-  - -0.0439
+  - -0.1162
+  - -0.0581
   look_at:
   - 0
   - 0
-  - 0.1922
+  - 0.2541
   fovy: 75

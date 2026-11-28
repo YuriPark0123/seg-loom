@@ -186,4 +186,4 @@
     <child link="link_eef" />
   </joint>
   
-<link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="link5" /><child link="tcp_frame" /><origin xyz="-0 4.53114e-23 -0.028" rpy="3.14159 0 0" /></joint></robot>
+<link name="tcp_frame" /><joint name="tcp_frame_joint" type="fixed"><parent link="link5" /><child link="tcp_frame" /><origin xyz="0 -1.29855e-30 8.02431e-10" rpy="1.61826e-21 0 0" /></joint></robot>

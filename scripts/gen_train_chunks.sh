@@ -5,7 +5,8 @@
 #   env SPLIT=train (HF folder / local data/<SPLIT>), CLUTTER=0.0 (probability of a cluttered scene)
 #   real robots instead of procedural ones: ROBOTS="xarm6 wx250s ..." K=10 (instances per chunk) RECOLOR=0.5
 #     chunk c = instances [c*K, (c+1)*K) of every robot, folder <SPLIT>/iNNN (NNN = first instance)
-#   MODES="motion:10 task:10" 
+#   MODES="motion:10 task:10"
+#   FIX="robot_a robot_b": re-make only these robots in already uploaded chunks (download, drop, regenerate, re-upload)
 # Uploaded per chunk:  manifest.jsonl, config.json, errors.log, robots.tar (robots/ + procgen/),
 #                      episodes_000.tar ... (500 episode folders each, uncompressed; members are <ep>/{meta.json,arrays.npz,frames.npz})
 # Unpack on the reader side:  for f in rNNNN/*.tar; do tar xf $f -C rNNNN; done   (episodes land in rNNNN/episodes/)
@@ -25,6 +26,26 @@ for c in $(seq $C0 $C1); do
   fi
   out=data/$SPLIT/$tag; up=data/${SPLIT}_upload/$tag
   echo "=== chunk $c ($tag) start $(date)"
+  if [ -n "${FIX:-}" ]; then
+    # replace some robots in an uploaded chunk: download it, drop their episodes, regenerate only those
+    # (same args => same seeds; finished episodes of the other robots are skipped), then repack + upload as usual
+    rm -rf $out data/_dl; act OpenViTac
+    python - "$SPLIT/$tag" <<'PY' || { echo "download failed chunk $c"; exit 1; }
+import sys
+from huggingface_hub import snapshot_download
+snapshot_download("yrpark/seg-loom", repo_type="dataset", allow_patterns=[sys.argv[1] + "/*"], local_dir="data/_dl")
+PY
+    mkdir -p "$(dirname $out)"; mv data/_dl/$SPLIT/$tag $out; rm -rf data/_dl
+    for t in $out/*.tar; do { tar xf $t -C $out && rm $t; } || { echo "unpack failed chunk $c"; exit 1; }; done
+    for r in $FIX; do rm -rf $out/episodes/${r}_i[0-9][0-9][0-9]_* $out/robots/${r}_i[0-9][0-9][0-9]; done
+    python - $out "$FIX" <<'PY'
+import json, sys
+out, fix = sys.argv[1], sys.argv[2].split()
+p = out + "/manifest.jsonl"; L = open(p).read().splitlines()
+keep = [l for l in L if json.loads(l)["robot"].rsplit("_i", 1)[0] not in fix]
+open(p, "w").write("".join(l + "\n" for l in keep)); print(f"fix: kept {len(keep)}/{len(L)} manifest lines")
+PY
+  fi
   act shadow
   MUJOCO_GL=egl timeout -k 60 6h python scripts/gen_dataset.py --out $out $GEN \
       --modes $MODES --workers $W --gpus 0 --clutter $CLUTTER || { echo "gen failed chunk $c"; exit 1; }
@@ -41,6 +62,8 @@ for c in $(seq $C0 $C1); do
   n_ep=$(wc -l < $up/.eplist); n_tar=$(for t in $up/episodes_*.tar; do tar tf $t; done | grep -c "/frames.npz$")
   rm -f $up/.eplist $up/.part_*
   [ "$n_ep" -eq "$n_tar" ] || { echo "pack failed chunk $c: $n_ep episodes, $n_tar in tars"; exit 1; }
+  n_man=$(wc -l < $up/manifest.jsonl)
+  [ "$n_ep" -eq "$n_man" ] || { echo "pack failed chunk $c: $n_ep episodes, $n_man manifest lines"; exit 1; }
   echo "packed $n_ep episodes into $(ls $up/episodes_*.tar | wc -l) shards"
   # ---- upload + verify (names and sizes)
   act OpenViTac

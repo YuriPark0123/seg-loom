@@ -15,26 +15,26 @@ tcp_offset:
 - 0
 - 0
 rest_q:
-- 0.2137
-- 0.6682
-- -0.4176
-- 0.0007
-- 2.6554
-- -1.3558
-reach: 1.415
+- 0.2231
+- 0.3536
+- -0.3361
+- 0.001
+- -0.8806
+- 1.3464
+reach: 1.359
 rot_weight: 0.5
 asset_dir: assets/robots_train/fanuc_crx10ial/mj
 wrist_cam:
   side_axis:
-  - -1
   - 0
+  - 1
   - 0
   pos:
-  - -0.2264
   - 0.0
-  - -0.1132
+  - 0.4756
+  - -0.1087
   look_at:
   - 0
   - 0
-  - 0.4952
+  - 0.4756
   fovy: 75

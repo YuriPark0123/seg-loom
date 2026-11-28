@@ -256,7 +256,15 @@ def derive(name, urdf_text, pk, rng, src_dir, repo_dir):
     cen = P.mean(0)
     dirn = cen / (np.linalg.norm(cen) + 1e-9)
     a = ax * np.sign(ax @ cen if abs(ax @ cen) > 1e-4 else 1.0)
-    if np.linalg.norm(cen) > 0.02 and abs(dirn @ (ax / np.linalg.norm(ax))) < 0.7:
+    # bare flange (no fingers): the only geometry past the flange is the wrist housing, which mostly lies
+    # BEHIND it (Fanuc), so the centroid sign points into the arm. Use the forearm direction instead
+    # (previous joint anchor -> flange) when the last axis is roughly along it.
+    fwd = Rf.T @ (pf - da.xanchor[m.joint(arm[-2]).id])
+    axn = ax / np.linalg.norm(ax)
+    bare = not fpts and abs(axn @ fwd) > 0.5 * np.linalg.norm(fwd)
+    if bare:
+        a = axn * np.sign(axn @ fwd)
+    elif np.linalg.norm(cen) > 0.02 and abs(dirn @ (ax / np.linalg.norm(ax))) < 0.7:
         a = dirn                                                  # offset tool: point at the tool instead
     a = a / np.linalg.norm(a)
     F = np.concatenate(fpts) if fpts else P
